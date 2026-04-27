@@ -2,15 +2,38 @@ const mongoose = require('mongoose');
 
 const NotificationSchema = new mongoose.Schema({
   recipient: { type: String, required: true },
-  type: { 
-    type: String, 
+
+  type: {
+    type: String,
     enum: ['meeting', 'payment', 'announcement'],
-    required: true 
+    required: true
   },
+
   title: { type: String, required: true },
+
   message: { type: String, required: true },
+
   isRead: { type: Boolean, default: false },
-  groupId: { type: String }
+
+  groupId: { type: String },
+
+  meetingId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Meeting'
+  },
+
+  details: {
+    groupName: String,
+    meetingTitle: String,
+    meetingDate: String,
+    startTime: String,
+    endTime: String,
+    locationType: String,
+    platform: String,
+    meetingLink: String,
+    physicalLocation: String,
+    purpose: String
+  }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Notification', NotificationSchema);

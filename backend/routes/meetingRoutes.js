@@ -2,10 +2,11 @@ const express = require('express');
 const router = express.Router();
 
 // --- Models ---
-const Agenda = require('../models/Agenda'); 
+const Agenda = require('../models/Agenda');
 const Meeting = require('../models/Meeting');
 const Notification = require('../models/Notification');
 const Member = require('../models/Member');
+const Group = require('../models/Group');
 
 // --- Email Setup ---
 const nodemailer = require('nodemailer');
@@ -17,7 +18,6 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-
 // ==========================================
 // AGENDA ROUTES
 // ==========================================
@@ -25,20 +25,15 @@ const transporter = nodemailer.createTransport({
 // POST /meetings/agenda - Save a new agenda
 router.post('/agenda', async (req, res) => {
   try {
-    // 1. Take the data Gomolemo's frontend sent and pour it into the Blueprint
     const newAgenda = new Agenda(req.body);
-
-    // 2. MongoDB saves it permanently
     const savedAgenda = await newAgenda.save();
 
-    // 3. Sending a success message AND the saved data back to the frontend UI
-    res.status(201).json({ 
-      message: "Agenda successfully posted to MongoDB!", 
-      data: savedAgenda 
+    res.status(201).json({
+      message: 'Agenda successfully posted to MongoDB!',
+      data: savedAgenda
     });
-    
   } catch (err) {
-    console.error("MongoDB Save Error:", err);
+    console.error('MongoDB Save Error:', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -46,19 +41,14 @@ router.post('/agenda', async (req, res) => {
 // GET /meetings/agenda/:groupId - Fetch agendas for a specific group
 router.get('/agenda/:groupId', async (req, res) => {
   try {
-    // 1. Grab the VIP wristband (groupId) from the URL
     const { groupId } = req.params;
+    const groupAgendas = await Agenda.find({ groupId });
 
-    // 2. Ask MongoDB: "Find every agenda that belongs to this specific group!"
-    const groupAgendas = await Agenda.find({ groupId: groupId });
-
-    // 3. Send those agendas back to the frontend
     res.status(200).json(groupAgendas);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
-
 
 // ==========================================
 // SCHEDULING & MEETING ROUTES
@@ -67,49 +57,105 @@ router.get('/agenda/:groupId', async (req, res) => {
 // POST /meetings/schedule — save meeting and notify all group members
 router.post('/schedule', async (req, res) => {
   try {
-    // 1. Save the meeting as before
+    // 1. Save the meeting
     const newMeeting = new Meeting(req.body);
     const savedMeeting = await newMeeting.save();
 
-    // 2. Find all members of this group
-    const groupMembers = await Member.find({ group: req.body.groupId });
+    // 2. Find the group using the groupId from the meeting
+    const group = await Group.findById(req.body.groupId);
 
-    if (groupMembers && groupMembers.length > 0) {
-      for (let member of groupMembers) {
-        // 3. Save in-app notification for each member
+    if (!group) {
+      return res.status(404).json({ error: 'Group not found.' });
+    }
+
+    const groupName = group.groupName.trim();
+
+    // 3. Find all members using group name
+    const groupMembers = await Member.find({
+      group: groupName
+    });
+
+    // 4. Remove duplicate members by email
+    const uniqueMembers = [
+      ...new Map(
+        groupMembers.map(member => [member.user.toLowerCase(), member])
+      ).values()
+    ];
+
+    console.log('Meeting groupId:', req.body.groupId);
+    console.log('Resolved groupName:', groupName);
+    console.log('Members found:', groupMembers.length);
+    console.log('Unique members found:', uniqueMembers.length);
+
+    // 5. Create notifications
+    if (uniqueMembers.length > 0) {
+      for (let member of uniqueMembers) {
         await Notification.create({
-          recipient: member.user,
+          recipient: member.user.toLowerCase(),
           type: 'meeting',
-          title: `Meeting Scheduled: ${req.body.meetingTitle}`,
-          message: `A meeting has been scheduled for ${req.body.meetingDate} at ${req.body.startTime}. Location: ${req.body.locationType === 'online' ? req.body.meetingLink : req.body.physicalLocation}`,
-          groupId: req.body.groupId
+          title: `Meeting Scheduled: ${savedMeeting.meetingTitle}`,
+
+          // Message now uses the meeting description/purpose only
+          message: savedMeeting.purpose || 'A new meeting has been scheduled.',
+
+          groupId: savedMeeting.groupId,
+          meetingId: savedMeeting._id,
+
+          details: {
+            groupName,
+            meetingTitle: savedMeeting.meetingTitle,
+            meetingDate: savedMeeting.meetingDate,
+            startTime: savedMeeting.startTime,
+            endTime: savedMeeting.endTime,
+            locationType: savedMeeting.locationType,
+            platform: savedMeeting.platform,
+            meetingLink: savedMeeting.meetingLink,
+            physicalLocation: savedMeeting.physicalLocation,
+            purpose: savedMeeting.purpose
+          }
         });
 
-        // 4. Send email notification
+        // Optional email notification
         transporter.sendMail({
           from: process.env.EMAIL_USER,
           to: member.user,
-          subject: `Meeting Scheduled: ${req.body.meetingTitle}`,
+          subject: `Meeting Scheduled: ${savedMeeting.meetingTitle}`,
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; padding: 20px; border: 1px solid #eee;">
               <h2 style="color: #1A3A6B;">Meeting Notification</h2>
               <p>A new meeting has been scheduled for your stokvel group.</p>
               <hr/>
-              <p><strong>Title:</strong> ${req.body.meetingTitle}</p>
-              <p><strong>Date:</strong> ${req.body.meetingDate}</p>
-              <p><strong>Time:</strong> ${req.body.startTime} - ${req.body.endTime}</p>
-              <p><strong>Location:</strong> ${req.body.locationType === 'online' ? req.body.meetingLink : req.body.physicalLocation}</p>
-              ${req.body.purpose ? `<p><strong>Purpose:</strong> ${req.body.purpose}</p>` : ''}
+              <p><strong>Group:</strong> ${groupName}</p>
+              <p><strong>Title:</strong> ${savedMeeting.meetingTitle}</p>
+              <p><strong>Date:</strong> ${savedMeeting.meetingDate}</p>
+              <p><strong>Time:</strong> ${savedMeeting.startTime} - ${savedMeeting.endTime}</p>
+              <p><strong>Location:</strong> ${
+                savedMeeting.locationType === 'online'
+                  ? savedMeeting.meetingLink || savedMeeting.platform || 'Online'
+                  : savedMeeting.physicalLocation
+              }</p>
+              ${
+                savedMeeting.purpose
+                  ? `<p><strong>Description:</strong> ${savedMeeting.purpose}</p>`
+                  : ''
+              }
               <hr/>
               <p>Log in to StokvèlHub to view more details.</p>
             </div>
           `
         }).catch(err => console.log('Email error:', err.message));
       }
-      console.log(`✅ Notifications sent to ${groupMembers.length} members`);
+
+      console.log(`✅ Notifications sent to ${uniqueMembers.length} unique members`);
+    } else {
+      console.log('⚠️ No members found for this group. No notifications created.');
     }
 
-    res.status(201).json(savedMeeting);
+    res.status(201).json({
+      message: 'Meeting scheduled successfully.',
+      meeting: savedMeeting,
+      notificationsSent: uniqueMembers.length
+    });
   } catch (err) {
     console.error('Meeting schedule error:', err.message);
     res.status(500).json({ error: err.message });
@@ -131,6 +177,7 @@ router.get('/group/:groupId', async (req, res) => {
   try {
     const meetings = await Meeting.find({ groupId: req.params.groupId })
       .sort({ meetingDate: 1 });
+
     res.json(meetings);
   } catch (err) {
     res.status(500).json({ error: err.message });

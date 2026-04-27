@@ -77,7 +77,8 @@ const ScheduleMeeting = () => {
     };
 
     try {
-      await axios.post('https://tnbt-stokvel-management-assistant.onrender.com/api/meetings/schedule', meetingData);
+      console.log('Meeting data being sent:', meetingData);
+      await axios.post('http://localhost:5000/api/meetings/schedule', meetingData);
       alert("Meeting Scheduled Successfully!");
       navigate(-1);
     } catch (error) {

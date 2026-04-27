@@ -16,6 +16,9 @@ import ScheduleMeeting from './Dashboard/ScheduleMeeting';
 import GroupManagement from './Dashboard/GroupManagement';
 import PostAgendas from './Dashboard/PostAgendas'; // <-- Keeping this one active!
 import { RecordMinutes } from './Dashboard/RecordMinutes';
+import NotificationsPage from './components/NotificationsPage';
+
+import NotificationDetails from './components/NotificationDetails';
 
 
 function App() {
@@ -39,12 +42,14 @@ function App() {
           <Route path="/home" element={<Home />} />
           <Route path="/create-group" element={<CreateGroup />} />
           
-          {/* Navigation Target */}
+         
           <Route path="/meeting-manager/:groupId" element={<MeetingManagerDashboard />} />
           <Route path="/schedule/:groupId" element={<ScheduleMeeting />} />
           <Route path="/manage-group/:groupId" element={<GroupManagement />} />
+          <Route path="/notifications" element={<NotificationsPage />} />
+          <Route path="/notifications/:id" element={<NotificationDetails />} />
 
-          {/* === 🚨 HERE IS YOUR MISSING ROUTE 🚨 === */}
+         
           {/* The :groupId tells React to accept any database ID at the end of the URL */}
           <Route path="/post-agenda/:groupId" element={<PostAgendas />} />
 
