@@ -15,6 +15,16 @@
   margin: 0;
 }
 
+.group-date {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 5px 0 10px 0;
+}
+
+.member-count {
+  margin: 0;
+}
+
 .members-list {
   list-style: none;
   padding: 0;

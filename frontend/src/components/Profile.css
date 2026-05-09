@@ -1,7 +1,40 @@
+/* Profile.css - Complete File */
+
 .profile-container {
-  max-width: 800px;
+  max-width: 900px;
   margin: 2rem auto;
   padding: 0 1rem;
+}
+
+/* Back Button Styles */
+.profile-back-header {
+  padding: 1rem 1.5rem 0 1.5rem;
+}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: #004aad;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.back-button:hover {
+  background: #f0f4fa;
+}
+
+.loading-text {
+  text-align: center;
+  padding: 3rem;
+  color: #64748b;
+  font-size: 1rem;
 }
 
 .profile-card {
@@ -135,6 +168,10 @@ menu {
   color: #4a5568;
 }
 
+.btn-cancel:hover {
+  background: #cbd5e0;
+}
+
 .btn-save {
   background: #10b981;
   color: white;
@@ -144,6 +181,11 @@ menu {
 
 .btn-save:hover {
   background: #059669;
+}
+
+.btn-save:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 .message {
@@ -209,6 +251,118 @@ dd {
   margin: 4px 0 0 0;
 }
 
+/* User Groups Section */
+.user-groups-section {
+  margin-top: 2rem;
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.user-groups-section h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a202c;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.no-groups {
+  text-align: center;
+  padding: 2rem;
+  color: #64748b;
+  background: white;
+  border-radius: 12px;
+  margin: 0;
+}
+
+.groups-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.group-item {
+  margin: 0;
+}
+
+.group-card {
+  width: 100%;
+  text-align: left;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.group-card:hover {
+  border-color: #004aad;
+  box-shadow: 0 4px 12px rgba(0, 74, 173, 0.1);
+  transform: translateY(-2px);
+}
+
+.group-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.group-card-header h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badge-admin {
+  background: #ff4757;
+  color: white;
+}
+
+.badge-treasurer {
+  background: #ffa502;
+  color: white;
+}
+
+.badge-member {
+  background: #1e90ff;
+  color: white;
+}
+
+.group-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.group-card-footer p {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.group-card-footer small {
+  font-size: 0.7rem;
+  color: #004aad;
+  font-weight: 500;
+}
+
+/* Profile Edit Form */
 .profile-edit-form {
   margin-top: 1.5rem;
 }
@@ -270,7 +424,24 @@ small {
   margin-top: 4px;
 }
 
+/* Visually hidden for screen readers */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* Responsive Styles */
 @media (max-width: 768px) {
+  .profile-container {
+    margin: 1rem auto;
+  }
+
   .profile-info {
     padding: 60px 20px 20px 20px;
   }
@@ -289,5 +460,64 @@ small {
   
   menu li button {
     width: 100%;
+  }
+
+  .profile-details {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .detail-section {
+    padding: 1rem;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+
+  .avatar-large {
+    width: 80px;
+    height: 80px;
+    font-size: 32px;
+  }
+
+  .profile-avatar {
+    bottom: -40px;
+    left: 20px;
+  }
+
+  .profile-cover {
+    height: 100px;
+  }
+
+  .profile-back-header {
+    padding: 0.75rem 1rem 0 1rem;
+  }
+
+  .back-button {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  /* Groups responsive */
+  .user-groups-section {
+    padding: 1rem;
+  }
+
+  .group-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .group-card-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .group-card-footer small {
+    margin-top: 4px;
   }
 }

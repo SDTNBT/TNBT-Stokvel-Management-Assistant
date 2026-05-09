@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate ,useParams } from 'react-router-dom';
 import { 
   LayoutDashboard, Users, UserPlus, Users2, 
   CalendarDays, ClipboardList, Mic2, 
@@ -6,16 +6,19 @@ import {
   ChevronLeft, ChevronRight, Bell, FileText
 } from 'lucide-react'; 
 import React, { useState, useEffect } from 'react';
+import { useGroupData } from './useGroupData';
 import './newAdminDashboard.css';
 
 // --- CRITICAL: Match these imports to your filenames exactly ---
 import ScheduleMeeting from './ScheduleMeeting';
 import PostAgendas from './PostAgendas';
 import RecordMinutes from './RecordMinutes';
-import viewMembers from './ViewMembers';
+import ViewMembers from './ViewMembers';
+import MemberDetails from './MemberDetails';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const { groupId } = useParams();
   const [isGroupsOpen, setIsGroupsOpen] = useState(false);
   const [isMeetingsOpen, setIsMeetingsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -23,7 +26,9 @@ const AdminDashboard = () => {
   // --- CALENDAR LOGIC ---
   const [viewDate, setViewDate] = useState(new Date());
   const [today, setToday] = useState(new Date());
-
+  const { members, group, setMembers } = useGroupData(groupId);
+  const [selectedMember, setSelectedMember] = useState(null);
+  
   useEffect(() => {
     setToday(new Date());
   }, []);
@@ -50,11 +55,44 @@ const AdminDashboard = () => {
     setViewDate(new Date(currentYear, currentMonth + offset, 1));
   };
 
+  const handleRemove = async (memberId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`https://tnbt-stokvel-management-assistant.onrender.com/api/managegroup/${groupId}/member/${memberId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      });
+
+      if (response.ok) {
+        setMembers(prev => prev.filter(m => m._id !== memberId));
+        return true;
+      }
+      return false;
+    } catch (err) {
+      return false;
+    }
+  };
+
+
   const renderContent = () => {
+
+    if (selectedMember) {
+      return (
+        <MemberDetails 
+          member={selectedMember} 
+          onClose={() => setSelectedMember(null)} 
+          onRemove={handleRemove} 
+        />
+      );
+    }
+    
     if (activeTab === 'schedule-meeting') return <ScheduleMeeting />;
     if (activeTab === 'post-agenda') return <PostAgendas />;
     if (activeTab === 'record-minutes') return <RecordMinutes />;
-    if (activeTab === 'view-members') return <viewMembers />;
+    if (activeTab === 'view-members') {
+      // Pass the data down from the hook
+      return <ViewMembers group={group} members={members} onSelectMember={setSelectedMember} />;
+    }
     
     return (
       <>

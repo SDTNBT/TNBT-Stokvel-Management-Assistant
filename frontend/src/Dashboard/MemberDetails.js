@@ -4,28 +4,22 @@ import './MemberDetails.css';
 const MemberDetails = ({ member, onClose, onRemove }) => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
-  const currentUser = JSON.parse(sessionStorage.getItem('user'));
-  
-  // Robust check to see if the profile is the logged-in user
-  const isMe = member.userEmail?.trim().toLowerCase() === currentUser?.email?.trim().toLowerCase();
+  const [error, setError] = useState(null);
+
+  // Logic to handle different name formats
+  const displayName = member.fullName || `${member.firstName || ''} ${member.lastName || ''}`.trim();
 
   const handleConfirmYes = async () => {
+    setError(null);
     const success = await onRemove(member._id);
     if (success) {
       setSuccessMsg("You have successfully removed this person as a member");
-      // Wait 2 seconds so the user can read the confirmation
-      setTimeout(() => {
-        onClose(); 
-      }, 2000);
+      setTimeout(() => onClose(), 2000);
+    } else {
+      setError("Failed to remove member.");
     }
   };
 
-  const handleConfirmNo = () => {
-    // Closes the panel and returns to the list view immediately
-    onClose(); 
-  };
-
-  // Success Screen
   if (successMsg) {
     return (
       <aside className="member-details-panel">
@@ -39,55 +33,42 @@ const MemberDetails = ({ member, onClose, onRemove }) => {
   return (
     <aside className="member-details-panel">
       <header className="details-header">
-        <button className="close-details" onClick={onClose} aria-label="Close">×</button>
-        <h2>{isMe ? "Your Profile" : member.displayName}</h2>
+        <button type="button" className="close-details" onClick={onClose} aria-label="Close">×</button>
+        <h2>{displayName}</h2>
       </header>
 
       <article className="details-content">
+        {error && <p className="error-text">{error}</p>}
         {!showConfirm ? (
           <section className="profile-info">
             <section className="info-group">
               <label>Full Name</label>
-              <p>{member.displayName}</p>
+              <p>{displayName}</p>
             </section>
-            
             <section className="info-group">
               <label>Email Address</label>
               <p>{member.userEmail}</p>
             </section>
-
             <section className="info-group">
               <label>Role</label>
               <p>{member.memberType}</p>
             </section>
-
             <section className="info-group">
               <label>Date Joined Group</label>
-              <p>
-                {member.joiningDate 
-                  ? new Date(member.joiningDate).toLocaleDateString('en-GB', { 
-                      day: 'numeric', 
-                      month: 'long', 
-                      year: 'numeric' 
-                    }) 
-                  : "N/A"}
-              </p>
+              <p>{member.joiningDate ? new Date(member.joiningDate).toLocaleDateString('en-GB') : "N/A"}</p>
             </section>
-
-            {!isMe && (
-              <footer className="details-footer">
-                <button className="remove-trigger-btn" onClick={() => setShowConfirm(true)}>
-                  Remove Member
-                </button>
-              </footer>
-            )}
+            <footer className="details-footer">
+              <button type="button" className="remove-trigger-btn" onClick={() => setShowConfirm(true)}>
+                Remove Member
+              </button>
+            </footer>
           </section>
         ) : (
           <section className="confirmation-box">
             <p className="warning-text">Are you sure you want to remove this member?</p>
             <nav className="confirm-nav">
-              <button className="confirm-btn no" onClick={handleConfirmNo}>No</button>
-              <button className="confirm-btn yes" onClick={handleConfirmYes}>Yes</button>
+              <button type="button" className="confirm-btn no" onClick={() => setShowConfirm(false)}>No</button>
+              <button type="button" className="confirm-btn yes" onClick={handleConfirmYes}>Yes</button>
             </nav>
           </section>
         )}

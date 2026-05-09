@@ -1,0 +1,2 @@
+﻿MONGO_URI=mongodb+srv://stokvel:Stokvel2026@cluster0.0b4ich2.mongodb.net/stokvel_db?retryWrites=true&w=majority
+PORT=5000

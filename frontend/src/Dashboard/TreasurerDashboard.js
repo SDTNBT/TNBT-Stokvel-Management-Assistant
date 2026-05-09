@@ -6,13 +6,49 @@ import {
 } from 'lucide-react'; 
 import React, { useState } from 'react';
 import './TreasurerDashboard.css';
+import Profile from '../components/Profile';
 
-const TreasurerDashboard = () => {
+const TreasurerDashboard = ({ user = {}, onLogout = () => {} }) => {
   const navigate = useNavigate();
   
   const [isGroupsOpen, setIsGroupsOpen] = useState(false);
   const [isMeetingsOpen, setIsMeetingsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [showProfile, setShowProfile] = useState(false);
+
+  const handleProfileClick = () => {
+    setShowProfile(true);
+  };
+
+  const handleBackToDashboard = () => {
+    setShowProfile(false);
+  };
+
+  if (showProfile) {
+    return (
+      <section className="dashboard-shell">
+        <aside className="sidebar">
+          <header className="sidebar-brand">
+            <figure className="brand-identity">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                <circle cx="16" cy="16" r="16" fill="#F5C842" />
+                <path d="M10 20 L16 10 L22 20" stroke="#1A3A6B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                <circle cx="16" cy="22" r="2" fill="#1A3A6B"/>
+              </svg>
+              <figcaption className="brand-text">StokvelStokkie</figcaption>
+            </figure>
+          </header>
+          <hr className="sidebar-divider" />
+          <button className="back-to-dashboard" onClick={handleBackToDashboard}>
+            ← Back to Dashboard
+          </button>
+        </aside>
+        <main className="main-content">
+          <Profile user={user} onLogout={onLogout} />
+        </main>
+      </section>
+    );
+  }
 
   return (
     <section className="dashboard-shell">
@@ -132,8 +168,24 @@ const TreasurerDashboard = () => {
           <nav aria-label="Account Actions">
             <ul className="footer-list">
               <li><button type="button" className="footer-item"><Bell size={20} /><label>Notifications</label></button></li>
-              <li><button type="button" className="footer-item"><UserCircle size={20} /><label>Profile</label></button></li>
-              <li><button type="button" className="footer-item logout-btn"><LogOut size={20} /><label>Logout</label></button></li>
+              <li>
+                <button 
+                  type="button" 
+                  className="footer-item" 
+                  onClick={handleProfileClick}
+                >
+                  <UserCircle size={20} /><label>Profile</label>
+                </button>
+              </li>
+              <li>
+                <button 
+                  type="button" 
+                  className="footer-item logout-btn" 
+                  onClick={onLogout}
+                >
+                  <LogOut size={20} /><label>Logout</label>
+                </button>
+              </li>
             </ul>
           </nav>
         </footer>

@@ -7,6 +7,7 @@ import CreateGroup from './components/Creategroup';
 import './App.css';
 import { LoginPage } from './components/Login';
 import { SignUp } from './components/SignUp';
+import Profile from './components/Profile';
 
 // You are importing from the file 'newAdminDashboard', 
 // but naming the component 'AdminDashboard' for use here.
@@ -41,6 +42,12 @@ function App() {
           <Route path="/schedule/:groupId" element={<ScheduleMeeting />} />
           <Route path="/manage-group/:groupId" element={<GroupManagement />} />
           <Route path="/post-agenda/:groupId" element={<PostAgendas />} />
+
+          {/* Profile Route */}
+          <Route 
+            path="/profile" 
+            element={<Profile user={user} onLogout={handleLogout} />} 
+          />
 
           {/* DASHBOARD ROUTE FIXED HERE */}
           <Route 

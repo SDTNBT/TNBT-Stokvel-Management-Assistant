@@ -59,8 +59,17 @@ router.post('/register', async (req, res) => {
       await user.save();
       console.log(`✨ New user registered: ${email}`);
     } else {
+      const needsUpdate = (user.name === "New Member" && name) || (name && user.name !== name) || (surname && user.surname !== surname);
+      if (needsUpdate) {
+        if (name) user.name = name;
+        if (surname) user.surname = surname;
+        await user.save();
+        console.log(`🔄 Updated existing user details for: ${email}`);
+      }
       // 4. LOGIN if they already exist
-      console.log(`🔑 Existing user logged in: ${email}`);
+      else{
+        console.log(`🔑 Existing user logged in: ${email}`);
+      }
     }
 
     // 5. Always return the user profile

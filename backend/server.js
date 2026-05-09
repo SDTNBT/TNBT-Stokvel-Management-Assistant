@@ -56,24 +56,30 @@ const connectionOptions = {
     socketTimeoutMS: 45000,          
 };
 
-mongoose.connect(process.env.MONGO_URI, connectionOptions)
-    .then(() => {
-        console.log('✅ Connected to Stokvel MongoDB');
+const connectDB = async (dbUri = process.env.MONGO_URI) => {
+    try {
+        if (mongoose.connection.readyState !== 0) {
+            await mongoose.disconnect();
+        }
+        await mongoose.connect(dbUri, {
+            serverSelectionTimeoutMS: 10000,
+            socketTimeoutMS: 45000,
+        });
+        console.log(`✅ Connected to MongoDB at: ${dbUri}`);
         
         // Clean up old database indexes if they exist
         const dropOldIndex = async () => {
             try {
                 await mongoose.connection.db.collection('users').dropIndex('googleId_1');
                 console.log('✨ Cleaned up old database indexes');
-            } catch (err) {
-                // If it's already gone, we don't care
-            }
+            } catch (err) { }
         };
         dropOldIndex();
-    })
-    .catch(err => {
+    } catch (err) {
         console.error('❌ Database Connection Error:', err.message);
-    });
+        process.exit(1);
+    }
+};
 
 // --- 5. Routes ---
 // These are the "Doors" to your backend
@@ -92,11 +98,16 @@ app.get('/', (req, res) => {
 });
 
 // --- 6. Start Server ---
-const PORT = process.env.PORT || 5000;
 if (require.main === module) {
+    if (process.env.NODE_ENV === 'production' && process.env.MONGO_URI.includes('stokvel_test_db')) {
+        console.error(" CRITICAL ERROR: Production server is trying to connect to a TEST database! Shutting down.");
+        process.exit(1);
+    }
+    connectDB(); // Connect to production DB
+    const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => {
         console.log(`📡 Server listening on Port: ${PORT}`);
     });
 }
 // Export admin so other files can use Firebase if needed
-module.exports = { app, admin };
+module.exports = { app, admin, connectDB };

@@ -32,9 +32,18 @@ router.get('/:groupId/members', async (req, res) => {
                     _id: 1,
                     memberType: 1,
                     joiningDate: 1,
-                    userEmail: '$user', 
-                    displayName: { 
-                        $ifNull: [{ $arrayElemAt: ['$uDetails.name', 0] }, '$user'] 
+                    userEmail: '$user',
+            
+                    fullName: {
+                        $trim: {
+                            input: {
+                                $concat: [
+                                    { $ifNull: [{ $arrayElemAt: ['$uDetails.name', 0] }, ""] },
+                                    " ",
+                                    { $ifNull: [{ $arrayElemAt: ['$uDetails.surname', 0] }, ""] }
+                                ]
+                            }
+                        }
                     }
                 }
             }

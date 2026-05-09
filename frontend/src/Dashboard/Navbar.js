@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   FaBars, FaBell, FaUserCircle, FaCaretDown, 
   FaUserAlt, FaCog, FaSignOutAlt,
@@ -6,25 +7,44 @@ import {
 } from 'react-icons/fa';
 import './Navbar.css';
 
-function Navbar() {
+function Navbar({ user = {}, onLogout = () => {} }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const navigate = useNavigate();
 
   const toggleMenu = () => setIsOpen(!isOpen);
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
+  const handleProfileClick = () => {
+    setIsDropdownOpen(false);
+    navigate('/profile');
+  };
+
+  const handleSettingsClick = () => {
+    setIsDropdownOpen(false);
+    // Navigate to settings page if it exists
+    navigate('/settings');
+  };
+
+  const handleLogoutClick = () => {
+    setIsDropdownOpen(false);
+    if (onLogout) {
+      onLogout();
+    }
+  };
+
   const menuItems = [
-    { name: "Home", icon: <FaHome /> },
-    { name: "My Groups", icon: <FaUsers /> },
-    { name: "Payout Pipeline", icon: <FaMoneyBillWave /> },
-    { name: "Meeting Manager", icon: <FaCalendarAlt /> },
-    { name: "Financial Reports", icon: <FaChartLine /> }
+    { name: "Home", icon: <FaHome />, path: "/home" },
+    { name: "My Groups", icon: <FaUsers />, path: "/my-groups" },
+    { name: "Payout Pipeline", icon: <FaMoneyBillWave />, path: "/payout-pipeline" },
+    { name: "Meeting Manager", icon: <FaCalendarAlt />, path: "/meeting-manager" },
+    { name: "Financial Reports", icon: <FaChartLine />, path: "/financial-reports" }
   ];
 
   const dropdownItems = [
-    { name: "Profile", icon: <FaUserAlt /> },
-    { name: "Settings", icon: <FaCog /> },
-    { name: "Logout", icon: <FaSignOutAlt /> }
+    { name: "Profile", icon: <FaUserAlt />, action: handleProfileClick },
+    { name: "Settings", icon: <FaCog />, action: handleSettingsClick },
+    { name: "Logout", icon: <FaSignOutAlt />, action: handleLogoutClick }
   ];
 
   return (
@@ -44,7 +64,7 @@ function Navbar() {
               <figure className="avatar-circle">
                 <FaUserCircle className="avatar-icon" />
               </figure>
-              <strong className="username">Treasurer</strong>
+              <strong className="username">{user?.role || 'User'}</strong>
               <FaCaretDown className={`caret ${isDropdownOpen ? 'rotate' : ''}`} />
             </button>
 
@@ -52,7 +72,7 @@ function Navbar() {
               <menu className="profile-dropdown">
                 {dropdownItems.map((item, index) => (
                   <li key={index} className="dropdown-item">
-                    <button onClick={() => setIsDropdownOpen(false)}>
+                    <button onClick={item.action}>
                       <i className="dropdown-icon">{item.icon}</i>
                       {item.name}
                     </button>
@@ -69,7 +89,11 @@ function Navbar() {
           <ul className="nav-list">
             {menuItems.map((item, index) => (
               <li key={index}>
-                <a href="#" onClick={toggleMenu}>
+                <a href={item.path} onClick={(e) => {
+                  e.preventDefault();
+                  toggleMenu();
+                  navigate(item.path);
+                }}>
                   <i className="nav-icon">{item.icon}</i>
                   {item.name}
                 </a>
@@ -79,7 +103,7 @@ function Navbar() {
         </nav>
       </aside>
 
-      {}
+      {/* Overlay */}
       {(isOpen || isDropdownOpen) && (
         <section 
           className="overlay" 
