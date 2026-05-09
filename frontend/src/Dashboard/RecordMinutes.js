@@ -135,10 +135,13 @@ export const RecordMinutes = () => {
 
     setSubmitting(true);
     try {
-      const res = await fetch(`/api/minutes/${groupId}`, {
-        method:  'POST',
+      // Grab the URL from the .env file
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000'; // Fallback to localhost if env variable is missing
+
+      const res = await fetch(`${apiUrl}/api/minutes/${groupId}`, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(buildPayload()),
+        body: JSON.stringify(buildPayload()),
       });
       if (!res.ok) throw new Error('Server error');
       setFeedback({ type: 'success', message: 'Minutes saved to the database successfully!' });
@@ -168,7 +171,7 @@ export const RecordMinutes = () => {
 
       {/* Top nav */}
       <nav className="rm-topbar" aria-label="Page navigation">
-        <button className="rm-back-btn" onClick={() => navigate(`/meeting-manager/${groupId}`)}>
+        <button className="rm-back-btn" onClick={() => navigate(`/admin-dashboard/${groupId}`)}>
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
             <path d="M9 2L4 7l5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>

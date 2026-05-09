@@ -1,42 +1,34 @@
-// controllers/minutesController.js
-const Minutes = require('../models/minutes'); // Pointing to your existing file
+const Minutes = require('../models/minutes');
 
-const saveMinutes = async (req, res) => {
+exports.saveMinutes = async (req, res) => {
   try {
+    // 1. Grab the groupId from the URL parameter
     const { groupId } = req.params;
-    // Extracting the exact fields your schema requires
-    const { meetingId, title, content, attendance } = req.body;
 
-    // 1. Validation based on schema 'required: true' fields
-    if (!meetingId || !title || !content) {
-      return res.status(400).json({ 
-        message: 'meetingId, title, and content are required fields.' 
-      });
-    }
+    // 2. Grab the exact fields your React buildPayload() function is sending
+    const { meetingDate, meetingTime, contributions, decisions, notes } = req.body;
 
-    // 2. Create the new minutes record
+    // 3. Create a new Minutes document
     const newMinutes = new Minutes({
-      groupId,
-      meetingId,
-      title,
-      content,
-      attendance: attendance || []
+      group: groupId,
+      meetingDate: meetingDate,
+      meetingTime: meetingTime,
+      contributions: contributions,
+      decisions: decisions,
+      notes: notes
     });
 
-    // 3. Save to the database
-    await newMinutes.save();
+    // 4. Save to MongoDB
+    const savedMinutes = await newMinutes.save();
 
-    return res.status(201).json({ 
-      message: 'Minutes saved to the database successfully!', 
-      minutes: newMinutes 
+    // 5. Send success response back to React
+    res.status(201).json({ 
+      message: "Minutes saved successfully!", 
+      data: savedMinutes 
     });
 
   } catch (error) {
-    console.error('Error saving minutes:', error);
-    return res.status(500).json({ 
-      message: 'Server error: Could not save minutes. Please try again.' 
-    });
+    console.error("Error saving minutes:", error);
+    res.status(500).json({ message: "Failed to save meeting minutes." });
   }
 };
-
-module.exports = { saveMinutes };

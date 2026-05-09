@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, use } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, getAdditionalUserInfo, signOut } from 'firebase/auth';
 import { auth } from '../services/firebase'; // Ensure this points to your team's Firebase config file
 import './Login.css';
@@ -7,18 +7,32 @@ import './Login.css';
 export const LoginPage = () => {
   const navigate = useNavigate();
 
+  const location = useLocation();
+  const [showModal, setShowModal] = useState(location.state?.justSignedUp ?? false);
+
+  // 2. NEW: Immediately wipe the history state so it never triggers again
   useEffect(() => {
-    // 1. Wipe any old backend tokens
+    if (location.state?.justSignedUp) {
+      // replace: true silently overwrites the current history entry without reloading
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location, navigate]);
+
+  // Existing useEffect — clears session on load
+  useEffect(() => {
     localStorage.removeItem('token');
-    
-    // 2. Wipe the team member's specific UI session data
     sessionStorage.removeItem('user');
-    
-    // 3. Tell Firebase to officially sign the user out to prevent ghost sessions
     signOut(auth).catch((error) => {
       console.error("Error signing out of Firebase:", error);
     });
   }, []);
+
+  // New useEffect — auto-dismisses the welcome modal after 8 seconds
+  useEffect(() => {
+    if (!showModal) return;
+    const timer = setTimeout(() => setShowModal(false), 8000);
+    return () => clearTimeout(timer);
+  }, [showModal]);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -180,7 +194,7 @@ export const LoginPage = () => {
               className="google-login-button"
               style={{ width: '100%', padding: '12px', borderRadius: '4px', border: '1px solid #ccc', backgroundColor: '#fff', cursor: 'pointer' }}
             >
-              <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo" style={{ width: '20px', verticalAlign: 'middle', marginRight: '10px' }}/>
+              <img src="public/images/icons8-google-48.png" alt="Google logo" style={{ width: '20px', verticalAlign: 'middle', marginRight: '10px' }}/>
               Continue with Google
             </button>
           )}
@@ -205,6 +219,49 @@ export const LoginPage = () => {
           Trusted by 200+ stokvel groups across South Africa
         </footer>
       </article>
+
+      {showModal && (
+  <aside
+    className="signup-modal-overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-title"
+  >
+    <article className="signup-modal-card">
+
+      <header className="signup-modal-header">
+        <span className="signup-modal-icon" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <circle cx="14" cy="14" r="14" fill="#EDFAF3"/>
+            <path d="M8 14l4 4 8-8" stroke="#1A7A4A" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </span>
+        <button
+          className="signup-modal-close"
+          onClick={() => setShowModal(false)}
+          aria-label="Close"
+        >×</button>
+      </header>
+
+      <section className="signup-modal-body">
+        <h2 className="signup-modal-title" id="modal-title">You're in, welcome!</h2>
+        <p className="signup-modal-msg">
+          Your StokvelStokkie account is ready. Sign in to start managing your stokvel.
+        </p>
+      </section>
+
+      <footer className="signup-modal-footer">
+        <button
+          className="signup-modal-continue"
+          onClick={() => setShowModal(false)}
+        >
+          Continue to sign in
+        </button>
+      </footer>
+
+    </article>
+  </aside>
+)}
 
       <aside className="login-aside" aria-label="About StokvelStokkie">
         <section className="login-aside-content">

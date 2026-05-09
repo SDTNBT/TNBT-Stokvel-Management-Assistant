@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 
+const { hardDeleteUserAccount } = require('../controllers/usersController'); 
+
 // Placeholder for Developer 2's security middleware
 // const { verifyToken } = require('../middleware/authMiddleware');
 
@@ -32,5 +34,8 @@ router.put('/assign-role', /* verifyToken, */ (req, res) => {
   // 3. Save the document
   res.status(200).json({ message: `Role successfully updated to ${role}. Database save pending.` });
 });
+
+// A hidden route just for devs to clean up test accounts
+router.delete('/dev/wipe-user', hardDeleteUserAccount);
 
 module.exports = router;

@@ -171,3 +171,8 @@ form {
   border-radius: 8px;
   font-size: 14px;
 }
+
+.popup-card {
+  position: relative;
+  z-index: 100000;
+}

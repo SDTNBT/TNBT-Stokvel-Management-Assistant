@@ -61,7 +61,7 @@ export const SignUp = () => {
         // Store user info for the UI
         localStorage.setItem('token', idToken);
         localStorage.setItem('role', data.user.role); 
-        navigate('/home', { replace: true });
+        navigate('/', { state: { justSignedUp: true } });
       } else {
         throw new Error(data.message || 'Database sync failed');
       }
@@ -84,8 +84,9 @@ export const SignUp = () => {
         <header className="signup-logo-row">
           <figure className="signup-logo-mark">
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-              <circle cx="16" cy="16" r="16" fill="#4F46E5" />
-              <path d="M10 16L14.6667 20L22 12" stroke="white" strokeWidth="2" />
+              <circle cx="16" cy="16" r="16" fill="#F5C842" />
+              <path d="M10 20 L16 10 L22 20" stroke="#1A3A6B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+              <circle cx="16" cy="22" r="2" fill="#1A3A6B"/>
             </svg>
           </figure>
           <h1 className="signup-logo-text">StokvelStokkie</h1>

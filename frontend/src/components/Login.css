@@ -305,3 +305,109 @@ form {
   text-decoration: none;
   font-weight: 500;
 }
+
+/* ─── Sign-up success modal ──────────────────────────────────────────────── */
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes modalSlideUp {
+  from { opacity: 0; transform: translate(-50%, -44%) scale(0.96); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+.signup-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 58, 107, 0.45);
+  backdrop-filter: blur(3px);
+  z-index: 50;
+  animation: modalFadeIn 0.25s ease both;
+}
+
+.signup-modal-card {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--white);
+  border-radius: 20px;
+  box-shadow: 0 32px 80px rgba(26, 58, 107, 0.22);
+  width: 100%;
+  max-width: 400px;
+  padding: 32px 36px 36px;
+  z-index: 51;
+  animation: modalSlideUp 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  /* yellow top accent */
+  border-top: 4px solid var(--yellow);
+}
+
+.signup-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.signup-modal-icon {
+  line-height: 0;
+}
+
+.signup-modal-close {
+  background: none;
+  border: none;
+  font-size: 22px;
+  line-height: 1;
+  color: #7A93B0;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.signup-modal-close:hover {
+  color: var(--blue);
+}
+
+.signup-modal-body {
+  margin-bottom: 28px;
+}
+
+.signup-modal-title {
+  font-family: 'Sora', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--blue);
+  margin-bottom: 10px;
+}
+
+.signup-modal-msg {
+  font-size: 14px;
+  color: #4B6080;
+  line-height: 1.65;
+}
+
+.signup-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.signup-modal-continue {
+  background: var(--blue);
+  color: var(--white);
+  border: none;
+  border-radius: 30px;
+  padding: 12px 28px;
+  font-family: 'Sora', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(37, 99, 200, 0.28);
+  transition: background 0.2s, transform 0.15s;
+}
+
+.signup-modal-continue:hover {
+  background: var(--blue-mid);
+  transform: translateY(-1px);
+}

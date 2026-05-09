@@ -16,6 +16,7 @@ const usersRoutes = require('./routes/usersRoutes');
 const managegroupRoutes = require('./routes/managegroupRoutes');
 const meetingRoutes = require('./routes/meetingRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const minutesRoutes = require('./routes/recordMinutesRoutes');
 
 const app = express();
 
@@ -83,6 +84,7 @@ app.use('/api/users', usersRoutes);
 app.use('/api/managegroup', managegroupRoutes);
 app.use('/api/meetings', meetingRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/minutes', minutesRoutes); // Added route for meeting minutes
 
 // Basic Health Check
 app.get('/', (req, res) => {
