@@ -37,10 +37,6 @@ router.put('/assign-role', /* verifyToken, */ (req, res) => {
   res.status(200).json({ message: `Role successfully updated to ${role}. Database save pending.` });
 });
 
-<<<<<<< HEAD
-// A hidden route just for devs to clean up test accounts
-router.delete('/dev/wipe-user', hardDeleteUserAccount);
-=======
 // ========== NEW ENDPOINT FOR PROFILE TABLE ==========
 
 // Route: GET /api/users/all
@@ -96,6 +92,5 @@ router.get('/:email', /* verifyToken, */ async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch user', error: error.message });
   }
 });
->>>>>>> a882c2533c64147912f540d81199a77e497b72d0
 
 module.exports = router;
