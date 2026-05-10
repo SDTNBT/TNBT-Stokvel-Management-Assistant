@@ -1,7 +1,7 @@
 require('dotenv').config({ path: '.env.test', override: true });
 const request = require('supertest');
 const mongoose = require('mongoose');
-const app = require('../server'); // Make sure this path is correct for your setup
+const { app } = require('../server'); // Make sure this path is correct for your setup
 const Payout = require('../models/Payout'); 
 
 // --- NEW: Database Setup & Teardown ---

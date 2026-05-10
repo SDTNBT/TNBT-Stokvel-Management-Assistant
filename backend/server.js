@@ -8,7 +8,8 @@ const cors = require('cors');
 const admin = require('firebase-admin');
 
 // --- 1. Import All Routes ---
-const paymentRoutes = require('./routes/paymentRoutes'); 
+const payoutRoutes = require('./routes/payoutRoutes'); //by the treasurer to the member account
+const paymentRoutes = require('./routes/paymentRoutes');  //by the member to the society account
 const stokvelRoutes = require('./routes/stokvelRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const authRoutes = require('./routes/authRoutes');
@@ -63,7 +64,8 @@ app.use('/api/users', usersRoutes);
 app.use('/api/managegroup', managegroupRoutes);
 app.use('/api/meetings', meetingRoutes);
 app.use('/api/notifications', notificationRoutes);
-app.use('/api/minutes', minutesRoutes); // Added route for meeting minutes
+app.use('/api/minutes', minutesRoutes);
+app.use('/api/payouts', payoutRoutes);
 
 app.get('/', (req, res) => {
     res.send('Stokvel Assistant API is running and healthy!');
