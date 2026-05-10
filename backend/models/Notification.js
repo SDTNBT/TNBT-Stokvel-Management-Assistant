@@ -24,15 +24,23 @@ const NotificationSchema = new mongoose.Schema({
 
   details: {
     groupName: String,
-    meetingTitle: String,
-    meetingDate: String,
-    startTime: String,
-    endTime: String,
-    locationType: String,
-    platform: String,
-    meetingLink: String,
-    physicalLocation: String,
-    purpose: String
+
+  // Meeting fields
+  meetingTitle: String,
+  meetingDate: String,
+  startTime: String,
+  endTime: String,
+  locationType: String,
+  platform: String,
+  meetingLink: String,
+  physicalLocation: String,
+  purpose: String,
+
+  // Agenda fields
+  agendaTitle: String,
+  agendaDate: String,
+  agendaTime: String,
+  agendaContent: String
   }
 }, { timestamps: true });
 

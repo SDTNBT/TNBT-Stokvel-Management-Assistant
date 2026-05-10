@@ -36,7 +36,8 @@ export const PostAgenda = () => {
     }
 
     try {
-      const apiUrl = 'https://tnbt-stokvel-management-assistant.onrender.com/api';
+      const apiUrl = 'http://localhost:5000/api';
+      //const apiUrl = 'https://tnbt-stokvel-management-assistant.onrender.com/api';
       const token = localStorage.getItem('token'); 
 
       const response = await fetch(`${apiUrl}/meetings/agenda`, {

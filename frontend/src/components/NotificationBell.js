@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Bell } from 'lucide-react';
 
 const NotificationBell = ({ userEmail }) => {
 
@@ -80,7 +81,7 @@ const NotificationBell = ({ userEmail }) => {
           padding: '8px'
         }}
       >
-        🔔
+        <Bell size={20} color="#1A3A6B" />
         {unreadCount > 0 && (
           <span style={{
             position: 'absolute',

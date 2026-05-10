@@ -18,9 +18,7 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-// ==========================================
-// AGENDA ROUTES
-// ==========================================
+
 
 // POST /meetings/agenda - Save a new agenda
 router.post('/agenda', async (req, res) => {
@@ -28,12 +26,64 @@ router.post('/agenda', async (req, res) => {
     const newAgenda = new Agenda(req.body);
     const savedAgenda = await newAgenda.save();
 
-    res.status(201).json({
-      message: 'Agenda successfully posted to MongoDB!',
-      data: savedAgenda
+    const group = await Group.findById(req.body.groupId);
+
+    if (!group) {
+      return res.status(404).json({
+        error: 'Agenda saved, but group not found for notifications.',
+        data: savedAgenda
+      });
+    }
+
+    const groupName = group.groupName.trim();
+
+    const groupMembers = await Member.find({
+      group: groupName
     });
+
+    const uniqueMembers = [
+      ...new Map(
+        groupMembers.map(member => [member.user.toLowerCase(), member])
+      ).values()
+    ];
+
+    console.log('Agenda groupId:', req.body.groupId);
+    console.log('Resolved agenda groupName:', groupName);
+    console.log('Agenda members found:', groupMembers.length);
+    console.log('Unique agenda members found:', uniqueMembers.length);
+
+    if (uniqueMembers.length > 0) {
+      for (let member of uniqueMembers) {
+        await Notification.create({
+          recipient: member.user.toLowerCase(),
+          type: 'announcement',
+          title: `Agenda Posted: ${savedAgenda.title}`,
+          message: savedAgenda.agenda,
+          groupId: savedAgenda.groupId,
+          isRead: false,
+          details: {
+            groupName,
+            agendaTitle: savedAgenda.title,
+            agendaDate: savedAgenda.date,
+            agendaTime: savedAgenda.time,
+            agendaContent: savedAgenda.agenda
+          }
+        });
+      }
+
+      console.log(`✅ Agenda notifications sent to ${uniqueMembers.length} unique members`);
+    } else {
+      console.log('⚠️ No members found for this agenda group. No notifications created.');
+    }
+
+    res.status(201).json({
+      message: 'Agenda successfully posted and notifications created.',
+      data: savedAgenda,
+      notificationsSent: uniqueMembers.length
+    });
+
   } catch (err) {
-    console.error('MongoDB Save Error:', err);
+    console.error('Agenda post error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
@@ -50,9 +100,7 @@ router.get('/agenda/:groupId', async (req, res) => {
   }
 });
 
-// ==========================================
-// SCHEDULING & MEETING ROUTES
-// ==========================================
+
 
 // POST /meetings/schedule — save meeting and notify all group members
 router.post('/schedule', async (req, res) => {

@@ -41,7 +41,8 @@ const PostAgendas = () => {
     }
 
     try {
-      const apiUrl = 'https://tnbt-stokvel-management-assistant.onrender.com/api';
+      const apiUrl = 'http://localhost:5000/api';
+      //const apiUrl = 'https://tnbt-stokvel-management-assistant.onrender.com/api';
       
       // Grabbing the token just like your team's code does
       const token = localStorage.getItem('token') || sessionStorage.getItem('token'); 
