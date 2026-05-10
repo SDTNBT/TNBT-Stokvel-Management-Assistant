@@ -1,0 +1,72 @@
+.success-page-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 85vh;
+  background-color: #ffffff; /* Entire background white */
+  text-align: center;
+}
+
+.success-content {
+  width: 100%;
+  max-width: 500px;
+  padding: 40px;
+}
+
+.success-icon-wrapper {
+  color: #22c55e; /* Success Green */
+  margin: 0 auto 30px;
+  display: flex;
+  justify-content: center;
+}
+
+.success-header h1 {
+  font-size: 2.2rem;
+  color: #111827;
+  margin-bottom: 10px;
+  font-weight: 800;
+}
+
+.success-header p {
+  font-size: 1.1rem;
+  color: #6b7280;
+  margin-bottom: 50px;
+}
+
+.transaction-details {
+  margin-bottom: 60px;
+}
+
+.transaction-details .label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.transaction-details .reference-number {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #111827;
+  word-break: break-all;
+  padding: 0 20px;
+}
+
+.btn-return-dashboard {
+  background: none;
+  border: none;
+  color: #4a2d66; /* Your brand purple */
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.btn-return-dashboard:hover {
+  color: #351f4d;
+}

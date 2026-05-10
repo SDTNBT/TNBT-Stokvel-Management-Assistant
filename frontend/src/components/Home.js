@@ -23,6 +23,10 @@ const Home = () => {
       if (loggedInUser && loggedInUser.email) {
         const apiUrl = 'https://tnbt-stokvel-management-assistant.onrender.com/api';
         const response = await axios.get(`${apiUrl}/stokvel/user/${loggedInUser.email}`);
+        
+        // --- CRITICAL UPDATE: Save groups to localStorage for the Dashboards to access ---
+        localStorage.setItem('stokvel_groups', JSON.stringify(response.data));
+        
         setGroups(response.data);
       }
     } catch (err) {
@@ -52,24 +56,37 @@ const Home = () => {
     const role = group.userRole;
     console.log(`Navigating to ${role} dashboard for: ${group.groupName}`);
     
+    // Pass state through the router so the dashboard has the name immediately
+    const navigationState = { 
+      state: { 
+        groupName: group.groupName, 
+        contributionAmount: group.contributionAmount,
+        groupId: group._id,
+        user: loggedInUser 
+      } 
+    };
+
     switch (role) {
       case 'Admin':
-        navigate(`/admin-dashboard/${group._id}`);
+        navigate(`/admin-dashboard/${group._id}`, navigationState);
         break;
       case 'Treasurer':
-        navigate(`/treasurer-dashboard/${group._id}`);
+        navigate(`/treasurer-dashboard/${group._id}`, navigationState);
         break;
       case 'Member':
-        navigate(`/member-dashboard/${group._id}`);
+        navigate(`/member-dashboard/${group._id}`, navigationState);
         break;
       default:
         console.warn("Unknown role detected, defaulting to Member Dashboard");
-        navigate(`/member-dashboard/${group._id}`);
+        navigate(`/member-dashboard/${group._id}`, navigationState);
     }
   };
 
   const removeGroup = (id) => {
-    setGroups(groups.filter(group => group._id !== id));
+    const updatedGroups = groups.filter(group => group._id !== id);
+    setGroups(updatedGroups);
+    // Also update localStorage so the dashboard doesn't show "removed" data
+    localStorage.setItem('stokvel_groups', JSON.stringify(updatedGroups));
     setOpenMenuId(null);
   };
 
@@ -187,7 +204,7 @@ const Home = () => {
             <path d="M10 20 L16 10 L22 20" stroke="#1A3A6B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
             <circle cx="16" cy="22" r="2" fill="#1A3A6B"/>
           </svg>
-          StockvelStockkie
+          StockvelStokkie
         </h1>
         <nav className="top-nav-actions">
           <NotificationBell userEmail={loggedInUser?.email} />
@@ -200,6 +217,7 @@ const Home = () => {
               <li><button type="button" onClick={handleProfileClick}>Profile</button></li>
               <li><button type="button" onClick={() => {
                 sessionStorage.clear(); 
+                localStorage.removeItem('stokvel_groups'); // Clear group cache on logout
                 navigate('/'); 
               }}>Logout</button></li>
             </ul>

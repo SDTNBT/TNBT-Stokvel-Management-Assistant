@@ -1,4 +1,4 @@
-/* --- 1. CORE RESET --- */
+/* --- CORE LAYOUT --- */
 .dashboard-shell { 
   display: flex !important; 
   height: 100vh !important; 
@@ -8,451 +8,124 @@
   margin: 0; padding: 0;
 }
 
-.dashboard-shell * { box-sizing: border-box; }
-
 .dashboard-shell .sidebar {
   width: 280px !important;
   background: #3d2b56 !important;
   display: flex !important;
   flex-direction: column !important;
-  border: none !important;
-
-  /* --- THE SCROLL LOGIC --- */
-  height: 100vh !important; /* Full screen height */
-  overflow-y: auto !important; /* Enable vertical scrolling */
-  overflow-x: hidden !important; /* Prevent side scrolling */
-  position: sticky !important; /* Keeps it in place */
+  height: 100vh !important;
+  overflow-y: auto !important;
+  position: sticky !important;
   top: 0 !important;
 }
 
-.dashboard-shell .nav-list li,
-.dashboard-shell .footer-list li,
-.dashboard-shell .submenu li {
-  border: none !important;
-  outline: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  list-style: none !important;
-  background: transparent !important;
-}
-
-.dashboard-shell .sidebar-nav,
-.dashboard-shell .nav-list {
-  padding: 0 !important;
-  margin: 0 !important;
-  width: 100% !important;
-  display: flex !important;
-  flex-direction: column !important;
-}
-
-.dashboard-shell .nav-item {
-  display: flex !important;
-  flex-direction: row !important; /* Force side-by-side */
-  flex-wrap: nowrap !important;   /* Strictly prevent wrapping to next line */
-  align-items: center !important;  /* Center icon and text vertically */
-  justify-content: flex-start !important;
-  gap: 12px !important;
-  width: 100% !important;
-  padding: 12px 18px !important; 
-  
-  background: transparent !important;
-  border: none !important;
-  color: #d1d5db !important;
-  cursor: pointer !important;
-  font-family: inherit !important;
+.dashboard-shell .nav-item,
+.dashboard-shell .footer-item,
+.dashboard-shell .submenu-btn,
+.dashboard-shell .nav-item small,
+.dashboard-shell .footer-item small,
+.dashboard-shell .submenu-btn small,
+.dashboard-shell .nav-item svg,
+.dashboard-shell .footer-item svg,
+.dashboard-shell .submenu-btn svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important; /* Forces icons to be white */
+  opacity: 1 !important;
   text-decoration: none !important;
 }
 
+/* --- TYPOGRAPHY & SIZING --- */
+.dashboard-shell .nav-item, 
 .dashboard-shell .footer-item {
   display: flex !important;
   align-items: center !important;
-  justify-content: flex-start !important;
-  gap: 12px !important;
-  width: 100% !important;
-  padding: 12px 18px !important; 
-  
+  gap: 14px !important;
+  padding: 14px 20px !important;
   background: transparent !important;
   border: none !important;
-  outline: none !important;
   cursor: pointer !important;
-  margin: 0 !important;
-  
-  color: #d1d5db !important;
-  font-family: inherit !important;
-  font-size: 0.95rem !important; 
-  font-weight: 500 !important;
-  text-decoration: none !important;
-  text-align: left !important;
-  
-  /* THIS PREVENTS THE DOUBLE LINE */
-  white-space: nowrap !important; 
+  width: 100% !important;
 }
 
-.dashboard-shell .nav-item svg {
-  flex-shrink: 0 !important; 
-  color: inherit !important;
-}
-
-.dashboard-shell .nav-item p {
-  margin: 0 !important;
-  padding: 0 !important;
-  flex-grow: 1 !important; 
-  text-align: left !important;
-  display: inline-block !important;
+.dashboard-shell small {
+  font-size: 1.1rem !important; /* Larger text */
+  font-weight: 600 !important;
   white-space: nowrap !important;
 }
-/* Hover and Active states */
-.dashboard-shell .nav-item:hover, 
-.dashboard-shell .nav-item.active { 
-  background: rgba(255, 255, 255, 0.1) !important; 
-  color: white !important; 
+
+/* --- SUBMENU STYLES --- */
+.dashboard-shell .submenu {
+  list-style: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
-/* --- 4. SUBMENU & CHEVRON --- */
-.dashboard-shell .submenu { padding: 0 !important; }
-.dashboard-shell .submenu li a {
+.dashboard-shell .submenu-btn {
+  padding: 10px 20px 10px 50px !important; /* Indented */
   display: flex !important;
   align-items: center !important;
   gap: 12px !important;
-  padding-left: 50px !important; /* Keep your indentation */
-  text-decoration: none !important;
-  color: #d1d5db !important;
-  white-space: nowrap !important;
+  width: 100% !important;
+  background: transparent !important;
+  border: none !important;
 }
+
+.dashboard-shell .submenu-btn small {
+  font-size: 1rem !important;
+  font-weight: 500 !important;
+}
+
+/* --- LOGOUT (DANGER COLOR) --- */
+.dashboard-shell .logout-btn,
+.dashboard-shell .logout-btn small,
+.dashboard-shell .logout-btn svg {
+  color: #ff4d4d !important;
+  stroke: #ff4d4d !important;
+}
+
+/* --- HOVER & ACTIVE --- */
+.dashboard-shell .nav-item:hover, 
+.dashboard-shell .nav-item.active { 
+  background: rgba(255, 255, 255, 0.12) !important; 
+}
+
 .dashboard-shell .chevron-icon {
   margin-left: auto !important;
-  flex-shrink: 0 !important; /* Ensures chevron doesn't disappear */
-  
+  transition: transform 0.3s ease;
 }
 
 .dashboard-shell .rotate { transform: rotate(180deg) !important; }
 
-/* --- 5. LOGO & BRANDING FIXED --- */
+/* --- BRANDING --- */
 .dashboard-shell .brand-identity {
-  display: flex !important;    /* Forces side-by-side layout */
-  align-items: center !important; /* Centers logo and text vertically */
-  gap: 12px !important;         /* Space between logo and text */
-  padding: 20px !important;     /* Adjust padding as needed */
-  width: auto !important;       /* Allow container to grow with text */
-  height: auto !important;      /* Remove fixed 32px height */
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 24px 20px !important;
 }
 
 .dashboard-shell .brand-text {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: white;
-  margin: 0;                   /* Removes default paragraph/caption margins */
-  white-space: nowrap;         /* Prevents the name from breaking into two lines */
+  font-size: 1.0rem !important;
+  font-weight: 800 !important;
+  color: white !important;
 }
-
-.dashboard-shell .brand-text { font-size: 1.3rem; font-weight: 800; color: white; }
 
 .dashboard-shell .sidebar-divider {
-  display: block !important;
   border: none !important;
   border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
-  margin: 10px 0 20px 0 !important;
-  width: 100% !important;
+  margin: 0 0 15px 0 !important;
 }
 
-/* --- 6. MAIN CONTENT --- */
-.dashboard-shell .main-content {
-  flex: 1 !important;
-  /*padding: 40px !important;*/
-  overflow-y: auto !important;
-  padding: 20px 40px 40px 40px !important; 
-
-}
-
-/* Header container fix */
-.dashboard-shell .content-header {
-  margin: 0 !important;
-  padding: 0 !important;
-}
-.dashboard-shell .dropdown-trigger {
-  display: flex !important;
-  flex-direction: row !important; /* Force horizontal alignment */
-  align-items: center !important;
-  width: 100% !important;
-  gap: 12px !important;
-  white-space: nowrap !important; /* Prevents text from wrapping to a second line */
-}
-
-.dashboard-shell .nav-section-end {
-  margin-bottom: 10px !important; /* Adjust this value for more or less space */
-}
-
-.dashboard-shell .logout-btn {
-  color: #ff4d4d !important; /* A clean 'danger' red */
-  transition: opacity 0.2s ease;
-}
-
-.dashboard-shell .logout-btn:hover {
-  background: rgba(255, 77, 77, 0.1) !important; /* Light red hover tint */
-  color: #ff6666 !important;
-}
-
-/* Ensure the icon inside logout inherits the red color */
-.dashboard-shell .logout-btn svg {
-  color: inherit !important;
-}
-
-.dashboard-shell .sidebar-footer .sidebar-divider {
-  /*margin: 65px 0 !important;*/ 
-  display: block !important;
-  border: none !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
-  margin: 120px 0 10px 0 !important; 
-  width: 100% !important;
-}
-
-/* --- SEMANTIC RESET --- */
-.dashboard-shell ul.calendar-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  text-align: center;
-  list-style: none; /* Removes bullets */
-  padding: 0;
-  margin: 0;
-}
-
-.dashboard-shell .calendar-day {
-  padding: 20px 0;
-  font-weight: 500;
-  color: #475569;
-  border-top: 1px solid #f1f5f9;
-}
-
-/* Replaces the old span/div behavior */
-.dashboard-shell label {
-  cursor: pointer;
-  font-weight: inherit;
-}
-
-.dashboard-shell picture {
-  display: block;
-}
-
-/* Empty State adjustment */
-.dashboard-shell .empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 60px 0;
-  margin: 0;
-}
-
+/* --- MAIN CONTENT TITLE --- */
 .dashboard-shell .dashboard-title {
   color: #2d3748;
-  font-size: 2rem;
+  font-size: 2.2rem;
   font-weight: 800;
-  margin-top: 0 !important;
-  margin-bottom: 20px !important;
-  
+  text-transform: capitalize;
 }
 
-.dashboard-shell .content-card {
-  background: #ffffff !important;
-  border-radius: 24px !important;
-  padding: 32px !important;
-  margin-bottom: 32px !important;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04) !important;
-  display: block;
-}
-
-.dashboard-shell .content-card h2 {
-  font-size: 1.5rem;
-  color: #1a202c;
-  margin-top: 0;
-  /*margin-bottom: 24px;*/
-  margin-bottom: 15px !important;
-}
-
-/* --- TIMELINE / EMPTY STATE --- */
-.dashboard-shell figure.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 60px 0;
-  margin: 0;
-}
-
-.dashboard-shell .empty-icon {
-  color: #cbd5e0;
-  opacity: 0.4; /* "Watermarked" look */
-  margin-bottom: 12px;
-}
-
-.dashboard-shell figcaption {
-  color: #a0aec0;
-  font-size: 1rem;
-  font-weight: 500;
-}
-
-/* --- CALENDAR SPECIFICS --- */
-.dashboard-shell .calendar-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 40px;
-}
-
-.dashboard-shell .new-event-btn {
-  background: #2563eb;
-  color: white;
-  border: none;
-  padding: 10px 24px;
-  border-radius: 12px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.dashboard-shell .calendar-nav {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 40px;
-  margin-bottom: 40px;
-}
-
-.dashboard-shell .month-nav-btn {
-  background: transparent;
-  border: none;
-  color: #2563eb;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-}
-
-.dashboard-shell .calendar-current-date {
-  font-size: 1.6rem;
-  color: #1e293b;
-  margin: 0;
-}
-
-/* Calendar Grid Logic */
-.dashboard-shell ul.calendar-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.dashboard-shell .weekday-label abbr {
-  text-decoration: none;
-  color: #94a3b8;
-  font-weight: 700;
-  font-size: 0.85rem;
-}
-
-.dashboard-shell .calendar-day {
-  padding: 24px 0;
-  border-top: 1px solid #f1f5f9;
-  text-align: center;
-}
-
-.dashboard-shell .calendar-day time {
-  color: #475569;
-  font-weight: 500;
-}
-
-.dashboard-shell .calendar-day.today time {
-  color: #2563eb;
-  font-weight: 800;
-}
-
-.dashboard-shell .card-divider {
-  display: block !important;
-  border: none !important;
-  /* Matching the subtle transparency of your sidebar divider */
-  border-top: 1px solid rgba(0, 0, 0, 0.08) !important; 
-  margin: 0 0 20px 0 !important;
-  width: 100% !important;
-}
-
-.dashboard-shell .submenu-btn { /* Added submenu-btn here for consistency */
-  display: flex !important;
-  flex-direction: row !important; /* Forces horizontal alignment */
-  align-items: center !important;  /* Centers icon and text vertically */
-  justify-content: flex-start !important;
-  gap: 12px !important;
-  width: 100% !important;
-  padding: 12px 18px !important; 
-  
-  background: transparent !important;
-  border: none !important;
-  outline: none !important;
-  cursor: pointer !important;
-  margin: 0 !important;
-  
-  color: #d1d5db !important;
-  font-family: inherit !important;
-  font-size: 0.95rem !important; 
-  font-weight: 500 !important;
-  text-decoration: none !important;
-  text-align: left !important;
-  white-space: nowrap !important; 
-}
-
-
-.dashboard-shell .nav-item p,
-.dashboard-shell .submenu-btn p,
-.dashboard-shell .footer-item p {
-  margin: 0 !important;
-  padding: 0 !important;
-  display: inline-block !important; /* Keeps it on the same line as the icon */
-}
-
-.dashboard-shell .sidebar::-webkit-scrollbar {
-  width: 15px;
-}
-
-.dashboard-shell .sidebar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-}
-
-.dashboard-shell .sidebar::-webkit-scrollbar-thumb:hover {
- background-color: #e0e0e0;
- background: rgba(255, 255, 255, 0.2);
-}
-
-
-.dashboard-shell .sidebar::-webkit-scrollbar-thumb {
-    /* A light grey/off-white color */
-  border-radius: 10px;
-  border: 2px solid transparent; /* Adds a little padding around the handle */
-  background-clip: content-box;
-}
-
-.calendar-day.today {
-  /*background-color: #F5C842 !important; Your brand gold/yellow */
-  color: #1A3A6B !important;           /* Your brand dark blue */
-  font-weight: bold;
-  border-radius: 50%;                  /* Makes it a circle */
-  border: 2px solid #1A3A6B;           /* Adds an outline */
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-
-.calendar-day {
-  list-style: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 40px;
-  width: 40px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin: auto;
-}
-
-.calendar-day:hover:not(.empty) {
-  background-color: #f0f0f0;
-  border-radius: 50%;
+.dashboard-shell .main-content {
+  flex: 1 !important;
+  padding: 40px !important;
+  overflow-y: auto !important;
 }

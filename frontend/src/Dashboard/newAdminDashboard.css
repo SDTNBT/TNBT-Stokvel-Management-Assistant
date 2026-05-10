@@ -456,3 +456,31 @@
   background-color: #f0f0f0;
   border-radius: 50%;
 }
+
+/* Container for the title and the group name */
+.content-header-main {
+  display: flex;
+  justify-content: space-between; /* Pushes Dashboard to left, Name to right */
+  align-items: center;            /* Vertically centers them */
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e2e8f0; /* Optional: adds a clean line under the header */
+  margin-bottom: 20px;
+}
+
+.dashboard-title {
+  margin: 0;
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+/* The styled box for the group name */
+.group-badge {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #4f46e5;
+  background: #eef2ff;
+  padding: 6px 16px;
+  border-radius: 8px;
+  border: 1px solid #e0e7ff;
+}

@@ -1,0 +1,25 @@
+.payment-btn {
+    background-color: #09a5db; /* Professional blue */
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.1s active;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.payment-btn:hover {
+    background-color: #0784af;
+}
+
+.payment-btn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.payment-btn:active {
+    transform: scale(0.98);
+}

@@ -1,32 +1,56 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
-  LayoutDashboard, Users, UserPlus, Users2, 
+  LayoutDashboard, Users, CreditCard, 
   CalendarDays, Mic2, ChevronDown, UserCircle, 
   LogOut, Bell, FileText
 } from 'lucide-react'; 
 import React, { useState } from 'react';
 import './MemberDashboard.css';
 import Profile from '../components/Profile';
+import PaymentPreview from './PaymentPreview'; 
+import PaymentGateway from './PaymentGateway'; 
+import PaymentSuccess from './PaymentSuccess'; 
 
-const MemberDashboard = ({ user = {}, onLogout = () => {} }) => {
+const MemberDashboard = ({ onLogout = () => {} }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   
-  const [isGroupsOpen, setIsGroupsOpen] = useState(false);
+  // Extract dynamic data sent from Home.js
+  // We use the optional chaining (?.) and defaults to prevent crashes on direct refresh
+  const groupName = location.state?.groupName || "Stokvel Group";
+  const amount = location.state?.contributionAmount || "0";
+  const sessionUser = location.state?.user || JSON.parse(sessionStorage.getItem('user'));
+
   const [isMeetingsOpen, setIsMeetingsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showProfile, setShowProfile] = useState(false);
 
-  const handleProfileClick = () => {
-    setShowProfile(true);
+  // Tracks the 3 stages: 'preview', 'gateway', or 'success'
+  const [paymentStage, setPaymentStage] = useState('preview');
+  
+  // State to store the unique ID from Stripe
+  const [transactionId, setTransactionId] = useState('');
+
+  const handleProfileClick = () => setShowProfile(true);
+  const handleBackToDashboard = () => setShowProfile(false);
+
+  const handleConfirmPayment = () => {
+    setPaymentStage('gateway');
   };
 
-  const handleBackToDashboard = () => {
-    setShowProfile(false);
+  const handlePaymentSuccess = (id) => {
+    setTransactionId(id);
+    setPaymentStage('success');
+  };
+
+  const handleCancelPayment = () => {
+    setPaymentStage('preview');
+    setActiveTab('dashboard');
   };
 
   if (showProfile) {
     return (
-      <div className="dashboard-shell">
+      <section className="dashboard-shell">
         <aside className="sidebar">
           <header className="sidebar-brand">
             <figure className="brand-identity">
@@ -39,20 +63,19 @@ const MemberDashboard = ({ user = {}, onLogout = () => {} }) => {
             </figure>
           </header>
           <hr className="sidebar-divider" />
-          <button className="back-to-dashboard" onClick={handleBackToDashboard}>
+          <button type="button" className="back-to-dashboard" onClick={handleBackToDashboard}>
             ← Back to Dashboard
           </button>
         </aside>
         <main className="main-content">
-          <Profile user={user} onLogout={onLogout} />
+          <Profile user={sessionUser} onLogout={onLogout} />
         </main>
-      </div>
+      </section>
     );
   }
 
   return (
-    <div className="dashboard-shell">
-      {/* Sidebar Navigation */}
+    <article className="dashboard-shell">
       <aside className="sidebar">
         <header className="sidebar-brand">
           <figure className="brand-identity">
@@ -75,7 +98,7 @@ const MemberDashboard = ({ user = {}, onLogout = () => {} }) => {
                 onClick={() => setActiveTab('dashboard')} 
                 className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
               >
-                <LayoutDashboard size={20} /> <span>Dashboard</span>
+                <LayoutDashboard size={20} /> <small>Dashboard</small>
               </button>
             </li>
             <li>
@@ -84,7 +107,7 @@ const MemberDashboard = ({ user = {}, onLogout = () => {} }) => {
                 onClick={() => navigate('/home')} 
                 className="nav-item"
               >
-                <Users size={20} /> <span>My Groups</span>
+                <Users size={20} /> <small>My Groups</small>
               </button>
             </li>
             <li>
@@ -93,19 +116,31 @@ const MemberDashboard = ({ user = {}, onLogout = () => {} }) => {
                 onClick={() => navigate('/contributions')} 
                 className="nav-item"
               >
-                <Users size={20} /> <span>View My Contributions</span>
+                <FileText size={20} /> <small>View My Contributions</small>
               </button>
             </li>
             
-            {/* Meeting Management Section */}
             <li>
               <button 
                 type="button"
+                onClick={() => {
+                  setActiveTab('payment'); 
+                  setPaymentStage('preview'); 
+                }} 
+                className={`nav-item ${activeTab === 'payment' ? 'active' : ''}`}
+              >
+                <CreditCard size={20} /> <small>Payment</small>
+              </button>
+            </li>
+            
+            <li>
+              <button 
+                type="button" 
                 onClick={() => setIsMeetingsOpen(!isMeetingsOpen)} 
                 className="nav-item dropdown-trigger"
                 aria-expanded={isMeetingsOpen}
               >
-                <CalendarDays size={20} /> <span>My Reports</span>
+                <CalendarDays size={20} /> <small>My Reports</small>
                 <ChevronDown size={16} className={`chevron-icon ${isMeetingsOpen ? "rotate" : ""}`} />
               </button>
               {isMeetingsOpen && (
@@ -113,28 +148,28 @@ const MemberDashboard = ({ user = {}, onLogout = () => {} }) => {
                   <li>
                     <button 
                       type="button"
-                      onClick={() => setActiveTab('schedule-meeting')} 
-                      className={`submenu-btn ${activeTab === 'schedule-meeting' ? 'active-sub' : ''}`}
+                      onClick={() => setActiveTab('projected-savings-growth')} 
+                      className={`submenu-btn ${activeTab === 'projected-savings-growth' ? 'active-sub' : ''}`}
                     >
-                      <CalendarDays size={16} /><span>Schedule Meeting</span>
+                      <CalendarDays size={16} /> <small>Projected Savings Growth</small>
                     </button>
                   </li>
                   <li>
                     <button 
                       type="button"
-                      onClick={() => setActiveTab('post-agenda')} 
-                      className={`submenu-btn ${activeTab === 'post-agenda' ? 'active-sub' : ''}`}
+                      onClick={() => setActiveTab('financial-health-scoring')} 
+                      className={`submenu-btn ${activeTab === 'financial-health-scoring' ? 'active-sub' : ''}`}
                     >
-                      <FileText size={16} /><span>Post Agenda</span>
+                      <FileText size={16} /> <small>Financial health Scoring</small>
                     </button>
                   </li>
                   <li>
                     <button 
                       type="button"
-                      onClick={() => setActiveTab('record-minutes')} 
-                      className={`submenu-btn ${activeTab === 'record-minutes' ? 'active-sub' : ''}`}
+                      onClick={() => setActiveTab('payout-history')} 
+                      className={`submenu-btn ${activeTab === 'payout-history' ? 'active-sub' : ''}`}
                     >
-                      <Mic2 size={16} /><span>Record Minutes</span>
+                      <Mic2 size={16} /> <small>Payout History</small>
                     </button>
                   </li>
                 </ul>
@@ -147,14 +182,18 @@ const MemberDashboard = ({ user = {}, onLogout = () => {} }) => {
           <hr className="sidebar-divider" />
           <nav aria-label="User Actions">
             <ul className="footer-list">
-              <li><button type="button" className="footer-item"><Bell size={20} /><span>Notifications</span></button></li>
+              <li>
+                <button type="button" className="footer-item">
+                  <Bell size={20} /> <small>Notifications</small>
+                </button>
+              </li>
               <li>
                 <button 
                   type="button" 
                   className="footer-item" 
                   onClick={handleProfileClick}
                 >
-                  <UserCircle size={20} /><span>Profile</span>
+                  <UserCircle size={20} /> <small>Profile</small>
                 </button>
               </li>
               <li>
@@ -163,7 +202,7 @@ const MemberDashboard = ({ user = {}, onLogout = () => {} }) => {
                   className="footer-item logout-btn" 
                   onClick={onLogout}
                 >
-                  <LogOut size={20} /><span>Logout</span>
+                  <LogOut size={20} /> <small>Logout</small>
                 </button>
               </li>
             </ul>
@@ -171,19 +210,57 @@ const MemberDashboard = ({ user = {}, onLogout = () => {} }) => {
         </footer>
       </aside>
 
-      {/* Main Content Area */}
       <main className="main-content">
         <header className="content-header">
-           <h1 className="dashboard-title">
-             {activeTab.replace('-', ' ')}
-           </h1>
+            <h1 className="dashboard-title">
+              {activeTab.replace(/-/g, ' ')}
+            </h1>
         </header>
 
         <section className="content-body">
-          {/* Your member content will be rendered here */}
+          {activeTab === 'dashboard' && (
+            <section className="welcome-hero">
+              {/* Dynamic Welcome Message */}
+              <h2>Welcome back, {sessionUser?.firstName || sessionUser?.name || 'Member'}</h2>
+              <p>You are viewing details for the <strong>{groupName}</strong> group.</p>
+            </section>
+          )}
+
+          {activeTab === 'payment' && (
+            <>
+              {paymentStage === 'preview' && (
+                <PaymentPreview 
+                  groupName={groupName} 
+                  amount={amount} 
+                  onConfirm={handleConfirmPayment} 
+                  onCancel={handleCancelPayment} 
+                />
+              )}
+              {paymentStage === 'gateway' && (
+                <PaymentGateway 
+                  groupName={groupName}
+                  amount={amount} 
+                  userId={sessionUser?._id || sessionUser?.id}
+                  userEmail={sessionUser?.email}
+                  onBack={() => setPaymentStage('preview')} 
+                  onSuccess={handlePaymentSuccess} 
+                />
+              )}
+              {paymentStage === 'success' && (
+                <PaymentSuccess 
+                  transactionId={transactionId}
+                  onDone={() => {
+                    setPaymentStage('preview');
+                    setActiveTab('dashboard');
+                    setTransactionId('');
+                  }} 
+                />
+              )}
+            </>
+          )}
         </section>
       </main>
-    </div>
+    </article>
   );
 };
 

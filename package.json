@@ -1,100 +1,106 @@
 {
-  
+  
   "homepage": "https://gomolemorampa.github.io/TNBT-Stokvel-Management-Assistant",
-  
+  
   "scripts": {
-  
-    
+  
+    
   "start": "node server.js",
-  
-    
+  
+    
   "build": "cd frontend && npm run build",
-  
-    
+  
+    
   "predeploy": "cd frontend && npm run build",
-  
-    
+  
+    
   "deploy": "cd frontend && npm run deploy",
-  
-    
+  
+    
   "dev": "nodemon server.js",
-  
-    
+  
+    
   "test": "jest --passWithNoTests"
-  
+  
   },
-  
+  
   "devDependencies": {
-  
-    
+  
+    
   "autoprefixer": "^10.5.0",
-  
-    
+  
+    
   "gh-pages": "^6.3.0",
-  
-    
+  
+    
   "jest": "^30.3.0",
-  
-    
+  
+    
   "postcss": "^8.5.10",
-  
-    
+  
+    
   "tailwindcss": "^4.2.4"
-  
+  
   },
-  
+  
   "dependencies": {
-  
-    
+  
+    
   "cors": "^2.8.6",
-  
-    
+  
+    
   "dotenv": "^17.4.1",
-  
-    
+  
+    
   "express": "^5.2.1",
-  
-    
+  
+    
+  "googleapis": "^171.4.0",
+  
+    
   "mongoose": "^9.4.1",
-  
-    
-  "nodemailer": "^8.0.5"
-  
+  
+    
+  "nodemailer": "^8.0.5",
+  
+    
+  "react-paystack": "^6.0.0"
+  
   },
-  
+  
   "jest": {
-  
-    
+  
+    
   "collectCoverageFrom": [
-  
-    
-    
+  
+    
+    
   "src/**/*.{js,jsx}",
-  
-    
-    
+  
+    
+    
   "!src/index.js",
-  
-    
-    
+  
+    
+    
   "!src/reportWebVitals.js"
-  
-    
+  
+    
   ],
-  
-    
+  
+    
   "coverageReporters": [
-  
-    
-    
+  
+    
+    
   "text",
-  
-    
-    
+  
+    
+    
   "lcov"
-  
-    
+  
+    
   ]
-  
+  
   }
 }
