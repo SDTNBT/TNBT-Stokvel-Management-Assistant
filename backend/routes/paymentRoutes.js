@@ -9,7 +9,7 @@ router.post('/create-payment-intent', async (req, res) => {
         const apiKey = process.env.STRIPE_SECRET_KEY;
 
         if (!apiKey) {
-            console.error("❌ ERROR: STRIPE_SECRET_KEY is undefined");
+            console.error("ERROR: STRIPE_SECRET_KEY is undefined");
             return res.status(500).json({ error: "Stripe Key missing" });
         }
 
@@ -21,16 +21,14 @@ router.post('/create-payment-intent', async (req, res) => {
         });
 
         res.status(200).send({ clientSecret: paymentIntent.client_secret });
-        console.log(`✅ Success: PaymentIntent created for R${amount}`);
+        console.log(`Success: PaymentIntent created for R${amount}`);
     } catch (error) {
         console.error("Stripe Error:", error.message);
         res.status(500).json({ error: error.message });
     }
 });
 
-// --- UPDATED SAVE-SUCCESS ROUTE ---
 router.post('/save-success', async (req, res) => {
-    // 1. Destructure userEmail and userId from the request body
     const { 
         transactionId, 
         amount, 
@@ -42,34 +40,86 @@ router.post('/save-success', async (req, res) => {
     } = req.body;
 
     try {
-        // 2. Create the record in MongoDB
         const newPayment = await Payment.create({
             transactionId,
             amount,
             groupName,
             payerName,
-            userEmail, // Added
-            userId,    // Added
+            userEmail,
+            userId,
             zipCode,
             status: 'Confirmed',
             date: new Date()
         });
 
-        // 3. UPDATED CONSOLE LOGS for visibility
         console.log('-------------------------------------------');
-        console.log('✅ NEW PAYMENT RECORDED IN DATABASE');
-        console.log(`👤 Payer: ${payerName}`);
-        console.log(`📧 Email: ${userEmail}`);       // Added visibility
-        console.log(`🆔 UserID: ${userId}`);        // Added visibility
-        console.log(`💰 Amount: R ${amount}`);
-        console.log(`📂 Group: ${groupName}`);
-        console.log(`🧾 Stripe ID: ${transactionId}`);
+        console.log('NEW PAYMENT RECORDED IN DATABASE');
+        console.log(`Payer: ${payerName}`);
+        console.log(`Email: ${userEmail}`);
+        console.log(`UserID: ${userId}`);
+        console.log(`Amount: R ${amount}`);
+        console.log(`Group: ${groupName}`);
+        console.log(`Stripe ID: ${transactionId}`);
         console.log('-------------------------------------------');
 
         res.status(200).json({ message: 'Payment recorded successfully', data: newPayment });
     } catch (error) {
-        console.error('❌ DATABASE ERROR:', error.message);
+        console.error('DATABASE ERROR:', error.message);
         res.status(500).json({ message: 'Failed to record payment', error: error.message });
+    }
+});
+
+router.get('/my-payments/:userEmail', async (req, res) => {
+    try {
+        const { userEmail } = req.params;
+        
+        if (!userEmail) {
+            return res.status(400).json({ error: "User email is required" });
+        }
+
+        const payments = await Payment.find({ userEmail: userEmail.toLowerCase() })
+            .sort({ date: -1 });
+
+        console.log(`Found ${payments.length} payments for user: ${userEmail}`);
+        
+        res.status(200).json({ 
+            success: true, 
+            payments: payments,
+            count: payments.length
+        });
+    } catch (error) {
+        console.error("Error fetching payment history:", error.message);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.get('/my-payments-summary/:userEmail', async (req, res) => {
+    try {
+        const { userEmail } = req.params;
+        
+        if (!userEmail) {
+            return res.status(400).json({ error: "User email is required" });
+        }
+
+        const payments = await Payment.find({ userEmail: userEmail.toLowerCase() });
+        
+        const totalPaid = payments.reduce((sum, payment) => sum + payment.amount, 0);
+        const lastPayment = payments.length > 0 ? payments[0] : null;
+        const uniqueGroups = [...new Set(payments.map(p => p.groupName))];
+
+        res.status(200).json({
+            success: true,
+            summary: {
+                totalPaid: totalPaid,
+                totalPayments: payments.length,
+                uniqueGroups: uniqueGroups.length,
+                lastPaymentDate: lastPayment ? lastPayment.date : null,
+                lastPaymentAmount: lastPayment ? lastPayment.amount : 0
+            }
+        });
+    } catch (error) {
+        console.error("Error fetching payment summary:", error.message);
+        res.status(500).json({ error: error.message });
     }
 });
 
