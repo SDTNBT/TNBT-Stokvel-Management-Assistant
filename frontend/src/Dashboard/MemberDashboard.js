@@ -9,14 +9,13 @@ import './MemberDashboard.css';
 import Profile from '../components/Profile';
 import PaymentPreview from './PaymentPreview'; 
 import PaymentGateway from './PaymentGateway'; 
-import PaymentSuccess from './PaymentSuccess'; 
+import PaymentSuccess from './PaymentSuccess';
+import MemberContributionHistory from '../components/MemberContributionHistory';
 
 const MemberDashboard = ({ onLogout = () => {} }) => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Extract dynamic data sent from Home.js
-  // We use the optional chaining (?.) and defaults to prevent crashes on direct refresh
   const groupName = location.state?.groupName || "Stokvel Group";
   const amount = location.state?.contributionAmount || "0";
   const sessionUser = location.state?.user || JSON.parse(sessionStorage.getItem('user'));
@@ -24,11 +23,7 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
   const [isMeetingsOpen, setIsMeetingsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showProfile, setShowProfile] = useState(false);
-
-  // Tracks the 3 stages: 'preview', 'gateway', or 'success'
   const [paymentStage, setPaymentStage] = useState('preview');
-  
-  // State to store the unique ID from Stripe
   const [transactionId, setTransactionId] = useState('');
 
   const handleProfileClick = () => setShowProfile(true);
@@ -113,8 +108,8 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
             <li>
               <button 
                 type="button"
-                onClick={() => navigate('/contributions')} 
-                className="nav-item"
+                onClick={() => setActiveTab('contributions')} 
+                className={`nav-item ${activeTab === 'contributions' ? 'active' : ''}`}
               >
                 <FileText size={20} /> <small>View My Contributions</small>
               </button>
@@ -160,7 +155,7 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
                       onClick={() => setActiveTab('financial-health-scoring')} 
                       className={`submenu-btn ${activeTab === 'financial-health-scoring' ? 'active-sub' : ''}`}
                     >
-                      <FileText size={16} /> <small>Financial health Scoring</small>
+                      <FileText size={16} /> <small>Financial Health Scoring</small>
                     </button>
                   </li>
                   <li>
@@ -213,17 +208,20 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
       <main className="main-content">
         <header className="content-header">
             <h1 className="dashboard-title">
-              {activeTab.replace(/-/g, ' ')}
+              {activeTab === 'contributions' ? 'My Contribution History' : activeTab.replace(/-/g, ' ')}
             </h1>
         </header>
 
         <section className="content-body">
           {activeTab === 'dashboard' && (
             <section className="welcome-hero">
-              {/* Dynamic Welcome Message */}
-              <h2>Welcome back, {sessionUser?.firstName || sessionUser?.name || 'Member'}</h2>
+              <h2>Welcome back, {sessionUser?.name || sessionUser?.firstName || 'Member'}</h2>
               <p>You are viewing details for the <strong>{groupName}</strong> group.</p>
             </section>
+          )}
+
+          {activeTab === 'contributions' && (
+            <MemberContributionHistory user={sessionUser} />
           )}
 
           {activeTab === 'payment' && (
