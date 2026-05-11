@@ -3,6 +3,17 @@ import { CheckCircle } from 'lucide-react';
 import './PaymentSuccess.css';
 
 const PaymentSuccess = ({ transactionId, onReturn }) => {
+  // Fallback function to ensure the button ALWAYS does something
+  const handleReturn = () => {
+    if (typeof onReturn === 'function') {
+      onReturn();
+    } else {
+      // If the parent didn't pass a function, this will at least 
+      // reset the page so the user isn't stuck.
+      window.location.reload();
+    }
+  };
+
   return (
     <section className="success-page-wrapper">
       <article className="success-content">
@@ -20,8 +31,12 @@ const PaymentSuccess = ({ transactionId, onReturn }) => {
         </section>
 
         <footer className="success-footer">
-          <button onClick={onReturn} className="btn-return-dashboard">
-            Return to Dashboard
+          <button 
+            onClick={handleReturn} 
+            className="btn-return-dashboard"
+            style={{ cursor: 'pointer' }}
+          >
+            Return to Payment dashboard
           </button>
         </footer>
       </article>

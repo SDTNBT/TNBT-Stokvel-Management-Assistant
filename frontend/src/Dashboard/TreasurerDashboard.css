@@ -485,3 +485,19 @@
     font-size: 1.2rem;
   }
 }
+
+
+.sidebar-nav .nav-list li:last-child {
+    margin-bottom: 60px;
+}
+
+/* --- 10. SPACING FIX --- */
+/* Target the list item specifically containing Meeting Management */
+.treasurer-theme .sidebar-nav .nav-list li:nth-last-child(1) {
+    margin-bottom: 60px !important;
+}
+
+/* If you want to ensure the space is specifically after the dropdown button */
+.treasurer-theme .nav-item.dropdown-trigger {
+    margin-bottom: 15px;
+}

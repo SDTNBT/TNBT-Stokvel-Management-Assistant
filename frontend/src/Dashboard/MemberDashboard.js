@@ -26,8 +26,17 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
   const [paymentStage, setPaymentStage] = useState('preview');
   const [transactionId, setTransactionId] = useState('');
 
-  const handleProfileClick = () => setShowProfile(true);
-  const handleBackToDashboard = () => setShowProfile(false);
+  // When clicking Profile, we show the profile component
+  const handleProfileClick = () => {
+    setShowProfile(true);
+    setActiveTab('profile'); // Optional: helps with highlighting
+  };
+  
+  // When clicking Dashboard or other links, we hide the profile component
+  const handleTabChange = (tab) => {
+    setShowProfile(false);
+    setActiveTab(tab);
+  };
 
   const handleConfirmPayment = () => {
     setPaymentStage('gateway');
@@ -40,34 +49,8 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
 
   const handleCancelPayment = () => {
     setPaymentStage('preview');
-    setActiveTab('dashboard');
+    handleTabChange('dashboard');
   };
-
-  if (showProfile) {
-    return (
-      <section className="dashboard-shell">
-        <aside className="sidebar">
-          <header className="sidebar-brand">
-            <figure className="brand-identity">
-              <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-                <circle cx="16" cy="16" r="16" fill="#F5C842" />
-                <path d="M10 20 L16 10 L22 20" stroke="#1A3A6B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                <circle cx="16" cy="22" r="2" fill="#1A3A6B"/>
-              </svg>
-              <figcaption className="brand-text">StokvelStokkie</figcaption>
-            </figure>
-          </header>
-          <hr className="sidebar-divider" />
-          <button type="button" className="back-to-dashboard" onClick={handleBackToDashboard}>
-            ← Back to Dashboard
-          </button>
-        </aside>
-        <main className="main-content">
-          <Profile user={sessionUser} onLogout={onLogout} />
-        </main>
-      </section>
-    );
-  }
 
   return (
     <article className="dashboard-shell">
@@ -90,8 +73,8 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
             <li>
               <button 
                 type="button"
-                onClick={() => setActiveTab('dashboard')} 
-                className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
+                onClick={() => handleTabChange('dashboard')} 
+                className={`nav-item ${activeTab === 'dashboard' && !showProfile ? 'active' : ''}`}
               >
                 <LayoutDashboard size={20} /> <small>Dashboard</small>
               </button>
@@ -119,7 +102,7 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
               <button 
                 type="button"
                 onClick={() => {
-                  setActiveTab('payment'); 
+                  handleTabChange('payment'); 
                   setPaymentStage('preview'); 
                 }} 
                 className={`nav-item ${activeTab === 'payment' ? 'active' : ''}`}
@@ -143,7 +126,7 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
                   <li>
                     <button 
                       type="button"
-                      onClick={() => setActiveTab('projected-savings-growth')} 
+                      onClick={() => handleTabChange('projected-savings-growth')} 
                       className={`submenu-btn ${activeTab === 'projected-savings-growth' ? 'active-sub' : ''}`}
                     >
                       <CalendarDays size={16} /> <small>Projected Savings Growth</small>
@@ -152,7 +135,7 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
                   <li>
                     <button 
                       type="button"
-                      onClick={() => setActiveTab('financial-health-scoring')} 
+                      onClick={() => handleTabChange('financial-health-scoring')} 
                       className={`submenu-btn ${activeTab === 'financial-health-scoring' ? 'active-sub' : ''}`}
                     >
                       <FileText size={16} /> <small>Financial Health Scoring</small>
@@ -161,7 +144,7 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
                   <li>
                     <button 
                       type="button"
-                      onClick={() => setActiveTab('payout-history')} 
+                      onClick={() => handleTabChange('payout-history')} 
                       className={`submenu-btn ${activeTab === 'payout-history' ? 'active-sub' : ''}`}
                     >
                       <Mic2 size={16} /> <small>Payout History</small>
@@ -185,7 +168,7 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
               <li>
                 <button 
                   type="button" 
-                  className="footer-item" 
+                  className={`footer-item ${showProfile ? 'active' : ''}`} 
                   onClick={handleProfileClick}
                 >
                   <UserCircle size={20} /> <small>Profile</small>
@@ -208,55 +191,53 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
       <main className="main-content">
         <header className="content-header">
             <h1 className="dashboard-title">
-              {activeTab === 'contributions' ? 'My Contribution History' : activeTab.replace(/-/g, ' ')}
+              {activeTab === 'contributions' ? 'My Contribution History' : showProfile ? 'User Profile' : activeTab.replace(/-/g, ' ')}
             </h1>
         </header>
 
         <section className="content-body">
-          {activeTab === 'dashboard' && (
-            <section className="welcome-hero">
-              <h2>Welcome back, {sessionUser?.name || sessionUser?.firstName || 'Member'}</h2>
-              <p>You are viewing details for the <strong>{groupName}</strong> group.</p>
-            </section>
-          )}
-
-          {activeTab === 'contributions' && (
-            <PaymentHistory 
-              user={sessionUser} 
-              groupName={groupName} 
-              groupId={location.state?.groupId} 
-            />
-          )}
-
-          {activeTab === 'payment' && (
+          {showProfile ? (
+            <Profile user={sessionUser} onLogout={onLogout} />
+          ) : (
             <>
-              {paymentStage === 'preview' && (
-                <PaymentPreview 
-                  groupName={groupName} 
-                  amount={amount} 
-                  onConfirm={handleConfirmPayment} 
-                  onCancel={handleCancelPayment} 
-                />
+              {activeTab === 'dashboard' && (
+                <section className="welcome-hero">
+                  <h2>Welcome back, {sessionUser?.firstName || sessionUser?.name || 'Member'}</h2>
+                  <p>You are viewing details for the <strong>{groupName}</strong> group.</p>
+                </section>
               )}
-              {paymentStage === 'gateway' && (
-                <PaymentGateway 
-                  groupName={groupName}
-                  amount={amount} 
-                  userId={sessionUser?._id || sessionUser?.id}
-                  userEmail={sessionUser?.email}
-                  onBack={() => setPaymentStage('preview')} 
-                  onSuccess={handlePaymentSuccess} 
-                />
-              )}
-              {paymentStage === 'success' && (
-                <PaymentSuccess 
-                  transactionId={transactionId}
-                  onDone={() => {
-                    setPaymentStage('preview');
-                    setActiveTab('dashboard');
-                    setTransactionId('');
-                  }} 
-                />
+
+              {activeTab === 'payment' && (
+                <>
+                  {paymentStage === 'preview' && (
+                    <PaymentPreview 
+                      groupName={groupName} 
+                      amount={amount} 
+                      onConfirm={handleConfirmPayment} 
+                      onCancel={handleCancelPayment} 
+                    />
+                  )}
+                  {paymentStage === 'gateway' && (
+                    <PaymentGateway 
+                      groupName={groupName}
+                      amount={amount} 
+                      userId={sessionUser?._id || sessionUser?.id}
+                      userEmail={sessionUser?.email}
+                      onBack={() => setPaymentStage('preview')} 
+                      onSuccess={handlePaymentSuccess} 
+                    />
+                  )}
+                  {paymentStage === 'success' && (
+                    <PaymentSuccess 
+                      transactionId={transactionId}
+                      onDone={() => {
+                        setPaymentStage('preview');
+                        handleTabChange('dashboard');
+                        setTransactionId('');
+                      }} 
+                    />
+                  )}
+                </>
               )}
             </>
           )}

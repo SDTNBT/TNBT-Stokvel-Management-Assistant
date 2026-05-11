@@ -129,3 +129,14 @@
   padding: 40px !important;
   overflow-y: auto !important;
 }
+
+/* Target .dashboard-shell instead of .treasurer-theme */
+.dashboard-shell .sidebar :is(small, label, p, span) {
+  font-size: 0.85rem !important; /* This is approx 13.6px */
+  font-weight: 500 !important;
+}
+
+/* Specifically target the submenu text to be slightly smaller than the main items */
+.dashboard-shell .submenu-btn small {
+  font-size: 0.8rem !important;
+}
