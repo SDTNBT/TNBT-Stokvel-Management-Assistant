@@ -1,150 +1,491 @@
-/* --- 1. CORE RESET & THEME SCOPING --- */
-.treasurer-theme.dashboard-shell { 
-  display: flex !important; 
-  height: 100vh !important; 
-  width: 100vw !important; 
-  background: #f4f7fe !important; 
-  overflow: hidden !important; 
-  margin: 0; padding: 0;
+/* TreasurerDashboard.css - Modern Appealing Design */
+
+.dashboard-shell {
+  display: flex;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #f0f2f5 100%);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
-.treasurer-theme.dashboard-shell * { box-sizing: border-box; }
-
-/* --- 2. SIDEBAR STRUCTURE (Logic from Admin) --- */
-.treasurer-theme .sidebar {
-  width: 280px !important;
-  background: #3d2b56 !important; 
-  display: flex !important;
-  flex-direction: column !important;
-  border: none !important;
-  height: 100vh !important;
-  position: sticky !important;
-  top: 0 !important;
-  overflow-y: auto !important; 
-  overflow-x: hidden !important;
+/* Sidebar Styles */
+.sidebar {
+  width: 280px;
+  background: white;
+  border-right: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.02);
 }
 
-/* Custom Scrollbar for Treasurer */
-.treasurer-theme .sidebar::-webkit-scrollbar {
-  width: 8px;
+.sidebar-brand {
+  margin-bottom: 2rem;
 }
-.treasurer-theme .sidebar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+
+.brand-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+}
+
+.brand-text {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #1a202c;
+  letter-spacing: -0.5px;
+}
+
+.sidebar-divider {
+  margin: 1rem 0;
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, #e2e8f0, transparent);
+}
+
+/* Sidebar Navigation */
+.sidebar-nav {
+  flex: 1;
+}
+
+.nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  color: #64748b;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  width: 100%;
+  background: none;
+  border: none;
+  font-size: 0.9rem;
+}
+
+.nav-item:hover {
+  background: #f1f5f9;
+  color: #004aad;
+  transform: translateX(4px);
+}
+
+.nav-item.active {
+  background: linear-gradient(135deg, #004aad, #0062e3);
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 74, 173, 0.3);
+}
+
+.nav-item label {
+  cursor: pointer;
+  margin: 0;
+}
+
+/* Dropdown Styles */
+.dropdown-trigger {
+  justify-content: space-between;
+}
+
+.chevron-icon {
+  transition: transform 0.3s ease;
+}
+
+.chevron-icon.rotate {
+  transform: rotate(180deg);
+}
+
+.submenu {
+  list-style: none;
+  padding-left: 48px;
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+
+.submenu-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
   border-radius: 10px;
+  cursor: pointer;
+  color: #64748b;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+  width: 100%;
+  background: none;
+  border: none;
 }
 
-/* --- 3. NAVIGATION & LISTS --- */
-.treasurer-theme .nav-list li,
-.treasurer-theme .footer-list li,
-.treasurer-theme .submenu li {
-  border: none !important;
-  list-style: none !important;
-  background: transparent !important;
-  margin: 0; padding: 0;
+.submenu-btn:hover {
+  background: #f1f5f9;
+  color: #004aad;
 }
 
-.treasurer-theme .nav-item,
-.treasurer-theme .footer-item,
-.treasurer-theme .submenu-btn {
-  display: flex !important;
-  align-items: center !important;
-  gap: 12px !important;
-  width: 100% !important;
-  padding: 12px 18px !important; 
-  background: transparent !important;
-  cursor: pointer !important;
-  border: none !important;
-  white-space: nowrap !important;
+.submenu-btn.active-sub {
+  background: #e0e7ff;
+  color: #004aad;
+  font-weight: 500;
 }
 
-.treasurer-theme .nav-item:hover, 
-.treasurer-theme .nav-item.active { 
-  background: rgba(255, 255, 255, 0.1) !important; 
+.submenu-btn label {
+  cursor: pointer;
+  margin: 0;
 }
 
-/* --- 4. SUBMENU DROPDOWN ROTATION --- */
-.treasurer-theme .rotate { transform: rotate(180deg) !important; }
-
-/* --- 5. LOGO & BRANDING --- */
-.treasurer-theme .brand-identity {
-  display: flex !important;
-  align-items: center !important;
-  gap: 12px !important;
-  padding: 20px !important;
+/* Sidebar Footer */
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 1rem;
 }
 
-.treasurer-theme .brand-text { 
-  font-size: 1.3rem !important; 
-  font-weight: 800 !important; 
-  margin: 0 !important; 
-  color: #ffffff !important;
+.footer-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-/* --- 6. DIVIDERS --- */
-.treasurer-theme .sidebar-divider,
-.treasurer-theme .footer-divider {
-  border: none !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
-  margin: 10px 0 !important;
-  width: 100% !important;
+.footer-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  color: #64748b;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  width: 100%;
+  background: none;
+  border: none;
+  font-size: 0.9rem;
 }
 
-/* --- 7. MAIN CONTENT --- */
-.treasurer-theme .main-content { 
-  flex: 1 !important; 
-  overflow-y: auto !important; 
-  padding: 20px 40px 40px 40px !important; 
+.footer-item:hover {
+  background: #f1f5f9;
+  color: #004aad;
 }
 
-.treasurer-theme .content-card { 
-  background: #ffffff !important; 
-  border-radius: 24px !important; 
-  padding: 32px !important; 
-  margin-bottom: 32px !important; 
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04) !important; 
+.footer-item.logout-btn:hover {
+  background: #fee2e2;
+  color: #dc2626;
 }
 
-/* --- 8. CALENDAR --- */
-.treasurer-theme .calendar-grid { 
-  display: grid; 
-  grid-template-columns: repeat(7, 1fr); 
-  list-style: none; 
-  padding: 0; 
+.footer-item label {
+  cursor: pointer;
+  margin: 0;
 }
 
-.treasurer-theme .calendar-day { 
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
-  height: 40px; 
+/* Main Content Area */
+.main-content {
+  flex: 1;
+  padding: 2rem 3rem;
+  overflow-y: auto;
 }
 
-.treasurer-theme .calendar-day.today { 
-  color: #1A3A6B !important; 
-  font-weight: bold; 
-  border-radius: 50%; 
-  border: 2px solid #1A3A6B; 
+.content-header {
+  margin-bottom: 2rem;
 }
 
-/* --- 9. THE "SUPER-OVERRIDE" WHITE-TEXT LOGIC --- */
-/* Target labels, buttons, and icons specifically inside the treasurer sidebar */
-.treasurer-theme .sidebar :is(label, p, span, button, svg, a, i) {
-  color: #ffffff !important;
-  stroke: #ffffff !important;
-  opacity: 1 !important;
+.dashboard-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #004aad, #0062e3);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin: 0;
+  text-transform: capitalize;
 }
 
-/* Specific fix for Lucide Icon internal paths */
-.treasurer-theme .sidebar svg * {
-  stroke: #ffffff !important;
+.content-body {
+  animation: fadeIn 0.3s ease;
 }
 
-/* Exception for Logout Red */
-.treasurer-theme .logout-btn,
-.treasurer-theme .logout-btn :is(label, p, span, svg, svg *) {
-  color: #ff4d4d !important;
-  stroke: #ff4d4d !important;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
+
+/* Welcome Hero Section */
+.welcome-hero {
+  background: linear-gradient(135deg, #004aad, #0062e3);
+  border-radius: 24px;
+  padding: 2rem;
+  color: white;
+  margin-bottom: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 74, 173, 0.2);
+}
+
+.welcome-hero h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+}
+
+.welcome-hero p {
+  font-size: 1rem;
+  opacity: 0.9;
+  margin: 0;
+}
+
+/* Stats Grid for Treasurer Dashboard */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  border-bottom: 3px solid #004aad;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card.warning {
+  border-bottom-color: #f59e0b;
+}
+
+.stat-card h3 {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 0.5rem 0;
+}
+
+.stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0;
+}
+
+.stat-value.warning {
+  color: #f59e0b;
+}
+
+/* Group Summary Section */
+.group-summary {
+  background: white;
+  border-radius: 20px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.group-summary h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.summary-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.summary-details p {
+  margin: 0;
+  color: #475569;
+  font-size: 0.9rem;
+}
+
+.summary-details strong {
+  color: #1a202c;
+}
+
+.progress-bar {
+  background: #e2e8f0;
+  border-radius: 20px;
+  overflow: hidden;
+  height: 8px;
+  margin-top: 0.5rem;
+}
+
+.progress-fill {
+  background: linear-gradient(90deg, #004aad, #0062e3);
+  height: 100%;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  color: white;
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* Recent Transactions Table */
+.recent-transactions {
+  background: white;
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.recent-transactions h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.transactions-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.transactions-table th,
+.transactions-table td {
+  padding: 12px 8px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.transactions-table th {
+  font-weight: 600;
+  color: #475569;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.transactions-table td {
+  color: #1a202c;
+  font-size: 0.9rem;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.status-badge.completed {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-badge.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* Back to Dashboard Button */
+.back-to-dashboard {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: #004aad;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 10px;
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+.back-to-dashboard:hover {
+  background: #e0e7ff;
+  transform: translateX(-4px);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 240px;
+    padding: 1.5rem 1rem;
+  }
+  
+  .main-content {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-shell {
+    flex-direction: column;
+  }
+  
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+    padding: 1rem;
+  }
+  
+  .main-content {
+    padding: 1rem;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .summary-details {
+    grid-template-columns: 1fr;
+  }
+  
+  .transactions-table {
+    font-size: 0.75rem;
+  }
+  
+  .transactions-table th,
+  .transactions-table td {
+    padding: 8px 4px;
+  }
+  
+  .dashboard-title {
+    font-size: 1.25rem;
+  }
+  
+  .welcome-hero h2 {
+    font-size: 1.2rem;
+  }
+}
+
 
 .sidebar-nav .nav-list li:last-child {
     margin-bottom: 60px;

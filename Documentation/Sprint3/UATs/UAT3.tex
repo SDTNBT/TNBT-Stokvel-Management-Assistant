@@ -1,0 +1,22 @@
+# User Story: 
+*As a user, I want to securely save my bank account details in my profile so that the system has a record of where to send my payouts.*
+
+### Scenario 1 - Viewing Banking Details with no details saved
+- **GIVEN** I have never saved banking details before.
+- **WHEN** I navigate to the **"My Account Details"** section and select **"View Details"**.
+- **THEN** the system should recognize the empty state and direct me to the **"Banking Details Form"**.
+
+### Scenario 2 - Navigating to Add Banking Details
+- **GIVEN** I am a user.
+- **WHEN** I navigate to the **"My Account Details"** section and select **"Add/Edit Details"**.
+- **THEN** the system should display the **"Banking Details Form"**.
+
+### Scenario 3 - Validation of Incomplete Information
+- **GIVEN** I am on the banking details form.
+- **WHEN** I leave any required field empty and attempt to save.
+- **THEN** the system should prevent the submission and notify me.
+
+### Scenario 4 - Viewing Saved Banking Details
+- **GIVEN** I have previously saved my banking details.
+- **WHEN** I navigate to the **"My Account Details"** section.
+- **THEN** I should see my confirmed Bank Name and a masked version of my Account Number.

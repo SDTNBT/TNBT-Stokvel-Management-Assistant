@@ -9,7 +9,8 @@ import './MemberDashboard.css';
 import Profile from '../components/Profile';
 import PaymentPreview from './PaymentPreview'; 
 import PaymentGateway from './PaymentGateway'; 
-import PaymentSuccess from './PaymentSuccess'; 
+import PaymentSuccess from './PaymentSuccess';
+import PaymentHistory from '../components/PaymentHistory';
 
 const MemberDashboard = ({ onLogout = () => {} }) => {
   const navigate = useNavigate();
@@ -90,8 +91,8 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
             <li>
               <button 
                 type="button"
-                onClick={() => navigate('/contributions')} 
-                className="nav-item"
+                onClick={() => setActiveTab('contributions')} 
+                className={`nav-item ${activeTab === 'contributions' ? 'active' : ''}`}
               >
                 <FileText size={20} /> <small>View My Contributions</small>
               </button>
@@ -137,7 +138,7 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
                       onClick={() => handleTabChange('financial-health-scoring')} 
                       className={`submenu-btn ${activeTab === 'financial-health-scoring' ? 'active-sub' : ''}`}
                     >
-                      <FileText size={16} /> <small>Financial health Scoring</small>
+                      <FileText size={16} /> <small>Financial Health Scoring</small>
                     </button>
                   </li>
                   <li>
@@ -190,7 +191,7 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
       <main className="main-content">
         <header className="content-header">
             <h1 className="dashboard-title">
-              {showProfile ? 'User Profile' : activeTab.replace(/-/g, ' ')}
+              {activeTab === 'contributions' ? 'My Contribution History' : showProfile ? 'User Profile' : activeTab.replace(/-/g, ' ')}
             </h1>
         </header>
 
