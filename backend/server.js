@@ -103,7 +103,9 @@ if (require.main === module) {
         console.error(" CRITICAL ERROR: Production server is trying to connect to a TEST database! Shutting down.");
         process.exit(1);
     }
-    connectDB(); // Connect to production DB
+    if (process.env.NODE_ENV !== 'test') {
+        connectDB(); // Connect to production DB
+    }
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => {
         console.log(`📡 Server listening on Port: ${PORT}`);

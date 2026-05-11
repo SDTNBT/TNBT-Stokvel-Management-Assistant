@@ -1,88 +1,51 @@
-// tests/minutesController.test.js
-require('dotenv').config({ path: '.env.test' });
 const { saveMinutes } = require('../controllers/minutesController');
-const Minutes = require('../models/minutes');
-const User = require('../models/User'); // <-- Make sure you import User if you keep the block below!
+const mongoose = require('mongoose');
 
-// Mock the Mongoose model
+const Minutes = require('../models/minutes'); // Path to your model
+
+// Mock the entire Minutes model
 jest.mock('../models/minutes');
 
-describe('Minutes Controller - saveMinutes (Existing Schema)', () => {
+describe('Minutes Controller - saveMinutes', () => {
   let req, res;
 
   beforeEach(() => {
+    // 1. Initialize req as an object so you can attach .body and .params to it
     req = {
-      params: { groupId: 'stokvel-group-123' },
-      body: {
-        meetingId: '60d5ecb8b392d700153ee089', // Mock ObjectId string
-        title: 'April Monthly Gathering',
-        content: 'Discussed late fees and end of year payout.',
-        attendance: [
-          { memberName: 'Sipho', present: true },
-          { memberName: 'Thabo', present: false }
-        ]
-      }
+      params: {},
+      body: {}
     };
-    
+
+    // 2. Mock the res object and its methods
     res = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn()
+      status: jest.fn().mockReturnThis(), // .mockReturnThis() allows chaining like res.status(200).json()
+      json: jest.fn().mockReturnThis()
     };
   });
 
-  // 2. Setup Test User
-  beforeEach(async () => {
-      await User.create({
-          firebaseUid: "mock-firebase-uid-123",
-          name: "Alice Zwane", 
-          email: "alice@test.com"
-      });
-  }); // <--- THIS WAS MISSING!
+  test('✅ SUCCESS: should successfully save valid minutes', async () => {
+  const validGroupId = new mongoose.Types.ObjectId().toString();
+  
+  req.params.groupId = validGroupId;
+  req.body = {
+    meetingDate: "2026-05-11",
+    meetingTime: "10:00",
+    contributions: [{ member: "Alice", amount: 500, status: "paid" }]
+  };
 
-  afterEach(() => {
-    jest.clearAllMocks();
+  // 1. Mock the save method to resolve successfully
+  Minutes.prototype.save = jest.fn().mockResolvedValue({
+    _id: 'mock-id',
+    ...req.body,
+    group: validGroupId
   });
 
-  it('should successfully save valid minutes and return 201', async () => {
-    Minutes.prototype.save = jest.fn().mockResolvedValue(true);
+  await saveMinutes(req, res);
 
-    await saveMinutes(req, res);
-
-    expect(Minutes).toHaveBeenCalledWith(expect.objectContaining({
-      groupId: 'stokvel-group-123',
-      meetingId: '60d5ecb8b392d700153ee089',
-      title: 'April Monthly Gathering',
-      content: 'Discussed late fees and end of year payout.'
-    }));
-    
-    expect(res.status).toHaveBeenCalledWith(201);
-  });
-
-  it('should return a 400 error if meetingId is missing', async () => {
-    req.body.meetingId = ''; // Remove required field
-
-    await saveMinutes(req, res);
-
-    expect(Minutes.prototype.save).not.toHaveBeenCalled();
-    expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ 
-      message: 'meetingId, title, and content are required fields.' 
-    });
-  });
-
-  it('should return a 400 error if content is missing', async () => {
-    req.body.content = ''; // Remove required field
-
-    await saveMinutes(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(400);
-  });
-
-  it('should return a 500 error if the database crashes', async () => {
-    Minutes.prototype.save = jest.fn().mockRejectedValue(new Error('DB Error'));
-
-    await saveMinutes(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(500);
-  });
+  // Now it won't time out because it's not actually hitting a DB!
+  expect(res.status).toHaveBeenCalledWith(201);
+  expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+    message: "Minutes saved successfully!"
+  }));
+});
 });

@@ -1,0 +1,40 @@
+/* ─── Invite action buttons ──────────────────────────────────────────────── */
+.nb-invite-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  border: none;
+  padding: 0;
+  background: none;
+}
+
+.nb-accept-btn {
+  flex: 1;
+  background: #1A3A6B;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 7px 0;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.nb-decline-btn {
+  flex: 1;
+  background: none;
+  color: #4B6080;
+  border: 1.5px solid #D0DEF5;
+  border-radius: 6px;
+  padding: 7px 0;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.nb-invite-resolved {
+  margin: 8px 0 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: #7A93B0;
+}

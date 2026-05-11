@@ -1,0 +1,223 @@
+/* ─── InviteMember.css ───────────────────────────────────────────────────── */
+
+@keyframes im-fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes im-pop {
+  0%   { transform: scale(0.8); opacity: 0; }
+  70%  { transform: scale(1.06); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ─── Layout ─────────────────────────────────────────────────────────────── */
+.im-layout {
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 16px 48px rgba(26, 58, 107, 0.11);
+  width: 100%;
+  border-top: 4px solid #F5C842;
+  animation: im-fadeUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  overflow: hidden;
+}
+
+/* ─── Header ─────────────────────────────────────────────────────────────── */
+.im-header {
+  padding: 28px 28px 20px;
+}
+
+.im-title {
+  font-family: 'Sora', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1A3A6B;
+  margin-bottom: 4px;
+}
+
+.im-sub {
+  font-size: 13px;
+  color: #7A93B0;
+  line-height: 1.5;
+}
+
+/* ─── Scrollable nav ─────────────────────────────────────────────────────── */
+.im-list-nav {
+  overflow-y: auto;
+  max-height: 775px;
+  padding: 0 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ─── Section groups ─────────────────────────────────────────────────────── */
+.im-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.im-group-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Sora', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #4B6080;
+  padding: 0 28px 8px;
+  border-bottom: 1px solid #EBF2FF;
+  margin-bottom: 4px;
+}
+
+.im-group-label--muted { color: #B0C4DE; }
+
+.im-group-count {
+  background: #EBF2FF;
+  color: #2563C8;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 20px;
+}
+
+.im-group-count--muted {
+  background: #F0F4F8;
+  color: #B0C4DE;
+}
+
+/* ─── List ───────────────────────────────────────────────────────────────── */
+.im-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* ─── Row — mirrors ViewMembers .member-clickable-card style ─────────────── */
+.im-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 28px;
+  cursor: pointer;
+  border-bottom: 0.5px solid #f0f4ff;
+  transition: background 0.15s;
+}
+
+.im-row:hover:not(.im-row--disabled):not(.im-row--invited) {
+  background: #F7FAFF;
+}
+
+.im-row:focus-visible {
+  outline: 2px solid #2563C8;
+  outline-offset: -2px;
+}
+
+.im-row--disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.im-row--invited {
+  background: #EDFAF3;
+  cursor: default;
+}
+
+/* ─── Avatar ─────────────────────────────────────────────────────────────── */
+.im-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #1A3A6B;
+  color: #F5C842;
+  font-family: 'Sora', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.im-row--disabled .im-avatar { background: #B0C4DE; color: #fff; }
+.im-row--invited  .im-avatar { background: #1A7A4A; color: #fff; }
+
+/* ─── Row info ───────────────────────────────────────────────────────────── */
+.im-row-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.im-row-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1A3A6B;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.im-row-email {
+  font-size: 12px;
+  color: #7A93B0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ─── Badges ─────────────────────────────────────────────────────────────── */
+.im-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-weight: 600;
+  border-radius: 20px;
+  padding: 3px 10px;
+  flex-shrink: 0;
+}
+
+.im-badge--member {
+  background: #F0F4F8;
+  color: #B0C4DE;
+  border: 1px solid #E2ECF8;
+}
+
+.im-badge--invited {
+  background: #1A7A4A;
+  color: #ffffff;
+  animation: im-pop 0.25s ease both;
+}
+
+/* ─── Arrow ──────────────────────────────────────────────────────────────── */
+.im-arrow {
+  font-size: 20px;
+  color: #B0C4DE;
+  flex-shrink: 0;
+  font-style: normal;
+  transition: color 0.15s, transform 0.15s;
+}
+
+.im-row:hover:not(.im-row--disabled) .im-arrow {
+  color: #2563C8;
+  transform: translateX(2px);
+}
+
+/* ─── Empty state ────────────────────────────────────────────────────────── */
+.im-empty {
+  text-align: center;
+  font-size: 13.5px;
+  color: #7A93B0;
+  padding: 48px 28px;
+}
+
+/* ─── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 520px) {
+  .im-header          { padding: 20px 18px 16px; }
+  .im-group-label,
+  .im-row             { padding-left: 18px; padding-right: 18px; }
+}

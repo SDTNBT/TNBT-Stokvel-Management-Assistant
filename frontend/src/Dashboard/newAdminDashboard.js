@@ -8,6 +8,7 @@ import {
 import React, { useState, useEffect } from 'react';
 import { useGroupData } from './useGroupData';
 import './newAdminDashboard.css';
+import { useAllUsers } from '../hooks/useAllUsers';
 
 // --- CRITICAL: Match these imports to your filenames exactly ---
 import ScheduleMeeting from './ScheduleMeeting';
@@ -15,6 +16,9 @@ import PostAgendas from './PostAgendas';
 import RecordMinutes from './RecordMinutes';
 import ViewMembers from './ViewMembers';
 import MemberDetails from './MemberDetails';
+import { InviteMember } from './InviteMember';
+
+const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -28,6 +32,8 @@ const AdminDashboard = () => {
   const [today, setToday] = useState(new Date());
   const { members, group, setMembers } = useGroupData(groupId);
   const [selectedMember, setSelectedMember] = useState(null);
+  const { users, loading: usersLoading } = useAllUsers();
+  console.log("What is useAllUsers returning?", users);
   
   useEffect(() => {
     setToday(new Date());
@@ -73,6 +79,22 @@ const AdminDashboard = () => {
     }
   };
 
+  // In whatever parent component calls onSelectMember
+  const handleSelectMember = async (user) => {
+    const token = localStorage.getItem('token');
+    await fetch(`${apiUrl}/notifications`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({
+        recipient: user.email,        // ← must be 'recipient' to match the schema
+        type:      'invite',
+        title:     'Group Invite',
+        message:   `You've been invited to join ${group.groupName}.`,
+        groupId:   group._id,
+      }),
+    });
+  };
+
 
   const renderContent = () => {
 
@@ -93,7 +115,10 @@ const AdminDashboard = () => {
       // Pass the data down from the hook
       return <ViewMembers group={group} members={members} onSelectMember={setSelectedMember} />;
     }
-    
+    if (activeTab === 'invite-member') {
+      return <InviteMember users={usersLoading ? [] : users} members={members} onSelectMember={handleSelectMember} />;
+    }
+
     return (
       <>
         <header className="content-header">
@@ -198,7 +223,8 @@ const AdminDashboard = () => {
                       <Users size={16} /><p>View Member</p>
                     </button>
                   </li>
-                  <li><button className="submenu-btn"><UserPlus size={16} /><p>Add Member</p></button></li>
+                  <li><button onClick={() => setActiveTab('invite-member')} className={`submenu-btn ${activeTab === 'invite-member' ? 'active-sub' : ''}`}>
+                    <UserPlus size={16} /><p>Invite Member</p></button></li>
                 </ul>
               )}
             </li>
