@@ -32,6 +32,36 @@ const schedulePayout = async (req, res) => {
     }
 };
 
+const updatePayoutStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+
+        // Find the payout by ID and update its status
+        const updatedPayout = await Payout.findByIdAndUpdate(
+            id, 
+            { status }, 
+            { new: true } // This tells Mongoose to return the updated document, not the old one
+        );
+
+        // If the ID doesn't exist, return our 404 error
+        if (!updatedPayout) {
+            return res.status(404).json({ message: 'Payout not found' });
+        }
+
+        // If it worked, return the 200 success
+        res.status(200).json({
+            message: 'Payout status updated successfully',
+            payout: updatedPayout
+        });
+
+    } catch (error) {
+        console.error('Error updating payout:', error);
+        res.status(500).json({ message: 'Server error while updating payout' });
+    }
+};
+
 module.exports = {
-    schedulePayout
+    schedulePayout,
+    updatePayoutStatus
 };

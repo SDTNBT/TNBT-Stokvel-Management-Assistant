@@ -67,4 +67,67 @@ describe('Payout Controller - Treasurer Schedule', () => {
     });
 
   });
+
+describe('PUT /api/payouts/:id/status', () => {
+    
+    it('Rule 3: Should successfully update a payout status to Paid and return 200', async () => {
+      // 1. Setup: Manually save a Scheduled payout to the DB
+      const existingPayout = new Payout({
+        groupName: 'TEST003',
+        userId: '69f1eaab9ba63b55ca592b5d',
+        userEmail: '2440626@students.wits.ac.za',
+        amount: 500,
+        payoutDate: '2026-12-01',
+        status: 'Scheduled'
+      });
+      await existingPayout.save();
+
+      // 2. Action: Hit the API to update it to "Paid"
+      const response = await request(app)
+        .put(`/api/payouts/${existingPayout._id}/status`)
+        .send({ status: 'Paid' });
+
+      // 3. Assert: Check if the API responded correctly
+      expect(response.status).toBe(200);
+      expect(response.body.message).toBe('Payout status updated successfully');
+      expect(response.body.payout.status).toBe('Paid');
+    });
+
+    it('Should return 404 if the payout ID does not exist', async () => {
+      // Generate a valid MongoDB ID, but one that doesn't belong to any payout
+      const fakeId = new mongoose.Types.ObjectId(); 
+      
+      const response = await request(app)
+        .put(`/api/payouts/${fakeId}/status`)
+        .send({ status: 'Paid' });
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toBe('Payout not found');
+    });
+
+describe('Security Guard (Rule 4) - Role Authorization', () => {
+    
+    it('Should return 403 Forbidden if a standard user tries to schedule a payout', async () => {
+      
+      const response = await request(app)
+        .post('/api/payouts')
+        // We are NOT attaching a Treasurer/Admin token here, so the server SHOULD block us.
+        .set('x-user-role', 'Member')
+        .send({
+          groupName: 'TEST003',
+          userId: 'regular-member-id',
+          userEmail: 'member@students.wits.ac.za',
+          amount: 200,
+          payoutDate: '2026-12-05'
+        });
+
+      // We expect the bouncer to kick us out with a 403 (or 401)
+      expect(response.status).toBe(403);
+      expect(response.body.message).toBe('Access denied. Treasurers only.');
+    });
+
+  });
+
+  });
+
 });
