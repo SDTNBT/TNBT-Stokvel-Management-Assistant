@@ -1,0 +1,219 @@
+:root {
+  --stokvel-navy: #0f172a;
+  --stokvel-navy-light: #1e293b;
+  --stokvel-gold: #eab308;
+  --stokvel-white: #ffffff;
+}
+
+/* Main Page Container (Transparent Background) */
+.banking-options-page {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: transparent; 
+}
+
+/* Header section */
+.banking-options-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.banking-options-icon-wrapper {
+  margin: 0 auto 1rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  background-color: var(--stokvel-navy);
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.banking-options-icon-wrapper svg {
+  width: 1.75rem;
+  height: 1.75rem;
+  color: var(--stokvel-gold);
+}
+
+.banking-options-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--stokvel-navy);
+  margin: 0 0 0.5rem;
+}
+
+.banking-options-description {
+  color: #64748b;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Options container */
+.banking-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.banking-option-btn {
+  width: 100%;
+  padding: 1.25rem;
+  border-radius: 1rem;
+  border: none; /* Removed border to favor the solid colors from original */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+/* Restored View button Gold Color */
+.banking-option-btn--view {
+  background-color: var(--stokvel-gold);
+  color: var(--stokvel-navy);
+}
+
+.banking-option-btn--view:hover:not(:disabled) {
+  background-color: #ca9a06;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(234, 179, 8, 0.3);
+}
+
+.banking-option-btn--view:disabled {
+  background-color: rgba(234, 179, 8, 0.3);
+  color: rgba(15, 23, 42, 0.4);
+  cursor: not-allowed;
+}
+
+/* Add/Edit button Navy Color */
+.banking-option-btn--edit {
+  background-color: var(--stokvel-navy);
+  color: var(--stokvel-white);
+}
+
+.banking-option-btn--edit:hover {
+  background-color: var(--stokvel-navy-light);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+}
+
+/* Icon Containers within buttons */
+.banking-option-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.banking-option-btn--view .banking-option-icon {
+  background-color: var(--stokvel-navy);
+}
+
+.banking-option-btn--view .banking-option-icon svg {
+  color: var(--stokvel-gold);
+}
+
+.banking-option-btn--edit .banking-option-icon {
+  background-color: var(--stokvel-gold);
+}
+
+.banking-option-btn--edit .banking-option-icon svg {
+  color: var(--stokvel-navy);
+}
+
+.banking-option-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.banking-option-subtitle {
+  font-size: 0.85rem;
+  margin: 0.25rem 0 0;
+  opacity: 0.8;
+}
+
+.banking-option-arrow {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-left: auto; /* Push arrow to the far right */
+  opacity: 0.6;
+}
+
+/* Notice Box */
+.banking-options-notice {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background-color: #fff9db;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid rgba(234, 179, 8, 0.2);
+}
+
+.banking-options-notice-icon svg {
+  width: 1.25rem;
+  color: var(--stokvel-gold);
+}
+
+.banking-options-notice-text {
+  font-size: 0.85rem;
+  color: #856404;
+  margin: 0;
+}
+
+/* Trust & Back Button Section */
+.banking-options-trust {
+  margin-top: 2rem;
+  padding: 1.5rem 0;
+  border-top: 1px solid #e2e8f0;
+}
+
+.banking-options-trust-list {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.banking-options-trust-item {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.banking-options-trust-dot {
+  width: 4px;
+  height: 4px;
+  background-color: #cbd5e1;
+  border-radius: 50%;
+}
+
+.banking-options-back {
+  margin-top: 1rem;
+  width: 100%;
+  padding: 0.75rem;
+  background: none;
+  border: none;
+  color: #64748b;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.banking-options-back:hover {
+  color: var(--stokvel-navy);
+}

@@ -1,5 +1,5 @@
 {
-  "homepage": "https://kagisokotu.github.io/TNBT-Stokvel-Management-Assistant",
+  "homepage": "https://gomolemorampa.github.io/TNBT-Stokvel-Management-Assistant",
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
@@ -11,7 +11,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^13.5.0",
-    "axios": "^1.15.1",
+    "axios": "^1.16.0",
     "firebase": "^12.12.0",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^1.8.0",
