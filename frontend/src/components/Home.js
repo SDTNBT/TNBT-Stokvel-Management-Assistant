@@ -1,10 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect , useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import './Home.css';
-import { House, Search, Wallet, Bell, User, ChevronDown, MoreVertical, Trash2, CheckCircle, X, Eye } from 'lucide-react';
+import { House, Search, CreditCard, Bell, User, ChevronDown, MoreVertical, Trash2, CheckCircle } from 'lucide-react';
 import NotificationBell from './NotificationBell';
 import ProfileTable from './ProfileTable';
+import BankingOptions from './BankingOptions';
+import BankingDetails from './BankingDetails';
+import ViewBankingDetails from './ViewBankingDetails';
+import { useBanking } from './useBanking';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -229,6 +233,16 @@ const Home = () => {
     navigate('/profile');
   };
 
+  const { 
+    bankingView, 
+    hasBankingDetails, 
+    bankData, 
+    showEmptyWarning, 
+    handleViewDetails, 
+    navigateToForm, 
+    navigateToMenu 
+  } = useBanking(loggedInUser?.email);
+
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-ZA', {
       style: 'currency',
@@ -264,10 +278,28 @@ const Home = () => {
     }
   };
 
+
   const renderContent = () => {
     switch (activeTab) {
       case 'profile':
         return <ProfileTable />;
+
+      case 'account': 
+        if (bankingView === 'form') {
+          return <BankingDetails onBack={navigateToMenu} />;
+        }
+        if (bankingView === 'view') {
+          return (<ViewBankingDetails bankData={bankData} onEdit={navigateToForm} onBack={navigateToMenu} /> );
+        }
+        return (
+          <BankingOptions 
+            hasBankingDetails={hasBankingDetails} // You can link this to a state/API later
+            onViewDetails={handleViewDetails}
+            onAddEditDetails={navigateToForm}
+            onBack={() => setActiveTab('home')}
+            showWarning={showEmptyWarning}
+          />
+        );
       
       case 'search':
         return (
@@ -560,12 +592,11 @@ const Home = () => {
                 <small>Search</small>
               </button>
             </li>
-            <li>
-              <button onClick={() => handleTabChange('wallet')} className={activeTab === 'wallet' ? 'active' : ''}>
-                <Wallet size={24} />
-                <small>Wallet</small>
+            <li><button onClick={() => setActiveTab('account')} className={activeTab === 'account' ? 'active' : ''}>
+              <CreditCard size={24} />
+              <small>My Account Details</small>
               </button>
-            </li>
+              </li>
             <li>
               <button onClick={() => handleTabChange('activity')} className={activeTab === 'activity' ? 'active' : ''}>
                 <Bell size={24} />

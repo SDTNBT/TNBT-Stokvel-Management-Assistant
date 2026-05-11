@@ -99,7 +99,7 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
             <li>
               <button 
                 type="button"
-                onClick={() => navigate('/home')} 
+                onClick={() => navigate('/my-groups')} 
                 className="nav-item"
               >
                 <Users size={20} /> <small>My Groups</small>

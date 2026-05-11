@@ -18,6 +18,7 @@ const managegroupRoutes = require('./routes/managegroupRoutes');
 const meetingRoutes = require('./routes/meetingRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const minutesRoutes = require('./routes/recordMinutesRoutes');
+const bankingRoutes = require('./routes/bankingRoutes');
 
 const app = express();
 
@@ -63,8 +64,10 @@ app.use('/api/users', usersRoutes);
 app.use('/api/managegroup', managegroupRoutes);
 app.use('/api/meetings', meetingRoutes);
 app.use('/api/notifications', notificationRoutes);
-app.use('/api/minutes', minutesRoutes);
+app.use('/api/minutes', minutesRoutes); // Added route for meeting minutes
+app.use('/api/banking', bankingRoutes);
 app.use('/api/payouts', payoutRoutes);
+
 
 app.get('/', (req, res) => {
     res.send('Stokvel Assistant API is running and healthy!');

@@ -1,0 +1,254 @@
+:root {
+  --view-navy: #0f172a;
+  --view-navy-light: #1e293b;
+  --view-gold: #eab308;
+  --view-cream: #fef3c7;
+  --view-white: #ffffff;
+  --view-green: #22c55e;
+  --view-green-light: #dcfce7;
+  --view-slate: #64748b;
+}
+
+.view-banking-wrapper {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 1.5rem;
+  background-color: transparent;
+}
+
+.view-banking-content {
+  width: 100%;
+  max-width: 500px;
+  position: relative;
+}
+
+.view-banking-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.view-banking-title {
+  color: var(--view-navy);
+  font-size: 1.75rem;
+  font-weight: 800;
+  margin: 0 0 0.5rem 0;
+}
+
+.view-banking-subtitle {
+  color: var(--view-slate);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.view-verified-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0.5rem 1rem;
+  margin: 0 auto 1.5rem;
+  width: fit-content;
+  background-color: var(--view-green-light);
+  border: 1px solid var(--view-green);
+  border-radius: 9999px;
+  color: var(--view-green);
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.view-verified-badge svg {
+  width: 18px;
+  height: 18px;
+}
+
+.view-bank-card {
+  background-color: var(--view-navy);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.view-card-header {
+  background-color: var(--view-navy-light);
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.view-bank-icon {
+  width: 48px;
+  height: 48px;
+  background-color: var(--view-gold);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+}
+
+.view-bank-icon svg {
+  width: 24px;
+  height: 24px;
+  color: var(--view-navy);
+}
+
+.view-bank-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.view-bank-label {
+  color: var(--view-slate);
+  font-size: 0.75rem;
+  margin: 0;
+}
+
+.view-bank-name {
+  color: var(--view-white);
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.view-card-body {
+  padding: 0;
+  list-style: none;
+  margin: 0;
+}
+
+.view-detail-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.view-detail-row:last-child {
+  border-bottom: none;
+}
+
+.view-detail-icon {
+  width: 40px;
+  height: 40px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin: 0;
+}
+
+.view-detail-icon svg {
+  width: 20px;
+  height: 20px;
+  color: var(--view-slate);
+}
+
+.view-detail-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  margin: 0;
+}
+
+.view-detail-label {
+  color: var(--view-slate);
+  font-size: 0.75rem;
+  margin: 0;
+}
+
+.view-detail-value {
+  color: var(--view-white);
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.view-toggle-visibility {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--view-slate);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.view-toggle-visibility:hover {
+  color: var(--view-white);
+}
+
+.view-toggle-visibility svg {
+  width: 18px;
+  height: 18px;
+}
+
+.view-security-notice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 1.5rem;
+  color: var(--view-slate);
+  font-size: 0.8rem;
+}
+
+.view-security-notice p {
+  margin: 0;
+}
+
+.view-security-notice svg {
+  width: 16px;
+  height: 16px;
+}
+
+.view-edit-button {
+  width: 100%;
+  height: 3.5rem;
+  background-color: var(--view-gold);
+  color: var(--view-navy);
+  font-weight: 700;
+  font-size: 1rem;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.2s;
+}
+
+.view-edit-button:hover {
+  background-color: #ca9a04;
+  transform: translateY(-2px);
+}
+
+.view-edit-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+.view-trust-footer {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.view-trust-text {
+  font-size: 0.8rem;
+  color: var(--view-slate);
+  margin: 0;
+}

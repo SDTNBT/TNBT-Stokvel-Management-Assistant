@@ -1,0 +1,244 @@
+:root {
+  --stokvel-navy: #0f172a;
+  --stokvel-navy-light: #1e293b;
+  --stokvel-gold: #eab308;
+  --stokvel-cream: #fef3c7;
+  --stokvel-white: #ffffff;
+}
+
+/* Page Wrapper: Centering the content */
+.banking-page-wrapper {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center; /* Centers horizontally */
+  align-items: center;     /* Centers vertically */
+  padding: 40px 1.5rem;
+  background-color: transparent;
+}
+
+/* Centered Content: No background, no shadow, no border */
+.banking-form-content {
+  width: 100%;
+  max-width: 500px;
+  position: relative;
+  background: transparent; /* Card look removed */
+}
+
+/* Back Button */
+.banking-back-action {
+  position: absolute;
+  top: -40px; /* Positioned above the form */
+  left: 0;
+  background: none;
+  border: none;
+  color: var(--stokvel-navy);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.banking-back-action:hover {
+  color: var(--stokvel-gold);
+  transform: translateX(-5px);
+}
+
+/* Badge centered at the very top */
+.banking-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 2rem;
+  color: var(--stokvel-gold);
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Header Section */
+.banking-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.banking-icon-wrapper {
+  margin: 0 auto 1rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  background-color: var(--stokvel-navy);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.banking-icon-wrapper svg {
+  color: var(--stokvel-gold);
+}
+
+.banking-title {
+  color: var(--stokvel-navy);
+  font-size: 1.75rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+.banking-description {
+  color: #64748b;
+  font-size: 0.95rem;
+  margin-top: 8px;
+}
+
+/* Security Notice */
+.banking-security-notice {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background-color: var(--stokvel-cream);
+  border: 1px solid rgba(234, 179, 8, 0.3);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.banking-security-icon svg {
+  color: var(--stokvel-gold);
+}
+
+.banking-security-text {
+  font-size: 0.8rem;
+  color: var(--stokvel-navy-light);
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* Form Styles */
+.banking-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.banking-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.banking-label {
+  color: var(--stokvel-navy);
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.banking-label svg {
+  width: 16px;
+  color: var(--stokvel-gold);
+}
+
+/* Input Fields (keeping the Cream/Gold touch) */
+.banking-input,
+.banking-select {
+  height: 3.5rem;
+  background-color: var(--stokvel-white);
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 0 1rem;
+  font-size: 1rem;
+  color: var(--stokvel-navy);
+  transition: all 0.2s;
+}
+
+.banking-input:focus,
+.banking-select:focus {
+  outline: none;
+  border-color: var(--stokvel-gold);
+  background-color: var(--stokvel-cream);
+}
+
+/* Primary Button */
+.banking-submit {
+  height: 3.5rem;
+  background-color: var(--stokvel-navy);
+  color: var(--stokvel-white);
+  font-weight: 700;
+  font-size: 1rem;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 1rem;
+  transition: all 0.2s;
+}
+
+.banking-submit:hover {
+  background-color: var(--stokvel-navy-light);
+  transform: translateY(-2px);
+}
+
+/* Footer Badge */
+.banking-trust-badges {
+  margin-top: 2.5rem;
+  text-align: center;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 1.5rem;
+}
+
+.banking-trust-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+/* Animations */
+.banking-spinner {
+  animation: spin 1s linear infinite;
+}
+/* The Toast Container */
+.banking-toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 24px;
+  border-radius: 12px;
+  color: white;
+  z-index: 1000;
+  animation: slideDown 0.4s ease-out;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.banking-toast.success {
+  background: #10b981; /* Green */
+  border: 1px solid #059669;
+}
+
+.banking-toast.error {
+  background: #ef4444; /* Red */
+  border: 1px solid #dc2626;
+}
+
+.toast-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 500;
+}
+
+@keyframes slideDown {
+  from { top: -50px; opacity: 0; }
+  to { top: 20px; opacity: 1; }
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
