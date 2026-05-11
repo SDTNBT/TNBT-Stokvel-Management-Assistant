@@ -5,42 +5,56 @@ import './Profile.css';
 const Profile = ({ user = {}, onLogout = () => {}, onUpdate = () => {} }) => {
   const [profileData, setProfileData] = useState({
     firstName: '',
-    lastName: '',
-    fullName: '',
+    surname: '',
     email: '',
-    role: 'Member'
+    role: 'Member',
+    createdAt: ''
   });
   const [userGroups, setUserGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Get user from sessionStorage directly
-  const loggedInUser = JSON.parse(sessionStorage.getItem('user')) || {};
+  // Get user from sessionStorage with null check
+  const sessionUser = sessionStorage.getItem('user');
+  const loggedInUser = sessionUser ? JSON.parse(sessionUser) : {};
 
   useEffect(() => {
+    // Log to see what data is actually in sessionStorage
+    console.log('loggedInUser from sessionStorage:', loggedInUser);
+    
+    // Load data from sessionStorage immediately if available
+    if (loggedInUser) {
+      setProfileData({
+        firstName: loggedInUser.name || loggedInUser.firstName || '',
+        surname: loggedInUser.surname || loggedInUser.lastName || '',
+        email: loggedInUser.email || 'Not set',
+        role: loggedInUser.role || 'Member',
+        createdAt: loggedInUser.createdAt || new Date().toISOString()
+      });
+    } else if (user) {
+      setProfileData({
+        firstName: user.name || user.firstName || '',
+        surname: user.surname || user.lastName || '',
+        email: user.email || 'Not set',
+        role: user.role || 'Member',
+        createdAt: user.createdAt || new Date().toISOString()
+      });
+    }
+    
     fetchProfile();
     fetchUserGroups();
   }, []);
 
   const fetchProfile = async () => {
-    setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const userEmail = loggedInUser.email;
+      const userEmail = loggedInUser?.email || user?.email;
       
       if (!userEmail) {
-        setProfileData({
-          firstName: user?.firstName || '',
-          lastName: user?.lastName || '',
-          fullName: user?.name || user?.fullName || 'User',
-          email: user?.email || 'Not set',
-          role: user?.role || 'Member'
-        });
         setLoading(false);
         return;
       }
 
-      // Fetch user data from API
       const response = await fetch(`https://tnbt-stokvel-management-assistant.onrender.com/api/users/${userEmail}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -51,39 +65,35 @@ const Profile = ({ user = {}, onLogout = () => {}, onUpdate = () => {} }) => {
       if (response.ok) {
         const data = await response.json();
         
-        // Check if database has separate firstName/lastName or combined name
-        const firstName = data.user?.firstName || '';
-        const lastName = data.user?.lastName || '';
-        const fullName = data.user?.name || data.user?.fullName || `${firstName} ${lastName}`.trim() || 'User';
+        console.log('API response user data:', data.user);
+        
+        const firstName = data.user?.name || data.user?.firstName || '';
+        const surname = data.user?.surname || data.user?.lastName || '';
         
         setProfileData({
           firstName: firstName,
-          lastName: lastName,
-          fullName: fullName,
-          email: data.user?.email || loggedInUser.email || 'Not set',
-          role: data.user?.role || loggedInUser.role || 'Member'
+          surname: surname,
+          email: data.user?.email || loggedInUser.email || user.email || 'Not set',
+          role: data.user?.role || loggedInUser.role || user.role || 'Member',
+          createdAt: data.user?.createdAt || new Date().toISOString()
         });
+        
+        // Update sessionStorage with correct data
+        const updatedUser = {
+          ...loggedInUser,
+          name: firstName,
+          surname: surname,
+          email: data.user?.email || loggedInUser.email,
+          role: data.user?.role || loggedInUser.role
+        };
+        sessionStorage.setItem('user', JSON.stringify(updatedUser));
+        console.log('Updated sessionStorage:', updatedUser);
+        
       } else {
-        // Fallback to sessionStorage data
-        const fullName = loggedInUser.name || loggedInUser.fullName || user?.name || 'User';
-        setProfileData({
-          firstName: loggedInUser.firstName || '',
-          lastName: loggedInUser.lastName || '',
-          fullName: fullName,
-          email: loggedInUser.email || user?.email || 'Not set',
-          role: loggedInUser.role || user?.role || 'Member'
-        });
+        console.log('API response not OK:', response.status);
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
-      const fullName = loggedInUser.name || loggedInUser.fullName || user?.name || 'User';
-      setProfileData({
-        firstName: loggedInUser.firstName || '',
-        lastName: loggedInUser.lastName || '',
-        fullName: fullName,
-        email: loggedInUser.email || user?.email || 'Not set',
-        role: loggedInUser.role || user?.role || 'Member'
-      });
     } finally {
       setLoading(false);
     }
@@ -91,7 +101,7 @@ const Profile = ({ user = {}, onLogout = () => {}, onUpdate = () => {} }) => {
 
   const fetchUserGroups = async () => {
     try {
-      const userEmail = loggedInUser.email;
+      const userEmail = loggedInUser?.email || user?.email;
       if (!userEmail) return;
 
       const response = await fetch(`https://tnbt-stokvel-management-assistant.onrender.com/api/stokvel/user/${userEmail}`, {
@@ -127,9 +137,31 @@ const Profile = ({ user = {}, onLogout = () => {}, onUpdate = () => {} }) => {
     }
   };
 
-  const getRoleClassName = () => {
-    const role = profileData.role?.toLowerCase() || 'member';
-    return `profile-role role-${role}`;
+  const getFullName = () => {
+    if (profileData.firstName && profileData.surname) {
+      return `${profileData.firstName} ${profileData.surname}`;
+    }
+    if (profileData.firstName) {
+      return profileData.firstName;
+    }
+    return 'User';
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Not available';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  const getAccountStatus = () => {
+    if (userGroups.length > 0) {
+      return { text: 'Active', className: 'status-active' };
+    }
+    return { text: 'Inactive', className: 'status-inactive' };
   };
 
   const getRoleBadgeClass = (role) => {
@@ -140,27 +172,8 @@ const Profile = ({ user = {}, onLogout = () => {}, onUpdate = () => {} }) => {
     }
   };
 
-  const getRoleAriaLabel = () => {
-    switch(profileData.role) {
-      case 'Admin': return 'Administrator role';
-      case 'Treasurer': return 'Treasurer role';
-      default: return 'Member role';
-    }
-  };
-
-  // Get display name (prefer fullName, then firstName + lastName, then fallback)
-  const getDisplayName = () => {
-    if (profileData.fullName && profileData.fullName !== 'User') {
-      return profileData.fullName;
-    }
-    if (profileData.firstName && profileData.lastName) {
-      return `${profileData.firstName} ${profileData.lastName}`;
-    }
-    if (profileData.firstName) {
-      return profileData.firstName;
-    }
-    return 'User';
-  };
+  const accountStatus = getAccountStatus();
+  const fullName = getFullName();
 
   if (loading) {
     return (
@@ -173,7 +186,6 @@ const Profile = ({ user = {}, onLogout = () => {}, onUpdate = () => {} }) => {
   return (
     <main className="profile-container">
       <article className="profile-card">
-        {/* Back Button */}
         <header className="profile-back-header">
           <button type="button" className="back-button" onClick={handleBack} aria-label="Go back">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="24" height="24">
@@ -187,7 +199,7 @@ const Profile = ({ user = {}, onLogout = () => {}, onUpdate = () => {} }) => {
           <figure className="profile-avatar">
             <figcaption>Profile avatar showing first letter of name</figcaption>
             <output className="avatar-large" htmlFor="profile-name" aria-label="Profile initial">
-              {getDisplayName().charAt(0) || 'U'}
+              {fullName.charAt(0) || 'U'}
             </output>
           </figure>
         </header>
@@ -195,12 +207,7 @@ const Profile = ({ user = {}, onLogout = () => {}, onUpdate = () => {} }) => {
         <section className="profile-info">
           <header className="profile-header-actions">
             <hgroup>
-              <h1 id="profile-name">{getDisplayName()}</h1>
-              <p aria-label={getRoleAriaLabel()}>
-                <output className={getRoleClassName()}>
-                  {profileData.role || 'Member'}
-                </output>
-              </p>
+              <h1 id="profile-name">{fullName}</h1>
             </hgroup>
             <nav aria-label="Profile actions">
               <menu className="profile-actions">
@@ -216,11 +223,11 @@ const Profile = ({ user = {}, onLogout = () => {}, onUpdate = () => {} }) => {
                 <dt>First Name</dt>
                 <dd>{profileData.firstName || 'Not set'}</dd>
                 
-                <dt>Last Name / Surname</dt>
-                <dd>{profileData.lastName || 'Not set'}</dd>
+                <dt>Surname</dt>
+                <dd>{profileData.surname || 'Not set'}</dd>
                 
                 <dt>Full Name</dt>
-                <dd>{getDisplayName()}</dd>
+                <dd>{fullName}</dd>
                 
                 <dt>Email Address</dt>
                 <dd>{profileData.email || 'Not set'}</dd>
@@ -230,11 +237,15 @@ const Profile = ({ user = {}, onLogout = () => {}, onUpdate = () => {} }) => {
             <section className="detail-section" aria-labelledby="stokvel-info-heading">
               <h2 id="stokvel-info-heading">Stokvel Information</h2>
               <dl>
-                <dt>Member Since</dt>
-                <dd><time dateTime={new Date().toISOString()}>{new Date().toLocaleDateString()}</time></dd>
+                <dt>Account Created</dt>
+                <dd><time dateTime={profileData.createdAt}>{formatDate(profileData.createdAt)}</time></dd>
                 
                 <dt>Account Status</dt>
-                <dd>Active</dd>
+                <dd>
+                  <output className={`account-status ${accountStatus.className}`}>
+                    {accountStatus.text}
+                  </output>
+                </dd>
               </dl>
             </section>
           </section>

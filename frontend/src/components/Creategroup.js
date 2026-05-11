@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ArrowLeft, Plus, Trash2, X, CheckCircle } from 'lucide-react';
-import './Creategroup.css'; 
+import './Creategroup.css';
 
 const CreateGroup = () => {
   const navigate = useNavigate();
-  
+
   const [formData, setFormData] = useState({
     groupName: '',
     contributionAmount: '',
@@ -15,6 +15,8 @@ const CreateGroup = () => {
     totalMembers: '',
     payoutMethod: 'EFT',
     duration: '',
+    payoutOrder: '',
+    meetingFrequency: '',
     treasurer: {
       firstName: '',
       surname: '',
@@ -36,7 +38,7 @@ const CreateGroup = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
+
     if (name.startsWith('treasurer.')) {
       const field = name.split('.')[1];
       setFormData({
@@ -59,7 +61,7 @@ const CreateGroup = () => {
       return m;
     });
     setMembers(newMembers);
-    
+
     if (errors[`member_${id}_email`]) {
       setErrors({ ...errors, [`member_${id}_email`]: null });
     }
@@ -84,21 +86,31 @@ const CreateGroup = () => {
     } else if (formData.groupName.length < 3) {
       tempErrors.groupName = "Group name must be at least 3 characters";
     }
-    
+
     if (!formData.contributionAmount || formData.contributionAmount <= 0) {
       tempErrors.contributionAmount = "Valid contribution amount is required";
     } else if (formData.contributionAmount < 10) {
       tempErrors.contributionAmount = "Contribution amount must be at least R10";
     }
-    
+
+    if (!formData.payoutOrder) {
+      tempErrors.payoutOrder = "Payout order is required";
+    } else if (formData.payoutOrder < 1 || formData.payoutOrder > 31) {
+      tempErrors.payoutOrder = "Must be between 1 and 31";
+    }
+
+    if (!formData.meetingFrequency) {
+      tempErrors.meetingFrequency = "Meeting frequency is required";
+    }
+
     if (!formData.treasurer.firstName.trim()) {
       tempErrors['treasurer.firstName'] = "First name is required";
     }
-    
+
     if (!formData.treasurer.surname.trim()) {
       tempErrors['treasurer.surname'] = "Surname is required";
     }
-    
+
     if (!formData.treasurer.email.trim()) {
       tempErrors['treasurer.email'] = "Email is required";
     } else if (!emailRegex.test(formData.treasurer.email)) {
@@ -111,12 +123,12 @@ const CreateGroup = () => {
     members.forEach((member) => {
       if (member.email && member.email.trim()) {
         const emailLower = member.email.toLowerCase();
-        
+
         if (uniqueEmails.has(emailLower)) {
           tempErrors[`member_${member.id}_email`] = "Duplicate member email";
         }
         uniqueEmails.add(emailLower);
-        
+
         if (!emailRegex.test(member.email)) {
           tempErrors[`member_${member.id}_email`] = "Valid email required";
         } else if (emailLower === loggedInUser.email?.toLowerCase()) {
@@ -133,12 +145,12 @@ const CreateGroup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
-    
+
     setIsSubmitting(true);
 
     const apiUrl = 'https://tnbt-stokvel-management-assistant.onrender.com/api';
@@ -155,20 +167,22 @@ const CreateGroup = () => {
       financials: {
         amount: Number(formData.contributionAmount),
         frequency: formData.frequency,
-        duration: Number(formData.duration) || 12
+        duration: Number(formData.duration) || 12,
+        payoutOrder: formData.payoutOrder,
+        meetingFrequency: formData.meetingFrequency
       },
       members: members
         .filter(m => m.email && m.email.trim())
-        .map(({ firstName, surname, email }) => ({ 
-          firstName: firstName.trim(), 
-          surname: surname.trim(), 
-          email: email.trim() 
+        .map(({ firstName, surname, email }) => ({
+          firstName: firstName.trim(),
+          surname: surname.trim(),
+          email: email.trim()
         }))
     };
 
     try {
       const response = await axios.post(`${apiUrl}/stokvel`, payload);
-      
+
       if (response.status === 201 || response.status === 200) {
         setCreatedGroupName(formData.groupName);
         setCreatedGroupId(response.data.groupId || '');
@@ -182,7 +196,7 @@ const CreateGroup = () => {
     } catch (err) {
       console.error("Submission Error:", err);
       let errorMessage = "Error creating group. Please try again.";
-      
+
       if (err.response?.data?.details) {
         errorMessage = err.response.data.details;
       } else if (err.response?.data?.error) {
@@ -190,7 +204,7 @@ const CreateGroup = () => {
       } else if (err.message === "Network Error") {
         errorMessage = "Network error. Please check your connection.";
       }
-      
+
       alert(errorMessage);
     } 
   };
@@ -207,22 +221,21 @@ const CreateGroup = () => {
           <ArrowLeft size={24} />
         </button>
         <h1>Create Group</h1>
-        <span className="header-spacer" aria-hidden="true"></span> 
+        <span className="header-spacer" aria-hidden="true"></span>
       </header>
 
       <main className="form-container">
         <form onSubmit={handleSubmit} className="semantic-form" noValidate>
-          
           <fieldset className="form-section">
             <legend>Basic Information</legend>
             <p className="input-group">
               <label htmlFor="groupName">Group Name *</label>
-              <input 
-                id="groupName" 
-                name="groupName" 
-                type="text" 
+              <input
+                id="groupName"
+                name="groupName"
+                type="text"
                 value={formData.groupName}
-                onChange={handleChange} 
+                onChange={handleChange}
                 className={errors.groupName ? 'input-error' : ''}
                 placeholder="Enter group name"
                 required
@@ -233,16 +246,16 @@ const CreateGroup = () => {
             <section className="form-row">
               <p className="input-group">
                 <label htmlFor="contributionAmount">Contribution Amount (R) *</label>
-                <input 
-                  id="contributionAmount" 
-                  name="contributionAmount" 
-                  type="number" 
-                  value={formData.contributionAmount} 
-                  onChange={handleChange} 
+                <input
+                  id="contributionAmount"
+                  name="contributionAmount"
+                  type="number"
+                  value={formData.contributionAmount}
+                  onChange={handleChange}
                   className={errors.contributionAmount ? 'input-error' : ''}
                   placeholder="e.g., 500"
                   min="10"
-                  required 
+                  required
                 />
                 {errors.contributionAmount && <span className="error-text">{errors.contributionAmount}</span>}
               </p>
@@ -261,11 +274,11 @@ const CreateGroup = () => {
             <section className="form-row">
               <p className="input-group">
                 <label htmlFor="totalMembers">Total Members (Optional)</label>
-                <input 
-                  id="totalMembers" 
-                  name="totalMembers" 
-                  type="number" 
-                  value={formData.totalMembers} 
+                <input
+                  id="totalMembers"
+                  name="totalMembers"
+                  type="number"
+                  value={formData.totalMembers}
                   onChange={handleChange}
                   placeholder="Estimated member count"
                   min="1"
@@ -273,15 +286,48 @@ const CreateGroup = () => {
               </p>
               <p className="input-group">
                 <label htmlFor="duration">Duration (Months)</label>
-                <input 
-                  id="duration" 
-                  name="duration" 
-                  type="number" 
-                  value={formData.duration} 
-                  onChange={handleChange} 
+                <input
+                  id="duration"
+                  name="duration"
+                  type="number"
+                  value={formData.duration}
+                  onChange={handleChange}
                   placeholder="e.g., 12"
                   min="1"
                 />
+              </p>
+            </section>
+            <section className="form-row">
+              <p className="input-group">
+                <label htmlFor="payoutOrder">Payout Order (1st - 31st) *</label>
+                <input
+                  id="payoutOrder"
+                  name="payoutOrder"
+                  type="number"
+                  value={formData.payoutOrder}
+                  onChange={handleChange}
+                  className={errors.payoutOrder ? 'input-error' : ''}
+                  placeholder="e.g., 1"
+                  min="1"
+                  max="31"
+                  required
+                />
+                {errors.payoutOrder && <span className="error-text">{errors.payoutOrder}</span>}
+              </p>
+              <p className="input-group">
+                <label htmlFor="meetingFrequency">Meeting Frequency (Monthly) *</label>
+                <input
+                  id="meetingFrequency"
+                  name="meetingFrequency"
+                  type="number"
+                  value={formData.meetingFrequency}
+                  onChange={handleChange}
+                  className={errors.meetingFrequency ? 'input-error' : ''}
+                  placeholder="Meetings per month"
+                  min="1"
+                  required
+                />
+                {errors.meetingFrequency && <span className="error-text">{errors.meetingFrequency}</span>}
               </p>
             </section>
           </fieldset>
@@ -292,43 +338,43 @@ const CreateGroup = () => {
             <section className="form-row triple-col">
               <p className="input-group">
                 <label htmlFor="treasurerFirstName">First Name *</label>
-                <input 
-                  id="treasurerFirstName" 
-                  name="treasurer.firstName" 
-                  type="text" 
-                  placeholder="First Name" 
-                  value={formData.treasurer.firstName} 
-                  onChange={handleChange} 
+                <input
+                  id="treasurerFirstName"
+                  name="treasurer.firstName"
+                  type="text"
+                  placeholder="First Name"
+                  value={formData.treasurer.firstName}
+                  onChange={handleChange}
                   className={errors['treasurer.firstName'] ? 'input-error' : ''}
-                  required 
+                  required
                 />
                 {errors['treasurer.firstName'] && <span className="error-text">{errors['treasurer.firstName']}</span>}
               </p>
               <p className="input-group">
                 <label htmlFor="treasurerSurname">Surname *</label>
-                <input 
-                  id="treasurerSurname" 
-                  name="treasurer.surname" 
-                  type="text" 
-                  placeholder="Surname" 
-                  value={formData.treasurer.surname} 
-                  onChange={handleChange} 
+                <input
+                  id="treasurerSurname"
+                  name="treasurer.surname"
+                  type="text"
+                  placeholder="Surname"
+                  value={formData.treasurer.surname}
+                  onChange={handleChange}
                   className={errors['treasurer.surname'] ? 'input-error' : ''}
-                  required 
+                  required
                 />
                 {errors['treasurer.surname'] && <span className="error-text">{errors['treasurer.surname']}</span>}
               </p>
               <p className="input-group">
                 <label htmlFor="treasurerEmail">Email Address *</label>
-                <input 
-                  id="treasurerEmail" 
-                  name="treasurer.email" 
-                  type="email" 
-                  placeholder="treasurer@example.com" 
-                  value={formData.treasurer.email} 
-                  onChange={handleChange} 
+                <input
+                  id="treasurerEmail"
+                  name="treasurer.email"
+                  type="email"
+                  placeholder="treasurer@example.com"
+                  value={formData.treasurer.email}
+                  onChange={handleChange}
                   className={errors['treasurer.email'] ? 'input-error' : ''}
-                  required 
+                  required
                 />
                 {errors['treasurer.email'] && <span className="error-text">{errors['treasurer.email']}</span>}
               </p>
@@ -342,30 +388,30 @@ const CreateGroup = () => {
               <article key={member.id} className="form-row triple-col member-entry">
                 <p className="input-group">
                   <label>Member Name</label>
-                  <input 
-                    name="firstName" 
-                    placeholder="First Name" 
-                    value={member.firstName} 
-                    onChange={(e) => handleMemberChange(member.id, e)} 
+                  <input
+                    name="firstName"
+                    placeholder="First Name"
+                    value={member.firstName}
+                    onChange={(e) => handleMemberChange(member.id, e)}
                   />
                 </p>
                 <p className="input-group">
                   <label>Surname</label>
-                  <input 
-                    name="surname" 
-                    placeholder="Surname" 
-                    value={member.surname} 
-                    onChange={(e) => handleMemberChange(member.id, e)} 
+                  <input
+                    name="surname"
+                    placeholder="Surname"
+                    value={member.surname}
+                    onChange={(e) => handleMemberChange(member.id, e)}
                   />
                 </p>
                 <p className="input-group">
                   <label>Email Address</label>
                   <span className="input-with-action">
-                    <input 
-                      name="email" 
-                      type="email" 
-                      placeholder="member@example.com" 
-                      value={member.email} 
+                    <input
+                      name="email"
+                      type="email"
+                      placeholder="member@example.com"
+                      value={member.email}
                       onChange={(e) => handleMemberChange(member.id, e)}
                       className={errors[`member_${member.id}_email`] ? 'input-error' : ''}
                     />

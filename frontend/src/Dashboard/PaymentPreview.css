@@ -1,0 +1,107 @@
+/* Force the entire container to fill the dashboard space with white */
+.payment-preview-centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  min-height: 85vh; /* Adjust based on your header height */
+  background-color: #ffffff; /* This makes the "outside" white */
+  margin: 0;
+  padding: 0;
+}
+
+.summary-card {
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03); /* Subtle shadow for depth */
+  width: 100%;
+  max-width: 480px;
+  padding: 50px;
+  text-align: center;
+}
+
+.lock-avatar {
+  background: #fdfdfd;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  color: #6b7280;
+  border: 1px solid #f0f0f0;
+}
+
+.card-header h2 {
+  font-size: 1.4rem;
+  margin-bottom: 40px;
+  color: #111827;
+}
+
+.info-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px 10px;
+  text-align: left;
+  margin-bottom: 40px;
+}
+
+.info-list dt {
+  color: #9ca3af;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+}
+
+.info-list dd {
+  text-align: right;
+  font-weight: 700;
+  color: #111827;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* Specific styling for the large amount */
+.info-list .amount-value {
+  font-size: 2.2rem;
+  font-weight: 800;
+}
+
+.btn-pay {
+  background: #4a2d66; 
+  color: #ffffff;
+  width: 100%;
+  padding: 16px 24px;
+  border-radius: 14px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.btn-pay p {
+  margin: 0;
+  font-weight: 600;
+  flex-grow: 1;
+}
+
+.btn-cancel-flat {
+  background: transparent;
+  color: #9ca3af;
+  border: none;
+  margin-top: 20px;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  font-size: 0.9rem;
+}
+
+.btn-cancel-flat:hover {
+  color: #4b5563;
+}

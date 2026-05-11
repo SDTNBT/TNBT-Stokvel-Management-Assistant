@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { google } = require('googleapis'); 
 
 // --- Models ---
 const Agenda = require('../models/Agenda'); 
@@ -17,58 +18,94 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-
 // ==========================================
 // AGENDA ROUTES
 // ==========================================
 
-// POST /meetings/agenda - Save a new agenda
 router.post('/agenda', async (req, res) => {
   try {
-    // 1. Take the data Gomolemo's frontend sent and pour it into the Blueprint
     const newAgenda = new Agenda(req.body);
-
-    // 2. MongoDB saves it permanently
     const savedAgenda = await newAgenda.save();
-
-    // 3. Sending a success message AND the saved data back to the frontend UI
     res.status(201).json({ 
       message: "Agenda successfully posted to MongoDB!", 
       data: savedAgenda 
     });
-    
   } catch (err) {
     console.error("MongoDB Save Error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// GET /meetings/agenda/:groupId - Fetch agendas for a specific group
 router.get('/agenda/:groupId', async (req, res) => {
   try {
-    // 1. Grab the VIP wristband (groupId) from the URL
     const { groupId } = req.params;
-
-    // 2. Ask MongoDB: "Find every agenda that belongs to this specific group!"
     const groupAgendas = await Agenda.find({ groupId: groupId });
-
-    // 3. Send those agendas back to the frontend
     res.status(200).json(groupAgendas);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-
 // ==========================================
 // SCHEDULING & MEETING ROUTES
 // ==========================================
 
-// POST /meetings/schedule — save meeting and notify all group members
 router.post('/schedule', async (req, res) => {
   try {
-    // 1. Save the meeting
-    const newMeeting = new Meeting(req.body);
+    let finalMeetingLink = req.body.meetingLink;
+
+    // --- GOOGLE CALENDAR API INTEGRATION ---
+    if (req.body.locationType === 'online' && req.body.platform === 'google-meet') {
+      try {
+        const oauth2Client = new google.auth.OAuth2();
+        
+        // IMPORTANT: The frontend must send the Google Access Token in the Authorization header
+        const authHeader = req.headers.authorization;
+        const token = authHeader && authHeader.split(' ')[1];
+
+        if (token) {
+          oauth2Client.setCredentials({ access_token: token });
+          const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
+
+          const event = {
+            summary: req.body.meetingTitle,
+            description: req.body.purpose,
+            start: {
+              dateTime: `${req.body.meetingDate}T${req.body.startTime}:00Z`,
+              timeZone: 'Africa/Johannesburg',
+            },
+            end: {
+              dateTime: `${req.body.meetingDate}T${req.body.endTime}:00Z`,
+              timeZone: 'Africa/Johannesburg',
+            },
+            conferenceData: {
+              createRequest: {
+                requestId: `stokvel-${Date.now()}`,
+                conferenceSolutionKey: { type: 'hangoutsMeet' }
+              }
+            },
+          };
+
+          const googleResponse = await calendar.events.insert({
+            calendarId: 'primary',
+            resource: event,
+            conferenceDataVersion: 1,
+          });
+
+          finalMeetingLink = googleResponse.data.hangoutLink;
+        }
+      } catch (googleErr) {
+        console.error("Google API Error:", googleErr.message);
+        // We continue so the meeting is still saved to Mongo even if Google API fails
+      }
+    }
+
+    // 1. Save the meeting to MongoDB
+    const newMeeting = new Meeting({
+        ...req.body,
+        meetingLink: finalMeetingLink,
+        groupId: req.body.groupId
+    });
     const savedMeeting = await newMeeting.save();
 
     // 2. Find all members of this group
@@ -76,58 +113,49 @@ router.post('/schedule', async (req, res) => {
 
     if (groupMembers && groupMembers.length > 0) {
       for (let member of groupMembers) {
-        
-        // CRITICAL CHECK: 
-        // Make sure 'member.user' is actually the email string. 
-        // If your Member model stores email in 'member.email', change this to member.email
         const emailToNotify = member.user.toLowerCase(); 
 
-        // 3. Save in-app notification for each member
+        // 3. Save in-app notification (Semantic focus: No spans/divs in text)
         await Notification.create({
-          recipient: emailToNotify, // Matches the lowercase fetch in notificationRoutes.js
+          recipient: emailToNotify,
           type: 'meeting',
           title: `Meeting Scheduled: ${req.body.meetingTitle}`,
-          message: `A meeting has been scheduled for ${req.body.meetingDate} at ${req.body.startTime}. Location: ${req.body.locationType === 'online' ? req.body.meetingLink : req.body.physicalLocation}`,
+          message: `Meeting on ${req.body.meetingDate} at ${req.body.startTime}. Location: ${req.body.locationType === 'online' ? finalMeetingLink : req.body.physicalLocation}`,
           groupId: req.body.groupId,
-          isRead: false // Ensuring it starts as unread so the red dot shows up!
+          isRead: false 
         });
 
-        // 4. Send email notification
+        // 4. Send Email (Strictly Semantic HTML Tags)
         transporter.sendMail({
           from: process.env.EMAIL_USER,
           to: emailToNotify,
           subject: `Meeting Scheduled: ${req.body.meetingTitle}`,
           html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; padding: 20px; border: 1px solid #eee;">
-              <h2 style="color: #1A3A6B;">Meeting Notification</h2>
-              <p>A new meeting has been scheduled for your stokvel group.</p>
+            <article style="font-family: Arial, sans-serif; max-width: 600px; padding: 20px; border: 1px solid #eee;">
+              <header>
+                <h2 style="color: #1A3A6B;">Meeting Notification</h2>
+                <p>A new meeting has been scheduled for your stokvel group.</p>
+              </header>
               <hr/>
-              <p><strong>Title:</strong> ${req.body.meetingTitle}</p>
-              <p><strong>Date:</strong> ${req.body.meetingDate}</p>
-              <p><strong>Time:</strong> ${req.body.startTime} - ${req.body.endTime}</p>
-              <p><strong>Location:</strong> ${req.body.locationType === 'online' ? req.body.meetingLink : req.body.physicalLocation}</p>
+              <section>
+                <p><strong>Title:</strong> ${req.body.meetingTitle}</p>
+                <p><strong>Date:</strong> ${req.body.meetingDate}</p>
+                <p><strong>Time:</strong> ${req.body.startTime} - ${req.body.endTime}</p>
+                <p><strong>Location:</strong> ${req.body.locationType === 'online' ? finalMeetingLink : req.body.physicalLocation}</p>
+              </section>
               <hr/>
-              <p>Log in to StokvèlHub to view more details.</p>
-            </div>
+              <footer>
+                <p>Log in to StokvelStokkie to view more details.</p>
+              </footer>
+            </article>
           `
         }).catch(err => console.log('Email error:', err.message));
       }
-      console.log(` Notifications sent to ${groupMembers.length} members`);
     }
 
     res.status(201).json(savedMeeting);
   } catch (err) {
     console.error('Meeting schedule error:', err.message);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// GET /meetings — fetch all meetings
-router.get('/', async (req, res) => {
-  try {
-    const meetings = await Meeting.find().sort({ meetingDate: 1 });
-    res.json(meetings);
-  } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });

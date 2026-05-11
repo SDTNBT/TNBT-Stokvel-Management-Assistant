@@ -37,10 +37,6 @@ router.put('/assign-role', /* verifyToken, */ (req, res) => {
   res.status(200).json({ message: `Role successfully updated to ${role}. Database save pending.` });
 });
 
-
-// A hidden route just for devs to clean up test accounts
-router.delete('/dev/wipe-user', hardDeleteUserAccount);
-
 // ========== NEW ENDPOINT FOR PROFILE TABLE ==========
 
 // Route: GET /api/users/all

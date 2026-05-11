@@ -1,58 +1,59 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
-  LayoutDashboard, Users, UserPlus, Users2, 
+  LayoutDashboard, Users, CreditCard, 
   CalendarDays, Mic2, ChevronDown, UserCircle, 
   LogOut, Bell, FileText
 } from 'lucide-react'; 
 import React, { useState } from 'react';
 import './MemberDashboard.css';
 import Profile from '../components/Profile';
+import PaymentPreview from './PaymentPreview'; 
+import PaymentGateway from './PaymentGateway'; 
+import PaymentSuccess from './PaymentSuccess';
+import PaymentHistory from '../components/PaymentHistory';
 
-const MemberDashboard = ({ user = {}, onLogout = () => {} }) => {
+const MemberDashboard = ({ onLogout = () => {} }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   
-  const [isGroupsOpen, setIsGroupsOpen] = useState(false);
+  const groupName = location.state?.groupName || "Stokvel Group";
+  const amount = location.state?.contributionAmount || "0";
+  const sessionUser = location.state?.user || JSON.parse(sessionStorage.getItem('user'));
+
   const [isMeetingsOpen, setIsMeetingsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showProfile, setShowProfile] = useState(false);
+  const [paymentStage, setPaymentStage] = useState('preview');
+  const [transactionId, setTransactionId] = useState('');
 
+  // When clicking Profile, we show the profile component
   const handleProfileClick = () => {
     setShowProfile(true);
+    setActiveTab('profile'); // Optional: helps with highlighting
   };
-
-  const handleBackToDashboard = () => {
+  
+  // When clicking Dashboard or other links, we hide the profile component
+  const handleTabChange = (tab) => {
     setShowProfile(false);
+    setActiveTab(tab);
   };
 
-  if (showProfile) {
-    return (
-      <div className="dashboard-shell">
-        <aside className="sidebar">
-          <header className="sidebar-brand">
-            <figure className="brand-identity">
-              <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-                <circle cx="16" cy="16" r="16" fill="#F5C842" />
-                <path d="M10 20 L16 10 L22 20" stroke="#1A3A6B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                <circle cx="16" cy="22" r="2" fill="#1A3A6B"/>
-              </svg>
-              <figcaption className="brand-text">StokvelStokkie</figcaption>
-            </figure>
-          </header>
-          <hr className="sidebar-divider" />
-          <button className="back-to-dashboard" onClick={handleBackToDashboard}>
-            ← Back to Dashboard
-          </button>
-        </aside>
-        <main className="main-content">
-          <Profile user={user} onLogout={onLogout} />
-        </main>
-      </div>
-    );
-  }
+  const handleConfirmPayment = () => {
+    setPaymentStage('gateway');
+  };
+
+  const handlePaymentSuccess = (id) => {
+    setTransactionId(id);
+    setPaymentStage('success');
+  };
+
+  const handleCancelPayment = () => {
+    setPaymentStage('preview');
+    handleTabChange('dashboard');
+  };
 
   return (
-    <div className="dashboard-shell">
-      {/* Sidebar Navigation */}
+    <article className="dashboard-shell">
       <aside className="sidebar">
         <header className="sidebar-brand">
           <figure className="brand-identity">
@@ -72,10 +73,10 @@ const MemberDashboard = ({ user = {}, onLogout = () => {} }) => {
             <li>
               <button 
                 type="button"
-                onClick={() => setActiveTab('dashboard')} 
-                className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
+                onClick={() => handleTabChange('dashboard')} 
+                className={`nav-item ${activeTab === 'dashboard' && !showProfile ? 'active' : ''}`}
               >
-                <LayoutDashboard size={20} /> <span>Dashboard</span>
+                <LayoutDashboard size={20} /> <small>Dashboard</small>
               </button>
             </li>
             <li>
@@ -84,28 +85,40 @@ const MemberDashboard = ({ user = {}, onLogout = () => {} }) => {
                 onClick={() => navigate('/home')} 
                 className="nav-item"
               >
-                <Users size={20} /> <span>My Groups</span>
+                <Users size={20} /> <small>My Groups</small>
               </button>
             </li>
             <li>
               <button 
                 type="button"
-                onClick={() => navigate('/contributions')} 
-                className="nav-item"
+                onClick={() => setActiveTab('contributions')} 
+                className={`nav-item ${activeTab === 'contributions' ? 'active' : ''}`}
               >
-                <Users size={20} /> <span>View My Contributions</span>
+                <FileText size={20} /> <small>View My Contributions</small>
               </button>
             </li>
             
-            {/* Meeting Management Section */}
             <li>
               <button 
                 type="button"
+                onClick={() => {
+                  handleTabChange('payment'); 
+                  setPaymentStage('preview'); 
+                }} 
+                className={`nav-item ${activeTab === 'payment' ? 'active' : ''}`}
+              >
+                <CreditCard size={20} /> <small>Payment</small>
+              </button>
+            </li>
+            
+            <li>
+              <button 
+                type="button" 
                 onClick={() => setIsMeetingsOpen(!isMeetingsOpen)} 
                 className="nav-item dropdown-trigger"
                 aria-expanded={isMeetingsOpen}
               >
-                <CalendarDays size={20} /> <span>My Reports</span>
+                <CalendarDays size={20} /> <small>My Reports</small>
                 <ChevronDown size={16} className={`chevron-icon ${isMeetingsOpen ? "rotate" : ""}`} />
               </button>
               {isMeetingsOpen && (
@@ -113,28 +126,28 @@ const MemberDashboard = ({ user = {}, onLogout = () => {} }) => {
                   <li>
                     <button 
                       type="button"
-                      onClick={() => setActiveTab('schedule-meeting')} 
-                      className={`submenu-btn ${activeTab === 'schedule-meeting' ? 'active-sub' : ''}`}
+                      onClick={() => handleTabChange('projected-savings-growth')} 
+                      className={`submenu-btn ${activeTab === 'projected-savings-growth' ? 'active-sub' : ''}`}
                     >
-                      <CalendarDays size={16} /><span>Schedule Meeting</span>
+                      <CalendarDays size={16} /> <small>Projected Savings Growth</small>
                     </button>
                   </li>
                   <li>
                     <button 
                       type="button"
-                      onClick={() => setActiveTab('post-agenda')} 
-                      className={`submenu-btn ${activeTab === 'post-agenda' ? 'active-sub' : ''}`}
+                      onClick={() => handleTabChange('financial-health-scoring')} 
+                      className={`submenu-btn ${activeTab === 'financial-health-scoring' ? 'active-sub' : ''}`}
                     >
-                      <FileText size={16} /><span>Post Agenda</span>
+                      <FileText size={16} /> <small>Financial Health Scoring</small>
                     </button>
                   </li>
                   <li>
                     <button 
                       type="button"
-                      onClick={() => setActiveTab('record-minutes')} 
-                      className={`submenu-btn ${activeTab === 'record-minutes' ? 'active-sub' : ''}`}
+                      onClick={() => handleTabChange('payout-history')} 
+                      className={`submenu-btn ${activeTab === 'payout-history' ? 'active-sub' : ''}`}
                     >
-                      <Mic2 size={16} /><span>Record Minutes</span>
+                      <Mic2 size={16} /> <small>Payout History</small>
                     </button>
                   </li>
                 </ul>
@@ -147,14 +160,18 @@ const MemberDashboard = ({ user = {}, onLogout = () => {} }) => {
           <hr className="sidebar-divider" />
           <nav aria-label="User Actions">
             <ul className="footer-list">
-              <li><button type="button" className="footer-item"><Bell size={20} /><span>Notifications</span></button></li>
+              <li>
+                <button type="button" className="footer-item">
+                  <Bell size={20} /> <small>Notifications</small>
+                </button>
+              </li>
               <li>
                 <button 
                   type="button" 
-                  className="footer-item" 
+                  className={`footer-item ${showProfile ? 'active' : ''}`} 
                   onClick={handleProfileClick}
                 >
-                  <UserCircle size={20} /><span>Profile</span>
+                  <UserCircle size={20} /> <small>Profile</small>
                 </button>
               </li>
               <li>
@@ -163,7 +180,7 @@ const MemberDashboard = ({ user = {}, onLogout = () => {} }) => {
                   className="footer-item logout-btn" 
                   onClick={onLogout}
                 >
-                  <LogOut size={20} /><span>Logout</span>
+                  <LogOut size={20} /> <small>Logout</small>
                 </button>
               </li>
             </ul>
@@ -171,19 +188,62 @@ const MemberDashboard = ({ user = {}, onLogout = () => {} }) => {
         </footer>
       </aside>
 
-      {/* Main Content Area */}
       <main className="main-content">
         <header className="content-header">
-           <h1 className="dashboard-title">
-             {activeTab.replace('-', ' ')}
-           </h1>
+            <h1 className="dashboard-title">
+              {activeTab === 'contributions' ? 'My Contribution History' : showProfile ? 'User Profile' : activeTab.replace(/-/g, ' ')}
+            </h1>
         </header>
 
         <section className="content-body">
-          {/* Your member content will be rendered here */}
+          {showProfile ? (
+            <Profile user={sessionUser} onLogout={onLogout} />
+          ) : (
+            <>
+              {activeTab === 'dashboard' && (
+                <section className="welcome-hero">
+                  <h2>Welcome back, {sessionUser?.firstName || sessionUser?.name || 'Member'}</h2>
+                  <p>You are viewing details for the <strong>{groupName}</strong> group.</p>
+                </section>
+              )}
+
+              {activeTab === 'payment' && (
+                <>
+                  {paymentStage === 'preview' && (
+                    <PaymentPreview 
+                      groupName={groupName} 
+                      amount={amount} 
+                      onConfirm={handleConfirmPayment} 
+                      onCancel={handleCancelPayment} 
+                    />
+                  )}
+                  {paymentStage === 'gateway' && (
+                    <PaymentGateway 
+                      groupName={groupName}
+                      amount={amount} 
+                      userId={sessionUser?._id || sessionUser?.id}
+                      userEmail={sessionUser?.email}
+                      onBack={() => setPaymentStage('preview')} 
+                      onSuccess={handlePaymentSuccess} 
+                    />
+                  )}
+                  {paymentStage === 'success' && (
+                    <PaymentSuccess 
+                      transactionId={transactionId}
+                      onDone={() => {
+                        setPaymentStage('preview');
+                        handleTabChange('dashboard');
+                        setTransactionId('');
+                      }} 
+                    />
+                  )}
+                </>
+              )}
+            </>
+          )}
         </section>
       </main>
-    </div>
+    </article>
   );
 };
 

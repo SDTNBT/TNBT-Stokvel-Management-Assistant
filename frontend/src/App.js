@@ -8,6 +8,7 @@ import './App.css';
 import { LoginPage } from './components/Login';
 import { SignUp } from './components/SignUp';
 import Profile from './components/Profile';
+import SchedulePayout from './components/SchedulePayout';
 
 // You are importing from the file 'newAdminDashboard', 
 // but naming the component 'AdminDashboard' for use here.

@@ -1,5 +1,5 @@
 const admin = require('firebase-admin');
-const User = require('../models/user');
+const User = require('../models/User');
 
 exports.hardDeleteUserAccount = async (req, res) => {
   try {

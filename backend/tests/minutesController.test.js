@@ -2,7 +2,7 @@
 require('dotenv').config({ path: '.env.test' });
 const { saveMinutes } = require('../controllers/minutesController');
 const Minutes = require('../models/minutes');
-const User = require('../models/User'); // <-- Make sure you import User if you keep the block below!
+const User = require('../models/User');
 
 // Mock the Mongoose model
 jest.mock('../models/minutes');
@@ -37,7 +37,7 @@ describe('Minutes Controller - saveMinutes (Existing Schema)', () => {
           name: "Alice Zwane", 
           email: "alice@test.com"
       });
-  }); // <--- THIS WAS MISSING!
+  });
 
   afterEach(() => {
     jest.clearAllMocks();
