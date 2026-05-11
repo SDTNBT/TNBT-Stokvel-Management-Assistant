@@ -2,11 +2,7 @@ import React, { useState, useEffect , useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import './Home.css';
-<<<<<<< HEAD
 import { House, Search, CreditCard, Bell, User, ChevronDown, MoreVertical, Trash2, CheckCircle } from 'lucide-react';
-=======
-import { House, Search, Wallet, Bell, User, ChevronDown, MoreVertical, Trash2, CheckCircle, X, Eye } from 'lucide-react';
->>>>>>> 9bc079a076ce06935e8737ccaacdaef2c646cf3c
 import NotificationBell from './NotificationBell';
 import ProfileTable from './ProfileTable';
 import BankingOptions from './BankingOptions';
@@ -237,7 +233,6 @@ const Home = () => {
     navigate('/profile');
   };
 
-<<<<<<< HEAD
   const { 
     bankingView, 
     hasBankingDetails, 
@@ -247,7 +242,7 @@ const Home = () => {
     navigateToForm, 
     navigateToMenu 
   } = useBanking(loggedInUser?.email);
-=======
+
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-ZA', {
       style: 'currency',
@@ -282,7 +277,7 @@ const Home = () => {
       fetchActivities();
     }
   };
->>>>>>> 9bc079a076ce06935e8737ccaacdaef2c646cf3c
+
 
   const renderContent = () => {
     switch (activeTab) {
@@ -585,13 +580,6 @@ const Home = () => {
       <footer className="nav-container">
         <nav aria-label="Main Menu">
           <ul className="nav-list">
-<<<<<<< HEAD
-            <li><button onClick={() => setActiveTab('home')} className={activeTab === 'home' ? 'active' : ''}><House size={24} /><small>Home</small></button></li>
-            <li><button onClick={() => setActiveTab('search')} className={activeTab === 'search' ? 'active' : ''}><Search size={24} /><small>Search</small></button></li>
-            <li><button onClick={() => setActiveTab('account')} className={activeTab === 'account' ? 'active' : ''}><CreditCard size={24} /><small>My Account Details</small></button></li>
-            <li><button onClick={() => setActiveTab('activity')} className={activeTab === 'activity' ? 'active' : ''}><Bell size={24} /><small>Activity</small></button></li>
-            <li><button onClick={() => setActiveTab('profile')} className={activeTab === 'profile' ? 'active' : ''}><User size={24} /><small>Profile</small></button></li>
-=======
             <li>
               <button onClick={() => handleTabChange('home')} className={activeTab === 'home' ? 'active' : ''}>
                 <House size={24} />
@@ -604,12 +592,11 @@ const Home = () => {
                 <small>Search</small>
               </button>
             </li>
-            <li>
-              <button onClick={() => handleTabChange('wallet')} className={activeTab === 'wallet' ? 'active' : ''}>
-                <Wallet size={24} />
-                <small>Wallet</small>
+            <li><button onClick={() => setActiveTab('account')} className={activeTab === 'account' ? 'active' : ''}>
+              <CreditCard size={24} />
+              <small>My Account Details</small>
               </button>
-            </li>
+              </li>
             <li>
               <button onClick={() => handleTabChange('activity')} className={activeTab === 'activity' ? 'active' : ''}>
                 <Bell size={24} />
@@ -622,7 +609,6 @@ const Home = () => {
                 <small>Profile</small>
               </button>
             </li>
->>>>>>> 9bc079a076ce06935e8737ccaacdaef2c646cf3c
           </ul>
         </nav>
       </footer>
