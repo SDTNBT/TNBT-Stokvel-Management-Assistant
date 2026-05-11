@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { verifyFirebaseToken } = require('../middleware/authMiddleware');
+const verifyFirebaseToken = require('../middleware/authMiddleware');
 const { getSABanks, saveBankingDetails , getBankingDetails} = require('../controllers/bankingController');
 
 
