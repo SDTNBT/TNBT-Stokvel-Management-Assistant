@@ -3,7 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { 
   LayoutDashboard, Users, Users2, 
   CalendarDays, Mic2, ChevronDown, UserCircle, 
-  LogOut, Bell, FileText, ClipboardList, ChevronLeft, ChevronRight
+  LogOut, Bell, FileText, ClipboardList, ChevronLeft, ChevronRight,
+  Wallet // Added for Payout icon
 } from 'lucide-react'; 
 
 // Components
@@ -11,7 +12,8 @@ import Profile from '../components/Profile';
 import ScheduleMeeting from './ScheduleMeeting';
 import PostAgendas from './PostAgendas';
 import RecordMinutes from './RecordMinutes';
-import ViewContributions from './ViewContributions'; // 1. Import your new component
+import ViewContributions from './ViewContributions';
+import SchedulePayout from '../components/SchedulePayout'; // <--- NEW COMPONENT IMPORTED
 
 import './TreasurerDashboard.css';
 
@@ -24,6 +26,7 @@ const TreasurerDashboard = ({ user = {}, onLogout = () => {} }) => {
   const [groupName, setGroupName] = useState('Group Dashboard'); 
   const [isGroupsOpen, setIsGroupsOpen] = useState(false);
   const [isMeetingsOpen, setIsMeetingsOpen] = useState(false);
+  const [isPayoutsOpen, setIsPayoutsOpen] = useState(false); // <--- NEW STATE FOR PAYOUT DROPDOWN
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showProfile, setShowProfile] = useState(false);
   
@@ -142,7 +145,8 @@ const TreasurerDashboard = ({ user = {}, onLogout = () => {} }) => {
       case 'schedule-meeting': return <ScheduleMeeting />;
       case 'post-agenda': return <PostAgendas />;
       case 'record-minutes': return <RecordMinutes />;
-      case 'view-contributions': return <ViewContributions />; // 2. Add this case
+      case 'view-contributions': return <ViewContributions />;
+      case 'schedule-payout': return <SchedulePayout />; // <--- RENDER THE COMPONENT WE BUILT TOGETHER
       case 'dashboard':
       default: return renderDashboardHome();
     }
@@ -185,12 +189,31 @@ const TreasurerDashboard = ({ user = {}, onLogout = () => {} }) => {
               {isGroupsOpen && (
                 <ul className="submenu">
                   <li>
-                    {/* 3. Added onClick to switch to view-contributions */}
                     <button 
                       className={`submenu-btn ${activeTab === 'view-contributions' ? 'active' : ''}`}
                       onClick={() => { setActiveTab('view-contributions'); setShowProfile(false); }}
                     >
                       <Users size={16} /><label>View Contributions</label>
+                    </button>
+                  </li>
+                </ul>
+              )}
+            </li>
+
+            {/* --- NEW PAYOUT MANAGEMENT SECTION --- */}
+            <li>
+              <button onClick={() => setIsPayoutsOpen(!isPayoutsOpen)} className="nav-item dropdown-trigger">
+                <Wallet size={20} /> <label>Payout Management</label>
+                <ChevronDown size={16} className={isPayoutsOpen ? "rotate" : ""} />
+              </button>
+              {isPayoutsOpen && (
+                <ul className="submenu">
+                  <li>
+                    <button 
+                      className={`submenu-btn ${activeTab === 'schedule-payout' ? 'active' : ''}`}
+                      onClick={() => { setActiveTab('schedule-payout'); setShowProfile(false); }}
+                    >
+                      <FileText size={16} /><label>Schedule Payout</label>
                     </button>
                   </li>
                 </ul>
