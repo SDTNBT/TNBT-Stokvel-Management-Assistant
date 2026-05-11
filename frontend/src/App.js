@@ -8,7 +8,7 @@ import './App.css';
 import { LoginPage } from './components/Login';
 import { SignUp } from './components/SignUp';
 import Profile from './components/Profile';
-import SchedulePayout from './components/SchedulePayout';
+import MyGroups from './components/MyGroups';
 
 // You are importing from the file 'newAdminDashboard', 
 // but naming the component 'AdminDashboard' for use here.
@@ -48,6 +48,12 @@ function App() {
           <Route 
             path="/profile" 
             element={<Profile user={user} onLogout={handleLogout} />} 
+          />
+
+          {/* My Groups Route */}
+          <Route 
+            path="/my-groups" 
+            element={<MyGroups user={user} onLogout={handleLogout} />} 
           />
 
           {/* DASHBOARD ROUTE FIXED HERE */}
