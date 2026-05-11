@@ -61,4 +61,4 @@ The team discussed ideas and improvements for the new dashboards based on recomm
 
 ## Evidence
 
-![evidence](s32.jpg)
+![evidence](s32.jpeg)
