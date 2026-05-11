@@ -11,7 +11,7 @@ import Profile from '../components/Profile';
 import ScheduleMeeting from './ScheduleMeeting';
 import PostAgendas from './PostAgendas';
 import RecordMinutes from './RecordMinutes';
-import ViewContributions from './ViewContributions'; // 1. Import your new component
+import ViewContributions from './ViewContributions';
 
 import './TreasurerDashboard.css';
 
@@ -63,6 +63,16 @@ const TreasurerDashboard = ({ user = {}, onLogout = () => {} }) => {
 
   const changeMonth = (offset) => {
     setViewDate(new Date(currentYear, currentMonth + offset, 1));
+  };
+
+  const handleTabChange = (tab) => {
+    setShowProfile(false);
+    setActiveTab(tab);
+  };
+
+  const handleProfileClick = () => {
+    setShowProfile(true);
+    setActiveTab('profile');
   };
 
   const renderDashboardHome = () => (
@@ -142,7 +152,7 @@ const TreasurerDashboard = ({ user = {}, onLogout = () => {} }) => {
       case 'schedule-meeting': return <ScheduleMeeting />;
       case 'post-agenda': return <PostAgendas />;
       case 'record-minutes': return <RecordMinutes />;
-      case 'view-contributions': return <ViewContributions />; // 2. Add this case
+      case 'view-contributions': return <ViewContributions />;
       case 'dashboard':
       default: return renderDashboardHome();
     }
@@ -167,7 +177,7 @@ const TreasurerDashboard = ({ user = {}, onLogout = () => {} }) => {
         <nav className="sidebar-nav">
           <ul className="nav-list">
             <li>
-              <button onClick={() => { setActiveTab('dashboard'); setShowProfile(false); }} className={`nav-item ${activeTab === 'dashboard' && !showProfile ? 'active' : ''}`}>
+              <button onClick={() => handleTabChange('dashboard')} className={`nav-item ${activeTab === 'dashboard' && !showProfile ? 'active' : ''}`}>
                 <LayoutDashboard size={20} /> <label>Dashboard</label>
               </button>
             </li>
@@ -185,10 +195,9 @@ const TreasurerDashboard = ({ user = {}, onLogout = () => {} }) => {
               {isGroupsOpen && (
                 <ul className="submenu">
                   <li>
-                    {/* 3. Added onClick to switch to view-contributions */}
                     <button 
                       className={`submenu-btn ${activeTab === 'view-contributions' ? 'active' : ''}`}
-                      onClick={() => { setActiveTab('view-contributions'); setShowProfile(false); }}
+                      onClick={() => handleTabChange('view-contributions')}
                     >
                       <Users size={16} /><label>View Contributions</label>
                     </button>
@@ -205,17 +214,17 @@ const TreasurerDashboard = ({ user = {}, onLogout = () => {} }) => {
               {isMeetingsOpen && (
                 <ul className="submenu">
                   <li>
-                    <button onClick={() => {setActiveTab('schedule-meeting'); setShowProfile(false);}} className="submenu-btn">
+                    <button onClick={() => handleTabChange('schedule-meeting')} className={`submenu-btn ${activeTab === 'schedule-meeting' ? 'active' : ''}`}>
                       <CalendarDays size={16} /><label>Schedule Meeting</label>
                     </button>
                   </li>
                   <li>
-                    <button onClick={() => {setActiveTab('post-agenda'); setShowProfile(false);}} className="submenu-btn">
+                    <button onClick={() => handleTabChange('post-agenda')} className={`submenu-btn ${activeTab === 'post-agenda' ? 'active' : ''}`}>
                       <FileText size={16} /><label>Post Agenda</label>
                     </button>
                   </li>
                   <li>
-                    <button onClick={() => {setActiveTab('record-minutes'); setShowProfile(false);}} className="submenu-btn">
+                    <button onClick={() => handleTabChange('record-minutes')} className={`submenu-btn ${activeTab === 'record-minutes' ? 'active' : ''}`}>
                       <Mic2 size={16} /><label>Record Minutes</label>
                     </button>
                   </li>
@@ -230,7 +239,7 @@ const TreasurerDashboard = ({ user = {}, onLogout = () => {} }) => {
           <ul className="footer-list">
             <li><button className="footer-item"><Bell size={20} /><label>Notifications</label></button></li>
             <li>
-              <button className="footer-item" onClick={() => setShowProfile(true)}>
+              <button className={`footer-item ${showProfile ? 'active' : ''}`} onClick={handleProfileClick}>
                 <UserCircle size={20} /><label>Profile</label>
               </button>
             </li>
@@ -244,15 +253,7 @@ const TreasurerDashboard = ({ user = {}, onLogout = () => {} }) => {
       </aside>
 
       <main className="main-content">
-        {(showProfile || activeTab !== 'dashboard') && (
-           <button 
-             className="back-to-dashboard" 
-             onClick={() => { setShowProfile(false); setActiveTab('dashboard'); }} 
-             style={{marginBottom: '20px', cursor: 'pointer', background: 'none', border: 'none', color: '#2563eb', fontWeight: 'bold'}}
-           >
-             ← Back to Dashboard
-           </button>
-        )}
+        {/* The "Back to Dashboard" button has been removed from here */}
         {renderMainContent()}
       </main>
     </section>
