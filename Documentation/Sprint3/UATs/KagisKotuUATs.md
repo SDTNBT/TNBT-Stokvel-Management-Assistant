@@ -18,16 +18,3 @@
 | **UAT-04** | Verify that member can filter contributions by Status (Confirmed/Pending) and only matching status payments are shown |
 | **UAT-05** | Verify that member can export filtered contribution history as CSV file when clicking Download CSV button |
 | **UAT-06** | Verify that "No contributions found" message appears when member has no payment records |
-
----
-
-## Feature Summary
-
-| Feature | Description |
-|---------|-------------|
-| **Contribution Table** | Displays date, group name, amount, transaction ID, and payment status |
-| **Summary Cards** | Shows total paid, total payments, groups participating, and last payment date |
-| **Group Filter** | Filter contributions by specific stokvel group |
-| **Status Filter** | Filter by Confirmed or Pending status |
-| **CSV Export** | Download filtered contribution history as CSV file |
-| **Empty State** | Shows message when no payment records exist |
