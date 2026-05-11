@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, Users, UserPlus, Users2, 
@@ -5,11 +6,13 @@ import {
   ChevronDown, UserCircle, LogOut,
   ChevronLeft, ChevronRight, Bell, FileText
 } from 'lucide-react'; 
-import React, { useState, useEffect } from 'react';
-import { useGroupData } from './useGroupData';
-import './newAdminDashboard.css';
-import { useAllUsers } from '../hooks/useAllUsers';
 
+import { useGroupData } from './useGroupData';
+import { useAllUsers } from '../hooks/useAllUsers';
+import Profile from '../components/Profile'; 
+import './newAdminDashboard.css';
+
+// Components
 import ScheduleMeeting from './ScheduleMeeting';
 import PostAgendas from './PostAgendas';
 import RecordMinutes from './RecordMinutes';
@@ -19,7 +22,7 @@ import { InviteMember } from './InviteMember';
 
 const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
-const NewAdminDashboard = () => {
+const NewAdminDashboard = ({ user = {}, onLogout = () => {} }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { groupId } = useParams();
@@ -27,38 +30,34 @@ const NewAdminDashboard = () => {
   const [isGroupsOpen, setIsGroupsOpen] = useState(false);
   const [isMeetingsOpen, setIsMeetingsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [showProfile, setShowProfile] = useState(false);
   
   const [meetings, setMeetings] = useState([]);
   const [groupName, setGroupName] = useState(''); 
+  const [viewDate, setViewDate] = useState(new Date());
+  const [today, setToday] = useState(new Date());
+  const [selectedMember, setSelectedMember] = useState(null);
 
+  const { members, group, setMembers } = useGroupData(groupId);
+  const { users, loading: usersLoading } = useAllUsers();
+
+  // Handle Group Name and Meetings Init
   useEffect(() => {
-    // --- 1. THE DOUBLE-LOCK NAME LOOKUP ---
-    let foundName = "";
+    let foundName = location.state?.groupName || "";
 
-    // Step A: Check if the name was passed through the navigate() state (Fastest)
-    if (location.state?.groupName) {
-      foundName = location.state.groupName;
-    }
-
-    // Step B: If no state (like on a refresh), look in LocalStorage
     if (!foundName) {
       const storageKeys = ['stokvel_groups', 'groups', 'user_groups'];
       for (const key of storageKeys) {
         const data = JSON.parse(localStorage.getItem(key) || '[]');
-        const match = data.find(g => 
-          String(g._id) === String(groupId) || 
-          String(g.id) === String(groupId)
-        );
+        const match = data.find(g => String(g._id) === String(groupId) || String(g.id) === String(groupId));
         if (match) {
           foundName = match.groupName || match.name;
           break; 
         }
       }
     }
-
     setGroupName(foundName || "Group Dashboard");
 
-    // --- 2. LOAD MEETINGS ---
     const savedMeetings = JSON.parse(localStorage.getItem('stokvel_meetings') || '[]');
     const now = new Date();
     const currentGroupMeetings = savedMeetings.filter(m => {
@@ -68,19 +67,8 @@ const NewAdminDashboard = () => {
     setMeetings(currentGroupMeetings);
   }, [groupId, location.state]);
 
-  // Calendar & Member Setup
-  const [viewDate, setViewDate] = useState(new Date());
-  const [today, setToday] = useState(new Date());
-  const { members, group, setMembers } = useGroupData(groupId);
-  const [selectedMember, setSelectedMember] = useState(null);
-  const { users, loading: usersLoading } = useAllUsers();
-  console.log("What is useAllUsers returning?", users);
-  
-  useEffect(() => { setToday(new Date()); }, []);
-
-  const monthNames = ["January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
-  ];
+  // Calendar Logic
+  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   const currentMonth = viewDate.getMonth();
   const currentYear = viewDate.getFullYear();
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
@@ -90,6 +78,12 @@ const NewAdminDashboard = () => {
   const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
   const changeMonth = (offset) => setViewDate(new Date(currentYear, currentMonth + offset, 1));
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setShowProfile(false);
+    setSelectedMember(null);
+  };
 
   const handleRemove = async (memberId) => {
     try {
@@ -102,160 +96,118 @@ const NewAdminDashboard = () => {
         setMembers(prev => prev.filter(m => m._id !== memberId));
         return true;
       }
-      return false;
-    } catch (err) { return false; }
+    } catch (err) { console.error(err); }
+    return false;
   };
 
-  // In whatever parent component calls onSelectMember
-  const handleSelectMember = async (user) => {
+  const handleSelectMember = async (targetUser) => {
     const token = localStorage.getItem('token');
     await fetch(`${apiUrl}/notifications`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify({
-        recipient: user.email,        // ← must be 'recipient' to match the schema
-        type:      'invite',
-        title:     'Group Invite',
-        message:   `You've been invited to join ${group.groupName}.`,
-        groupId:   group._id,
+        recipient: targetUser.email,
+        type: 'invite',
+        title: 'Group Invite',
+        message: `You've been invited to join ${group.groupName}.`,
+        groupId: group._id,
       }),
     });
+    alert(`Invite sent to ${targetUser.email}`);
   };
 
-
   const renderContent = () => {
+    if (showProfile) return <Profile user={user} onLogout={onLogout} />;
     if (selectedMember) return <MemberDetails member={selectedMember} onClose={() => setSelectedMember(null)} onRemove={handleRemove} />;
-    if (activeTab === 'schedule-meeting') return <ScheduleMeeting />;
-    if (activeTab === 'post-agenda') return <PostAgendas />;
-    if (activeTab === 'record-minutes') return <RecordMinutes />;
-    if (activeTab === 'view-members') {
-      // Pass the data down from the hook
-      return <ViewMembers group={group} members={members} onSelectMember={setSelectedMember} />;
-    }
-    if (activeTab === 'invite-member') {
-      return <InviteMember users={usersLoading ? [] : users} members={members} onSelectMember={handleSelectMember} />;
-    }
 
-    return (
-      <>
-        <header className="content-header" style={{ display: 'block', paddingBottom: '20px' }}>
-          <h1 className="dashboard-title" style={{ marginBottom: '5px' }}>Dashboard</h1>
-          <div style={{ 
-            fontSize: '1.2rem', 
-            fontWeight: '700', 
-            color: '#4f46e5',
-            background: '#eef2ff',
-            display: 'inline-block',
-            padding: '6px 16px',
-            borderRadius: '8px'
-          }}>
-            {groupName}
-          </div>
-        </header>
-        
-        <section className="timeline-section">
-          <article className="content-card">
-            <header>
-              <h2>Timeline</h2>
-              <hr className="card-divider" />
+    switch (activeTab) {
+      case 'schedule-meeting': return <ScheduleMeeting />;
+      case 'post-agenda': return <PostAgendas />;
+      case 'record-minutes': return <RecordMinutes />;
+      case 'view-members': return <ViewMembers group={group} members={members} onSelectMember={setSelectedMember} />;
+      case 'invite-member': return <InviteMember users={usersLoading ? [] : users} members={members} onSelectMember={handleSelectMember} />;
+      case 'dashboard':
+      default:
+        return (
+          <>
+            <header className="content-header">
+              <h1 className="dashboard-title">Dashboard</h1>
+              <div className="group-badge">{groupName}</div>
             </header>
-            {meetings.length > 0 ? (
-              <ul className="timeline-list" style={{ listStyle: 'none', padding: 0 }}>
-                {meetings.map((meeting, index) => (
-                  <li key={index} className="timeline-item" style={{ 
-                    padding: '15px', borderLeft: '4px solid #2563eb', 
-                    background: '#f8fafc', marginBottom: '10px', borderRadius: '0 8px 8px 0' 
-                  }}>
-                    <strong style={{ display: 'block', fontSize: '1.1rem' }}>{meeting.meetingTitle}</strong>
-                    <time style={{ fontSize: '0.9rem', color: '#64748b' }}>📅 {meeting.meetingDate} | 🕒 {meeting.startTime} - {meeting.endTime}</time>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <figure className="empty-state">
-                <picture className="empty-icon"><ClipboardList size={80} strokeWidth={1} /></picture>
-                <figcaption>No scheduled meetings for {groupName}</figcaption>
-              </figure>
-            )}
-          </article>
-        </section>
+            
+            <section className="timeline-section">
+              <article className="content-card">
+                <h2>Timeline</h2>
+                <hr className="card-divider" />
+                {meetings.length > 0 ? (
+                  <ul className="timeline-list">
+                    {meetings.map((meeting, index) => (
+                      <li key={index} className="timeline-item">
+                        <strong>{meeting.meetingTitle}</strong>
+                        <time>📅 {meeting.meetingDate} | 🕒 {meeting.startTime} - {meeting.endTime}</time>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className="empty-state">
+                    <ClipboardList size={80} strokeWidth={1} />
+                    <p>No scheduled meetings for {groupName}</p>
+                  </div>
+                )}
+              </article>
+            </section>
 
-        <section className="calendar-section">
-          <article className="content-card">
-            <header className="calendar-card-header">
-              <h2>Calendar</h2>
-              <button type="button" className="new-event-btn">New event</button>
-            </header>
-            <nav className="calendar-nav">
-              <button onClick={() => changeMonth(-1)} className="month-nav-btn"><ChevronLeft size={18} /> <label>{monthNames[(currentMonth - 1 + 12) % 12]}</label></button>
-              <h3 className="calendar-current-date">{monthNames[currentMonth]} {currentYear}</h3>
-              <button onClick={() => changeMonth(1)} className="month-nav-btn"><label>{monthNames[(currentMonth + 1) % 12]}</label> <ChevronRight size={18} /></button>
-            </nav>
-            <ul className="calendar-grid">
-              {['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'].map(dayName => <li key={dayName} className="weekday-label">{dayName}</li>)}
-              {blanks.map((_, i) => <li key={`blank-${i}`} className="calendar-day empty"></li>)}
-              {days.map(day => {
-                const isToday = day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear();
-                return <li key={day} className={`calendar-day ${isToday ? 'today' : ''}`}>{day}</li>;
-              })}
-            </ul>
-          </article>
-        </section>
-      </>
-    );
+            <section className="calendar-section">
+              <article className="content-card">
+                <header className="calendar-card-header">
+                  <h2>Calendar</h2>
+                </header>
+                <nav className="calendar-nav">
+                  <button onClick={() => changeMonth(-1)}><ChevronLeft size={18} /> {monthNames[(currentMonth - 1 + 12) % 12]}</button>
+                  <h3>{monthNames[currentMonth]} {currentYear}</h3>
+                  <button onClick={() => changeMonth(1)}>{monthNames[(currentMonth + 1) % 12]} <ChevronRight size={18} /></button>
+                </nav>
+                <ul className="calendar-grid">
+                  {['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'].map(d => <li key={d} className="weekday-label">{d}</li>)}
+                  {blanks.map((_, i) => <li key={`b-${i}`} className="calendar-day empty"></li>)}
+                  {days.map(day => (
+                    <li key={day} className={`calendar-day ${day === today.getDate() && currentMonth === today.getMonth() ? 'today' : ''}`}>{day}</li>
+                  ))}
+                </ul>
+              </article>
+            </section>
+          </>
+        );
+    }
   };
 
   return (
     <section className="dashboard-shell">
       <aside className="sidebar">
-        <header className="sidebar-brand">
-          <figure className="brand-identity">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-              <circle cx="16" cy="16" r="16" fill="#F5C842" /><path d="M10 20 L16 10 L22 20" stroke="#1A3A6B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /><circle cx="16" cy="22" r="2" fill="#1A3A6B"/>
-            </svg>
-            <figcaption className="brand-text">StokvelStokkie</figcaption>
-          </figure>
-        </header>
-        <hr className="sidebar-divider" />
+        <div className="sidebar-brand">
+          <div className="brand-identity">
+            <svg width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#F5C842" /></svg>
+            <span className="brand-text">StokvelStokkie</span>
+          </div>
+        </div>
         <nav className="sidebar-nav">
           <ul className="nav-list">
-            <li><button onClick={() => setActiveTab('dashboard')} className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}><LayoutDashboard size={20} /> <p>Dashboard</p></button></li>
-            <li><button onClick={() => navigate('/home')} className="nav-item"><Users size={20} /> <p>My Groups</p></button></li>
+            <li><button onClick={() => handleTabChange('dashboard')} className="nav-item"><LayoutDashboard size={20} /> Dashboard</button></li>
+            <li><button onClick={() => navigate('/home')} className="nav-item"><Users size={20} /> My Groups</button></li>
             <li>
-              <button onClick={() => setIsGroupsOpen(!isGroupsOpen)} className="nav-item dropdown-trigger"><Users2 size={20} /> <p>Group Management</p><ChevronDown size={16} className={`chevron-icon ${isGroupsOpen ? "rotate" : ""}`} /></button>
+              <button onClick={() => setIsGroupsOpen(!isGroupsOpen)} className="nav-item dropdown-trigger"><Users2 size={20} /> Group Mgmt <ChevronDown size={16} /></button>
               {isGroupsOpen && (
                 <ul className="submenu">
-                  <li>
-                    <button onClick={() => setActiveTab('view-members')} className={`submenu-btn ${activeTab === 'view-members' ? 'active-sub' : ''}`}>
-                      <Users size={16} /><p>View Member</p>
-                    </button>
-                  </li>
-                  <li><button onClick={() => setActiveTab('invite-member')} className={`submenu-btn ${activeTab === 'invite-member' ? 'active-sub' : ''}`}>
-                    <UserPlus size={16} /><p>Invite Member</p></button></li>
-                </ul>
-              )}
-            </li>
-            <li>
-              <button onClick={() => setIsMeetingsOpen(!isMeetingsOpen)} className="nav-item dropdown-trigger"><CalendarDays size={20} /> <p>Meeting Management</p><ChevronDown size={16} className={`chevron-icon ${isMeetingsOpen ? "rotate" : ""}`} /></button>
-              {isMeetingsOpen && (
-                <ul className="submenu">
-                  <li><button onClick={() => setActiveTab('schedule-meeting')} className={`submenu-btn ${activeTab === 'schedule-meeting' ? 'active-sub' : ''}`}><CalendarDays size={16} /><p>Schedule Meeting</p></button></li>
-                  <li><button onClick={() => setActiveTab('post-agenda')} className={`submenu-btn ${activeTab === 'post-agenda' ? 'active-sub' : ''}`}><FileText size={16} /><p>Post Agenda</p></button></li>
-                  <li><button onClick={() => setActiveTab('record-minutes')} className={`submenu-btn ${activeTab === 'record-minutes' ? 'active-sub' : ''}`}><Mic2 size={16} /><p>Record Minutes</p></button></li>
+                  <li><button onClick={() => handleTabChange('view-members')}><Users size={16} /> View Members</button></li>
+                  <li><button onClick={() => handleTabChange('invite-member')}><UserPlus size={16} /> Invite Member</button></li>
                 </ul>
               )}
             </li>
           </ul>
         </nav>
         <footer className="sidebar-footer">
-          <hr className="sidebar-divider" />
-          <nav>
-            <ul className="footer-list">
-              <li><button className="footer-item"><Bell size={20} /><p>Notifications</p></button></li>
-              <li><button className="footer-item"><UserCircle size={20} /><p>Profile</p></button></li>
-              <li><button className="footer-item logout-btn" onClick={() => navigate('/')}><LogOut size={20} /><p>Logout</p></button></li>
-            </ul>
-          </nav>
+            <button onClick={() => setShowProfile(true)} className="footer-item"><UserCircle size={20} /> Profile</button>
+            <button onClick={onLogout} className="footer-item logout-btn"><LogOut size={20} /> Logout</button>
         </footer>
       </aside>
       <main className="main-content">{renderContent()}</main>
