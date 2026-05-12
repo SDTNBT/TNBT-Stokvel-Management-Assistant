@@ -38,8 +38,4 @@ const verifyFirebaseToken = async (req, res, next) => {
 };
 
 // 3. CRITICAL: Export the middleware so your routes can actually use it!
-<<<<<<< Updated upstream
 module.exports = verifyFirebaseToken;
-=======
-module.exports = verifyFirebaseToken;
->>>>>>> Stashed changes
