@@ -41,6 +41,7 @@ const PostAgendas = () => {
     }
 
     try {
+      //const apiUrl = 'http://localhost:5000/api';
       const apiUrl = 'https://tnbt-stokvel-management-assistant.onrender.com/api';
       
       // Grabbing the token just like your team's code does

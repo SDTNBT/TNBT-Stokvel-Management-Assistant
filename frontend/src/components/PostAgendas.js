@@ -36,6 +36,7 @@ export const PostAgenda = () => {
     }
 
     try {
+      //const apiUrl = 'http://localhost:5000/api';
       const apiUrl = 'https://tnbt-stokvel-management-assistant.onrender.com/api';
       const token = localStorage.getItem('token'); 
 

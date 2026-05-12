@@ -154,6 +154,7 @@ const CreateGroup = () => {
     setIsSubmitting(true);
 
     const apiUrl = 'https://tnbt-stokvel-management-assistant.onrender.com/api';
+    //const apiUrl = 'http://localhost:5000/api';
 
     const payload = {
       groupName: formData.groupName.trim(),
