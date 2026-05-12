@@ -7,7 +7,8 @@ const NotificationPage = () => {
 
   const userEmail = localStorage.getItem('email');
   const token = localStorage.getItem('token');
-  const apiUrl = 'https://tnbt-stokvel-management-assistant.onrender.com/api';
+  const apiUrl = 'http://localhost:5000/api';
+  //const apiUrl = 'https://tnbt-stokvel-management-assistant.onrender.com/api';
 
   useEffect(() => {
     fetchNotifications();

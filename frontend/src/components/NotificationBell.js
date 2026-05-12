@@ -9,7 +9,8 @@ const NotificationBell = ({ userEmail }) => {
   const [open, setOpen] = useState(false);
 
   // API base URL
-  const apiUrl = 'https://tnbt-stokvel-management-assistant.onrender.com/api';
+  const apiUrl = 'http://localhost:5000/api'
+  //const apiUrl = 'https://tnbt-stokvel-management-assistant.onrender.com/api';
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
 

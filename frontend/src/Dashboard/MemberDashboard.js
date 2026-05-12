@@ -6,6 +6,7 @@ import {
 } from 'lucide-react'; 
 import React, { useState } from 'react';
 import './MemberDashboard.css';
+import SavingsProjection from './SavingsProjection';
 import Profile from '../components/Profile';
 
 const MemberDashboard = ({ user = {}, onLogout = () => {} }) => {
@@ -179,9 +180,44 @@ const MemberDashboard = ({ user = {}, onLogout = () => {} }) => {
            </h1>
         </header>
 
-        <section className="content-body">
-          {/* Your member content will be rendered here */}
-        </section>
+       <section className="content-body">
+
+  {activeTab === 'dashboard' && (
+    <>
+      <div className="welcome-card">
+        <h2>Welcome Back!</h2>
+        <p>
+          Monitor your stokvel activity, financial growth,
+          meetings, and contributions from one place.
+        </p>
+      </div>
+
+      <SavingsProjection />
+    </>
+  )}
+
+  {activeTab === 'schedule-meeting' && (
+    <div className="feature-placeholder">
+      <h2>Schedule Meeting</h2>
+      <p>Meeting scheduling feature coming soon.</p>
+    </div>
+  )}
+
+  {activeTab === 'post-agenda' && (
+    <div className="feature-placeholder">
+      <h2>Post Agenda</h2>
+      <p>Agenda management feature coming soon.</p>
+    </div>
+  )}
+
+  {activeTab === 'record-minutes' && (
+    <div className="feature-placeholder">
+      <h2>Record Minutes</h2>
+      <p>Minutes recording feature coming soon.</p>
+    </div>
+  )}
+
+</section>
       </main>
     </div>
   );

@@ -16,6 +16,7 @@ const usersRoutes = require('./routes/usersRoutes');
 const managegroupRoutes = require('./routes/managegroupRoutes');
 const meetingRoutes = require('./routes/meetingRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const rateRoutes = require('./routes/rateRoutes');
 
 const app = express();
 
@@ -86,6 +87,8 @@ app.use('/api/users', usersRoutes);
 app.use('/api/managegroup', managegroupRoutes);
 app.use('/api/meetings', meetingRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/rates', rateRoutes);
+
 
 // Basic Health Check
 app.get('/', (req, res) => {
