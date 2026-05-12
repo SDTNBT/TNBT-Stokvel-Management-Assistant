@@ -13,6 +13,7 @@ import ScheduleMeeting from './ScheduleMeeting';
 import PostAgendas from './PostAgendas';
 import RecordMinutes from './RecordMinutes';
 import ViewContributions from './ViewContributions';
+import SchedulePayout from '../components/SchedulePayout';
 import './TreasurerDashboard.css';
 
 const TreasurerDashboard = ({ onLogout = () => {} }) => {
