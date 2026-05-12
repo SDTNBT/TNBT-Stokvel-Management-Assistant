@@ -120,12 +120,23 @@
   padding: 8px 16px;
   border-radius: 10px;
   cursor: pointer;
-  color: #64748b;
+  color: #ffffff; /* <-- Changed to crisp white! */
   font-size: 0.85rem;
   transition: all 0.2s ease;
   width: 100%;
   background: none;
   border: none;
+}
+
+.submenu-btn:hover {
+  background: rgba(255, 255, 255, 0.1); /* Subtle white highlight on hover */
+  color: #ffffff; /* Keeps text white */
+}
+
+.submenu-btn.active-sub {
+  background: rgba(255, 255, 255, 0.2); /* Stronger highlight for the active page */
+  color: #ffffff; /* Keeps text white */
+  font-weight: 500;
 }
 
 .submenu-btn:hover {

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './BankingDetails.css';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
 // SVG Icons as components
 const SparklesIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -76,7 +78,7 @@ const BankingDetails = ({ onBack }) => {
   useEffect(() => {
     const fetchBanks = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/banking/list', {
+        const response = await fetch(`${API_BASE_URL}/banking/list`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -106,7 +108,7 @@ const BankingDetails = ({ onBack }) => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/banking/save', {
+      const response = await fetch(`${API_BASE_URL}/banking/save`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -232,6 +234,7 @@ const BankingDetails = ({ onBack }) => {
               value={formData.accountNumber}
               onChange={handleInputChange}
               required
+              pattern="\d*"
             />
           </div>
 
@@ -248,6 +251,7 @@ const BankingDetails = ({ onBack }) => {
               onChange={handleInputChange}
               required
               maxLength="13"
+              pattern="\d*"
             />
           </div>
 
