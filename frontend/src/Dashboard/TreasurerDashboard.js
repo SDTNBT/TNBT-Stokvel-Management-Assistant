@@ -12,9 +12,7 @@ import Profile from '../components/Profile';
 import ScheduleMeeting from './ScheduleMeeting';
 import PostAgendas from './PostAgendas';
 import RecordMinutes from './RecordMinutes';
-import ViewContributions from './ViewContributions'; 
-import SchedulePayout from './SchedulePayout';
-
+import ViewContributions from './ViewContributions';
 import './TreasurerDashboard.css';
 
 const TreasurerDashboard = ({ onLogout = () => {} }) => {
