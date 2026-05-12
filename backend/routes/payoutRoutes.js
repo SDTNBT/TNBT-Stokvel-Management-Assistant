@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { schedulePayout, updatePayoutStatus} = require('../controllers/payoutController');
+// Added getScheduledPayouts to the imports here
+const { schedulePayout, updatePayoutStatus, getScheduledPayouts } = require('../controllers/payoutController');
 
 // --- THE BOUNCER (Security Middleware) ---
 const requireTreasurer = (req, res, next) => {
@@ -20,6 +21,11 @@ const requireTreasurer = (req, res, next) => {
 // POST /api/payouts
 router.post('/', requireTreasurer, schedulePayout);
 
-router.put('/:id/status', requireTreasurer, updatePayoutStatus); //PUT /api/payouts/:id/status (Update Status)
+// PUT /api/payouts/:id/status (Update Status)
+router.put('/:id/status', requireTreasurer, updatePayoutStatus); 
+
+// GET /api/payouts/scheduled (For the Treasurer Dashboard)
+// Added the bouncer here so only Treasurers can see the full scheduled list
+router.get('/scheduled', requireTreasurer, getScheduledPayouts);
 
 module.exports = router;

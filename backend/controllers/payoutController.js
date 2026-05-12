@@ -61,7 +61,20 @@ const updatePayoutStatus = async (req, res) => {
     }
 };
 
+// --- NEW: Fetch Scheduled Payouts for the Dashboard ---
+const getScheduledPayouts = async (req, res) => {
+    try {
+        // Find all payouts that haven't been paid out yet
+        const payouts = await Payout.find({ status: 'Scheduled' });
+        res.status(200).json(payouts);
+    } catch (error) {
+        console.error("Error fetching scheduled payouts:", error);
+        res.status(500).json({ message: "Failed to fetch scheduled payouts" });
+    }
+};
+
 module.exports = {
     schedulePayout,
-    updatePayoutStatus
+    updatePayoutStatus,
+    getScheduledPayouts // <-- Don't forget to export the new function!
 };
