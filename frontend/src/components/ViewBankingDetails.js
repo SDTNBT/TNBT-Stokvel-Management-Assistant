@@ -43,7 +43,20 @@ const ViewBankingDetails = ({ onEdit, onBack, bankData }) => {
   
   const maskAccountNumber = (number) => {
     if (!number) return '';
-    return `•••• •••• ${number.slice(-4)}`;
+  
+  // Get the last 4 digits
+    const visibleDigits = 4;
+    const lastFour = number.slice(-visibleDigits);
+  
+    // Calculate how many bullets we actually need
+    // This ensures a 10-digit number gets 6 bullets, and a 13-digit gets 9.
+    const maskedLength = number.length > visibleDigits ? number.length - visibleDigits : 0;
+    const mask = '•'.repeat(maskedLength);
+  
+    // Optional: Add a space every 4 characters for better readability
+    const formattedMask = mask.replace(/(.{4})/g, '$1 ');
+  
+    return `${formattedMask} ${lastFour}`.trim();
   };
 
   if (!bankData) {
