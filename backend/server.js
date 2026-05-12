@@ -25,7 +25,7 @@ const app = express();
 // --- 3. Middleware ---
 // Explicit CORS to allow your React app to talk to this API
 app.use(cors({
-    origin: ['http://localhost:3000', 'https://gomolemorampa.github.io'], // added frontend URL
+    origin: ['http://localhost:3000', 'https://gomolemorampa.github.io'], // added frontend URL (FOR AZURE DEPLOYMENT- your-azure-frontend-url.azurestaticapps.net')
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Added PUT so you can update payout statuses later
     allowedHeaders: ['Content-Type', 'Authorization', 'x-user-role'] // Added your VIP pass header
 }));

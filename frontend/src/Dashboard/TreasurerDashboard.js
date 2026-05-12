@@ -12,8 +12,8 @@ import Profile from '../components/Profile';
 import ScheduleMeeting from './ScheduleMeeting';
 import PostAgendas from './PostAgendas';
 import RecordMinutes from './RecordMinutes';
-import ViewContributions from './ViewContributions'; 
-
+import ViewContributions from './ViewContributions';
+import SchedulePayout from '../components/SchedulePayout';
 import './TreasurerDashboard.css';
 
 const TreasurerDashboard = ({ onLogout = () => {} }) => {
@@ -29,6 +29,7 @@ const TreasurerDashboard = ({ onLogout = () => {} }) => {
   const [isMeetingsOpen, setIsMeetingsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showProfile, setShowProfile] = useState(false);
+  const [isFinancesOpen, setIsFinancesOpen] = useState(false);
   
   // Data State
   const [meetings, setMeetings] = useState([]);
@@ -126,6 +127,7 @@ const TreasurerDashboard = ({ onLogout = () => {} }) => {
       case 'post-agenda': return <PostAgendas />;
       case 'record-minutes': return <RecordMinutes />;
       case 'view-contributions': return <ViewContributions />;
+      case 'schedule-payout': return <SchedulePayout />; //render this if activeTab is schedule payout
       case 'dashboard':
       default: return renderDashboardHome();
     }
@@ -179,6 +181,32 @@ const TreasurerDashboard = ({ onLogout = () => {} }) => {
                   <li>
                     <button onClick={() => handleTabChange('view-contributions')} className={`submenu-btn ${activeTab === 'view-contributions' ? 'active' : ''}`}>
                       <Users size={16} /><label>Contributions</label>
+                    </button>
+                  </li>
+                </ul>
+              )}
+            </li>
+
+            <li>
+              <button 
+                onClick={() => setIsFinancesOpen(!isFinancesOpen)} 
+                className="nav-item dropdown-trigger"
+                aria-expanded={isFinancesOpen}
+              >
+                <CreditCard size={20} aria-hidden="true" /> 
+                <label>Finances</label>
+                <ChevronDown size={16} className={isFinancesOpen ? "rotate" : ""} aria-hidden="true" />
+              </button>
+              
+              {isFinancesOpen && (
+                <ul className="submenu" aria-label="Finances Submenu">
+                  <li>
+                    <button 
+                      onClick={() => handleTabChange('schedule-payout')} 
+                      className={`submenu-btn ${activeTab === 'schedule-payout' ? 'active' : ''}`}
+                    >
+                      <CreditCard size={16} aria-hidden="true" />
+                      <label>Schedule Payout</label>
                     </button>
                   </li>
                 </ul>

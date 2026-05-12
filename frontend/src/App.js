@@ -9,6 +9,7 @@ import { LoginPage } from './components/Login';
 import { SignUp } from './components/SignUp';
 import Profile from './components/Profile';
 import MyGroups from './components/MyGroups';
+import SchedulePayout from './components/SchedulePayout';
 
 // You are importing from the file 'newAdminDashboard', 
 // but naming the component 'AdminDashboard' for use here.
@@ -75,6 +76,8 @@ function App() {
             path="/member-dashboard/:groupId" 
             element={<MemberDashboard user={user} onLogout={handleLogout} />} 
           />
+
+          
         </Routes>
       </main>
     </Router>
