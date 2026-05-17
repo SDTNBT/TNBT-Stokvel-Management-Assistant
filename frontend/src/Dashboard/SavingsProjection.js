@@ -9,8 +9,8 @@ const SavingsProjection = () => {
   useEffect(() => {
     const fetchRates = async () => {
       try {
-        //const res = await fetch('https://tnbt-stokvel-management-assistant.onrender.com/api/rates');
-        const res = await fetch('http://localhost:5000/api/rates');
+        const res = await fetch('https://tnbt-stokvel-management-assistant.onrender.com/api/rates');
+        //const res = await fetch('http://localhost:5000/api/rates');
 
         if (!res.ok) {
           throw new Error('Could not load rate data');
