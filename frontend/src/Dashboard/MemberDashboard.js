@@ -22,6 +22,7 @@ import PaymentPreview from './PaymentPreview';
 import PaymentGateway from './PaymentGateway';
 import PaymentSuccess from './PaymentSuccess';
 import PaymentHistory from '../components/PaymentHistory';
+import ContributionCompliance from '../components/ContributionCompliance';
 
 const MemberDashboard = ({ onLogout = () => {} }) => {
   const navigate = useNavigate();
@@ -259,6 +260,21 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
                     </button>
                   </li>
 
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('contribution-compliance')}
+                      className={`submenu-btn ${
+                        activeTab === 'contribution-compliance'
+                          ? 'active-sub'
+                          : ''
+                      }`}
+                    >
+                      <FileText size={16} />
+                      <small>Contribution Compliance</small>
+                    </button>
+                  </li>
+
                 </ul>
               )}
             </li>
@@ -312,6 +328,8 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
           <h1 className="dashboard-title">
             {activeTab === 'contributions'
               ? 'My Contribution History'
+              : activeTab === 'contribution-compliance'
+              ? 'Contribution Compliance Report'
               : activeTab.replace(/-/g, ' ')}
           </h1>
         </header>
@@ -388,6 +406,15 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
 
           {activeTab === 'projected-savings-growth' && (
             <SavingsProjection />
+          )}
+
+          {activeTab === 'contribution-compliance' && (
+            <ContributionCompliance
+              user={sessionUser}
+              groupName={groupName}
+              groupId={location.state?.groupId}
+              monthlyContribution={amount}
+            />
           )}
 
           {activeTab === 'financial-health-scoring' && (

@@ -3,4 +3,7 @@ module.exports = {
   coverageDirectory: "coverage",
   coverageReporters: ["text", "lcov"],
   testEnvironment: "node",
+  setupFilesAfterEnv: [
+    "<rootDir>/tests/setup.js" 
+  ],
 };

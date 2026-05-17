@@ -20,6 +20,7 @@ const notificationRoutes = require('./routes/notificationRoutes');
 const rateRoutes = require('./routes/rateRoutes');
 const minutesRoutes = require('./routes/recordMinutesRoutes');
 const bankingRoutes = require('./routes/bankingRoutes');
+const paymentTrackerRoutes = require('./routes/paymentTrackerRoutes');
 
 const app = express();
 
@@ -73,6 +74,7 @@ app.use('/api/rates', rateRoutes);
 app.use('/api/minutes', minutesRoutes);
 app.use('/api/banking', bankingRoutes);
 app.use('/api/payouts', payoutRoutes);
+app.use('/api/groups', paymentTrackerRoutes);
 
 app.get('/', (req, res) => {
   res.send('Stokvel Assistant API is running and healthy!');

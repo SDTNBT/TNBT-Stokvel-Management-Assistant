@@ -170,4 +170,96 @@ router.get('/my-payments-summary/:userEmail', async (req, res) => {
     }
 });
 
+// COMPLIANCE REPORT ENDPOINT
+router.get('/compliance/:userEmail', async (req, res) => {
+    try {
+        const { userEmail } = req.params;
+        const { groupName } = req.query;
+        
+        if (!userEmail) {
+            return res.status(400).json({ error: "User email is required" });
+        }
+
+        const query = { userEmail: userEmail.toLowerCase() };
+        if (groupName) {
+            query.groupName = groupName;
+        }
+        
+        const payments = await Payment.find(query).sort({ date: 1 });
+        
+        const Member = require('../models/Member');
+        const member = await Member.findOne({ user: userEmail.toLowerCase(), group: groupName });
+        
+        const joinDate = member ? new Date(member.joiningDate) : new Date();
+        const currentDate = new Date();
+        
+        const monthsSinceJoin = (currentDate.getFullYear() - joinDate.getFullYear()) * 12 + 
+                                 (currentDate.getMonth() - joinDate.getMonth()) + 1;
+        const totalExpected = Math.max(monthsSinceJoin, 1);
+        
+        const totalPaid = payments.length;
+        const missedPayments = totalExpected - totalPaid;
+        const complianceRate = Math.round((totalPaid / totalExpected) * 100);
+        
+        const onTimePayments = payments.filter(p => {
+            const paymentDate = new Date(p.date);
+            const expectedDate = new Date(paymentDate.getFullYear(), paymentDate.getMonth(), 15);
+            return paymentDate <= expectedDate;
+        }).length;
+        
+        const onTimeRate = totalPaid > 0 ? Math.round((onTimePayments / totalPaid) * 100) : 0;
+        
+        const monthlyBreakdown = [];
+        const startDate = new Date(joinDate);
+        startDate.setDate(1);
+        
+        for (let i = 0; i < totalExpected; i++) {
+            const currentMonth = new Date(startDate);
+            currentMonth.setMonth(startDate.getMonth() + i);
+            const monthName = currentMonth.toLocaleDateString('en-ZA', { month: 'long', year: 'numeric' });
+            const dueDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 15);
+            
+            const paymentForMonth = payments.find(p => {
+                const pDate = new Date(p.date);
+                return pDate.getMonth() === currentMonth.getMonth() && 
+                       pDate.getFullYear() === currentMonth.getFullYear();
+            });
+            
+            let status = 'missed';
+            let amount = 0;
+            if (paymentForMonth) {
+                const paymentDate = new Date(paymentForMonth.date);
+                status = paymentDate <= dueDate ? 'on-time' : 'late';
+                amount = paymentForMonth.amount;
+            }
+            
+            monthlyBreakdown.push({
+                month: monthName,
+                expected: 0,
+                paid: amount,
+                dueDate: dueDate.toLocaleDateString('en-ZA'),
+                paymentDate: paymentForMonth ? paymentForMonth.date : null,
+                status: status
+            });
+        }
+        
+        res.status(200).json({
+            success: true,
+            complianceRate: complianceRate,
+            totalExpected: totalExpected,
+            totalPaid: totalPaid,
+            missedPayments: missedPayments,
+            latePayments: totalPaid - onTimePayments,
+            onTimeRate: onTimeRate,
+            monthlyBreakdown: monthlyBreakdown,
+            joinDate: joinDate,
+            lastPaymentDate: payments.length > 0 ? payments[payments.length - 1].date : null
+        });
+        
+    } catch (error) {
+        console.error("Error fetching compliance data:", error.message);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 module.exports = router;

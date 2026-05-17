@@ -68,8 +68,8 @@ describe('Payout Controller - Treasurer Schedule', () => {
 
   });
 
-describe('PUT /api/payouts/:id/status', () => {
-    
+  describe('PUT /api/payouts/:id/status', () => {
+      
     it('Rule 3: Should successfully update a payout status to Paid and return 200', async () => {
       // 1. Setup: Manually save a Scheduled payout to the DB
       const existingPayout = new Payout({
@@ -105,8 +105,10 @@ describe('PUT /api/payouts/:id/status', () => {
       expect(response.body.message).toBe('Payout not found');
     });
 
-describe('Security Guard (Rule 4) - Role Authorization', () => {
-    
+  }); // <-- FIXED: This closing bracket was missing!
+
+  describe('Security Guard (Rule 4) - Role Authorization', () => {
+      
     it('Should return 403 Forbidden if a standard user tries to schedule a payout', async () => {
       
       const response = await request(app)
@@ -125,8 +127,6 @@ describe('Security Guard (Rule 4) - Role Authorization', () => {
       expect(response.status).toBe(403);
       expect(response.body.message).toBe('Access denied. Treasurers only.');
     });
-
-  });
 
   });
 

@@ -14,7 +14,12 @@ describe('Meeting and Agenda Notifications', () => {
   let group;
 
   beforeAll(async () => {
-    await connectDB(process.env.MONGO_URI);
+
+  const testDbUri = process.env.MONGO_URI && process.env.MONGO_URI.includes('stokvel_test_db')
+    ? process.env.MONGO_URI
+    : 'mongodb+srv://stokveltest:thetest2026@cluster200.l91gxta.mongodb.net/stokvel_test_db?retryWrites=true&w=majority';
+
+  await connectDB(testDbUri);
   });
 
   beforeEach(async () => {

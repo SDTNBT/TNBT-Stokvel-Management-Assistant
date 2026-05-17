@@ -4,8 +4,7 @@ import {
   LayoutDashboard, Users, CreditCard, 
   CalendarDays, Mic2, ChevronDown, UserCircle, 
   LogOut, Bell, TrendingUp, Clock, AlertCircle,
-  FileText, ClipboardList, ChevronLeft, ChevronRight
-} from 'lucide-react'; 
+  FileText, ClipboardList, ChevronLeft, ChevronRight,CheckSquare} from 'lucide-react'; 
 
 // Components
 import Profile from '../components/Profile';
@@ -14,6 +13,7 @@ import PostAgendas from './PostAgendas';
 import RecordMinutes from './RecordMinutes';
 import ViewContributions from './ViewContributions';
 import SchedulePayout from '../components/SchedulePayout';
+import PaymentTracking from './PaymentTracking'
 import './TreasurerDashboard.css';
 
 const TreasurerDashboard = ({ onLogout = () => {} }) => {
@@ -127,6 +127,7 @@ const TreasurerDashboard = ({ onLogout = () => {} }) => {
       case 'post-agenda': return <PostAgendas />;
       case 'record-minutes': return <RecordMinutes />;
       case 'view-contributions': return <ViewContributions />;
+      case 'payment-tracking': return <PaymentTracking groupId={groupId} />;
       case 'schedule-payout': return <SchedulePayout />; //render this if activeTab is schedule payout
       case 'dashboard':
       default: return renderDashboardHome();
@@ -181,6 +182,11 @@ const TreasurerDashboard = ({ onLogout = () => {} }) => {
                   <li>
                     <button onClick={() => handleTabChange('view-contributions')} className={`submenu-btn ${activeTab === 'view-contributions' ? 'active' : ''}`}>
                       <Users size={16} /><label>Contributions</label>
+                    </button>
+                  </li>
+                  <li>
+                    <button onClick={() => handleTabChange('payment-tracking')} className={`submenu-btn ${activeTab === 'payment-tracking' ? 'active' : ''}`}>
+                      <CheckSquare size={16} /><label>Payment Tracking</label>
                     </button>
                   </li>
                 </ul>
