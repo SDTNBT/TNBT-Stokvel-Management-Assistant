@@ -1,32 +1,58 @@
-// backend/models/Payout.js
 const mongoose = require('mongoose');
 
 const payoutSchema = new mongoose.Schema({
-  groupName: { 
-    type: String, 
-    required: true 
+  groupName: {
+    type: String,
+    required: true
   },
-  userId: { 
-    type: String, 
-    required: true 
+
+  userId: {
+    type: String,
+    required: true
   },
-  userEmail: { 
-    type: String, 
-    required: true 
-  },
-  amount: { 
-    type: Number, 
+
+  userEmail: {
+    type: String,
     required: true,
-    min: [0.01, 'Payout amount must be greater than zero'] // This handles Rule 2 automatically!
+    lowercase: true,
+    trim: true
   },
-  payoutDate: { 
-    type: Date, 
-    required: true 
+
+  amount: {
+    type: Number,
+    required: true,
+    min: [0.01, 'Payout amount must be greater than zero']
   },
-  status: { 
-    type: String, 
-    enum: ['Scheduled', 'Paid', 'Cancelled'],
-    default: 'Scheduled' 
+
+  payoutDate: {
+    type: Date,
+    required: true
+  },
+
+  status: {
+    type: String,
+    enum: ['Scheduled', 'Processing', 'Paid', 'Cancelled', 'Failed'],
+    default: 'Scheduled'
+  },
+
+  bankName: {
+    type: String
+  },
+
+  accountHolder: {
+    type: String
+  },
+
+  accountNumberLast4: {
+    type: String
+  },
+
+  paymentReference: {
+    type: String
+  },
+
+  paidAt: {
+    type: Date
   }
 }, { timestamps: true });
 

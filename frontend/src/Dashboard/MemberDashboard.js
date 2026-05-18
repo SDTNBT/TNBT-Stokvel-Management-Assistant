@@ -23,15 +23,16 @@ import PaymentGateway from './PaymentGateway';
 import PaymentSuccess from './PaymentSuccess';
 import PaymentHistory from '../components/PaymentHistory';
 import ContributionCompliance from '../components/ContributionCompliance';
+import PayoutHistory from '../components/PayoutHistory';
 
 const MemberDashboard = ({ onLogout = () => {} }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const groupName = location.state?.groupName || "Stokvel Group";
-  const amount = location.state?.contributionAmount || "0";
+  const groupName = location.state?.groupName || 'Stokvel Group';
+  const amount = location.state?.contributionAmount || '0';
   const sessionUser =
-    location.state?.user || JSON.parse(sessionStorage.getItem('user'));
+    location.state?.user || JSON.parse(sessionStorage.getItem('user') || '{}');
 
   const [isMeetingsOpen, setIsMeetingsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -54,6 +55,14 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
   const handleCancelPayment = () => {
     setPaymentStage('preview');
     setActiveTab('dashboard');
+  };
+
+  const getPageTitle = () => {
+    if (activeTab === 'contributions') return 'My Contribution History';
+    if (activeTab === 'contribution-compliance') return 'Contribution Compliance Report';
+    if (activeTab === 'payout-history') return 'Payout History';
+
+    return activeTab.replace(/-/g, ' ');
   };
 
   if (showProfile) {
@@ -326,11 +335,7 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
 
         <header className="content-header">
           <h1 className="dashboard-title">
-            {activeTab === 'contributions'
-              ? 'My Contribution History'
-              : activeTab === 'contribution-compliance'
-              ? 'Contribution Compliance Report'
-              : activeTab.replace(/-/g, ' ')}
+            {getPageTitle()}
           </h1>
         </header>
 
@@ -353,7 +358,7 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
 
                 <p>
                   Monitor your stokvel activity, financial growth,
-                  meetings, and contributions from one place.
+                  meetings, contributions, and payouts from one place.
                 </p>
               </section>
 
@@ -408,6 +413,10 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
             <SavingsProjection />
           )}
 
+          {activeTab === 'payout-history' && (
+            <PayoutHistory user={sessionUser} />
+          )}
+
           {activeTab === 'contribution-compliance' && (
             <ContributionCompliance
               user={sessionUser}
@@ -423,13 +432,6 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
               <p>
                 Financial health scoring feature coming soon.
               </p>
-            </div>
-          )}
-
-          {activeTab === 'payout-history' && (
-            <div className="feature-placeholder">
-              <h2>Payout History</h2>
-              <p>Payout history feature coming soon.</p>
             </div>
           )}
 

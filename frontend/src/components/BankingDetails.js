@@ -43,13 +43,15 @@ const CreditCardIcon = () => (
 const SaveIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-    <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
+    <polyline points="17 21 17 13 7 13 7 21"/>
+    <polyline points="7 3 7 8 15 8"/>
   </svg>
 );
 
 const ArrowLeftIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>
+    <path d="m12 19-7-7 7-7"/>
+    <path d="M19 12H5"/>
   </svg>
 );
 
@@ -61,19 +63,23 @@ const SpinnerIcon = () => (
 );
 
 const BankingDetails = ({ onBack }) => {
-  
+
   const [banks, setBanks] = useState([]);
   const [fetchingBanks, setFetchingBanks] = useState(true);
+
   const [formData, setFormData] = useState({
     bankName: '',
     accountHolder: '',
     accountNumber: '',
-    idNumber: '',
   });
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 1. ADD THIS STATE VARIABLE HERE
-  const [notification, setNotification] = useState({ show: false, message: '', type: '' });
+  const [notification, setNotification] = useState({
+    show: false,
+    message: '',
+    type: ''
+  });
 
   useEffect(() => {
     const fetchBanks = async () => {
@@ -84,12 +90,16 @@ const BankingDetails = ({ onBack }) => {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
         });
+
         const result = await response.json();
+
         if (result.success) {
           setBanks(result.data);
         }
+
       } catch (error) {
-        console.error("Failed to fetch bank list:", error);
+        console.error('Failed to fetch bank list:', error);
+
       } finally {
         setFetchingBanks(false);
       }
@@ -100,11 +110,16 @@ const BankingDetails = ({ onBack }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     setIsSubmitting(true);
 
     try {
@@ -120,26 +135,59 @@ const BankingDetails = ({ onBack }) => {
       const result = await response.json();
 
       if (result.success) {
-        setNotification({ show: true, message: result.message, type: 'success' });
+
+        setNotification({
+          show: true,
+          message: result.message,
+          type: 'success'
+        });
+
         setTimeout(() => {
-          setNotification({ show: false, message: '', type: '' });
+          setNotification({
+            show: false,
+            message: '',
+            type: ''
+          });
+
           onBack();
+
         }, 2000);
+
       } else {
-        // API ERROR CASE (e.g., Paystack validation failed)
-        setNotification({ show: true, message: result.message, type: 'error' });
-        
+
+        setNotification({
+          show: true,
+          message: result.message,
+          type: 'error'
+        });
+
         setTimeout(() => {
-          setNotification({ show: false, message: '', type: '' });
-        }, 3000); // Give them slightly longer to read the error
+          setNotification({
+            show: false,
+            message: '',
+            type: ''
+          });
+
+        }, 3000);
       }
+
     } catch (error) {
-      // NETWORK/CRASH CASE
-      setNotification({ show: true, message: "Connection failed", type: 'error' });
-      
+
+      setNotification({
+        show: true,
+        message: 'Connection failed',
+        type: 'error'
+      });
+
       setTimeout(() => {
-        setNotification({ show: false, message: '', type: '' });
+        setNotification({
+          show: false,
+          message: '',
+          type: ''
+        });
+
       }, 3000);
+
     } finally {
       setIsSubmitting(false);
     }
@@ -147,8 +195,14 @@ const BankingDetails = ({ onBack }) => {
 
   return (
     <div className="banking-page-wrapper">
+
       <div className="banking-form-content">
-        <button className="banking-back-action" onClick={onBack} aria-label="Go back">
+
+        <button
+          className="banking-back-action"
+          onClick={onBack}
+          aria-label="Go back"
+        >
           <ArrowLeftIcon />
         </button>
 
@@ -162,7 +216,11 @@ const BankingDetails = ({ onBack }) => {
           <div className="banking-icon-wrapper">
             <Building2Icon />
           </div>
-          <h2 className="banking-title">Banking Details</h2>
+
+          <h2 className="banking-title">
+            Banking Details
+          </h2>
+
           <p className="banking-description">
             Add your bank account for seamless payouts
           </p>
@@ -172,17 +230,20 @@ const BankingDetails = ({ onBack }) => {
           <div className="banking-security-icon">
             <ShieldIcon />
           </div>
+
           <p className="banking-security-text">
             Your details are encrypted and used only for your scheduled stokvel payouts.
           </p>
         </div>
 
         <form className="banking-form" onSubmit={handleSubmit}>
-          {/* ... all your form fields stay the same ... */}
+
           <div className="banking-field">
             <label className="banking-label" htmlFor="bankName">
-              <Building2Icon /> Bank Name
+              <Building2Icon />
+              Bank Name
             </label>
+
             <div style={{ position: 'relative' }}>
               <select
                 id="bankName"
@@ -194,12 +255,19 @@ const BankingDetails = ({ onBack }) => {
                 disabled={fetchingBanks}
               >
                 {fetchingBanks ? (
-                  <option value="">Loading South African Banks...</option>
+                  <option value="">
+                    Loading South African Banks...
+                  </option>
                 ) : (
                   <>
-                    <option value="" disabled>Select your bank</option>
+                    <option value="" disabled>
+                      Select your bank
+                    </option>
+
                     {banks.map(bank => (
-                      <option key={bank.id} value={bank.name}>{bank.name}</option>
+                      <option key={bank.id} value={bank.name}>
+                        {bank.name}
+                      </option>
                     ))}
                   </>
                 )}
@@ -209,8 +277,10 @@ const BankingDetails = ({ onBack }) => {
 
           <div className="banking-field">
             <label className="banking-label" htmlFor="accountHolder">
-              <UserIcon /> Account Holder Name
+              <UserIcon />
+              Account Holder Name
             </label>
+
             <input
               type="text"
               id="accountHolder"
@@ -224,8 +294,10 @@ const BankingDetails = ({ onBack }) => {
 
           <div className="banking-field">
             <label className="banking-label" htmlFor="accountNumber">
-              <CreditCardIcon /> Account Number
+              <CreditCardIcon />
+              Account Number
             </label>
+
             <input
               type="text"
               id="accountNumber"
@@ -238,45 +310,44 @@ const BankingDetails = ({ onBack }) => {
             />
           </div>
 
-          <div className="banking-field">
-            <label className="banking-label" htmlFor="idNumber">
-              <ShieldIcon /> RSA ID Number
-            </label>
-            <input
-              type="text"
-              id="idNumber"
-              name="idNumber"
-              className="banking-input"
-              value={formData.idNumber}
-              onChange={handleInputChange}
-              required
-              maxLength="13"
-              pattern="\d*"
-            />
-          </div>
-
-          <button type="submit" className="banking-submit" disabled={isSubmitting || fetchingBanks}>
+          <button
+            type="submit"
+            className="banking-submit"
+            disabled={isSubmitting || fetchingBanks}
+          >
             {isSubmitting ? (
-              <> <SpinnerIcon /> Saving... </>
+              <>
+                <SpinnerIcon />
+                Saving...
+              </>
             ) : (
-              <> <SaveIcon /> Save Banking Details </>
+              <>
+                <SaveIcon />
+                Save Banking Details
+              </>
             )}
           </button>
         </form>
 
         <footer className="banking-trust-badges">
           <div className="banking-trust-item">
-            <ShieldIcon /> Bank-level security
+            <ShieldIcon />
+            Bank-level security
           </div>
         </footer>
       </div>
 
-      {/* 2. THE POPUP MUST BE INSIDE THE RETURN WRAPPER */}
       {notification.show && (
         <div className={`banking-toast ${notification.type}`}>
           <div className="toast-content">
-            {notification.type === 'success' ? <SparklesIcon /> : <ShieldIcon />}
+
+            {notification.type === 'success'
+              ? <SparklesIcon />
+              : <ShieldIcon />
+            }
+
             <span>{notification.message}</span>
+
           </div>
         </div>
       )}
