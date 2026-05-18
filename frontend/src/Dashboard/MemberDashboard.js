@@ -1,4 +1,4 @@
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import {
   LayoutDashboard,
   Users,
@@ -23,10 +23,14 @@ import PaymentGateway from './PaymentGateway';
 import PaymentSuccess from './PaymentSuccess';
 import PaymentHistory from '../components/PaymentHistory';
 import ContributionCompliance from '../components/ContributionCompliance';
+import { MemberPayoutView } from './MemberPayoutView';
+import { useGroupData } from './useGroupData';
+import MemberAnalytics from '../components/MemberAnalytics'; 
 
 const MemberDashboard = ({ onLogout = () => {} }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { groupId } = useParams();
 
   const groupName = location.state?.groupName || "Stokvel Group";
   const amount = location.state?.contributionAmount || "0";
@@ -41,6 +45,7 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
 
   const handleProfileClick = () => setShowProfile(true);
   const handleBackToDashboard = () => setShowProfile(false);
+  const { members, group } = useGroupData(groupId);
 
   const handleConfirmPayment = () => {
     setPaymentStage('gateway');
@@ -341,12 +346,9 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
               <h2>Welcome back, {sessionUser?.name || sessionUser?.firstName || 'Member'}</h2>
               <p>You are viewing details for the <strong>{groupName}</strong> group.</p>
               
-              {/* Added a subtle divider for visual flow */}
               <hr style={{ margin: '30px 0', border: '1px solid #eee' }} />
 
-              {/* Your shiny new analytics dashboard right here! */}
               <MemberAnalytics />
-
             </section>
           )}
 
@@ -354,7 +356,7 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
             <PaymentHistory
               user={sessionUser}
               groupName={groupName}
-              groupId={location.state?.groupId}
+              groupId={groupId || location.state?.groupId}
             />
           )}
 
@@ -401,46 +403,49 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
             <ContributionCompliance
               user={sessionUser}
               groupName={groupName}
-              groupId={location.state?.groupId}
+              groupId={groupId || location.state?.groupId}
               monthlyContribution={amount}
             />
           )}
 
           {activeTab === 'financial-health-scoring' && (
-            <div className="feature-placeholder">
+            <section className="feature-placeholder">
               <h2>Financial Health Scoring</h2>
               <p>
                 Financial health scoring feature coming soon.
               </p>
-            </div>
+            </section>
           )}
 
           {activeTab === 'payout-history' && (
-            <div className="feature-placeholder">
-              <h2>Payout History</h2>
-              <p>Payout history feature coming soon.</p>
-            </div>
+            <MemberPayoutView 
+              user={sessionUser}
+              groupName={group?.groupName || groupName}
+              groupId={groupId || location.state?.groupId}
+              contributionAmount={group?.contributionAmount || amount}
+              members={members && members.length > 0 ? members : (location.state?.members || [])} 
+            />
           )}
 
           {activeTab === 'schedule-meeting' && (
-            <div className="feature-placeholder">
+            <section className="feature-placeholder">
               <h2>Schedule Meeting</h2>
               <p>Meeting scheduling feature coming soon.</p>
-            </div>
+            </section>
           )}
 
           {activeTab === 'post-agenda' && (
-            <div className="feature-placeholder">
+            <section className="feature-placeholder">
               <h2>Post Agenda</h2>
               <p>Agenda management feature coming soon.</p>
-            </div>
+            </section>
           )}
 
           {activeTab === 'record-minutes' && (
-            <div className="feature-placeholder">
+            <section className="feature-placeholder">
               <h2>Record Minutes</h2>
               <p>Minutes recording feature coming soon.</p>
-            </div>
+            </section>
           )}
 
         </section>

@@ -30,7 +30,7 @@ router.put('/:id/status', requireTreasurer, updatePayoutStatus);
 
 // GET /api/payouts/scheduled (For the Treasurer Dashboard)
 // Added the bouncer here so only Treasurers can see the full scheduled list
-router.get('/scheduled', requireTreasurer, getScheduledPayouts);
+//router.get('/scheduled', requireTreasurer, getScheduledPayouts);
 
 // my new routes:
 router.get('/:groupName/next', requireTreasurer, getNextScheduled); 

@@ -1,0 +1,21 @@
+/* Import all the structural, card, table, and pill styles from InitiatePayout */
+@import './InitiatePayout.css';
+
+/* Custom tweaks specifically for the Member View */
+
+/* Make the member upcoming card accent blue instead of the treasurer green/gold */
+.po-card--suggestion {
+  border-top: 4px solid #0284c7;
+}
+
+/* Ensure read-only view elements look neat without buttons */
+.po-suggestion-body {
+  padding: 1.5rem 0;
+}
+
+.po-empty {
+  text-align: center;
+  color: #64748b;
+  padding: 2rem;
+  font-style: italic;
+}
