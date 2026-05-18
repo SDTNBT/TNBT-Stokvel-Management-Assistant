@@ -105,7 +105,7 @@ describe('Payout Controller - Treasurer Schedule', () => {
       expect(response.body.message).toBe('Payout not found');
     });
 
-  }); // <-- FIXED: This closing bracket was missing!
+  });
 
   describe('Security Guard (Rule 4) - Role Authorization', () => {
       

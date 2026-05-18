@@ -1,14 +1,10 @@
 require('dotenv').config({ path: '.env.test', override: true });
 const request = require('supertest');
 const mongoose = require('mongoose');
-const express = require('express');
+const { app } = require('../server'); // <-- We are back connected to the main app!
 
 jest.setTimeout(30000);
 
-const app = express();
-app.use(express.json());
-// We only load YOUR routes, ignoring the rest of the broken app!
-app.use('/api/analytics', require('../routes/analyticsRoutes')); 
 // Replace with your actual model name if it's different (e.g., Contribution, Payment)
 const Transaction = require('../models/Payment'); 
 
