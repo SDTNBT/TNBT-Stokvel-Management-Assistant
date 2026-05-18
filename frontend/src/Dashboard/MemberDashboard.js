@@ -1,4 +1,4 @@
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import {
   LayoutDashboard,
   Users,
@@ -24,10 +24,12 @@ import PaymentSuccess from './PaymentSuccess';
 import PaymentHistory from '../components/PaymentHistory';
 import ContributionCompliance from '../components/ContributionCompliance';
 import PayoutHistory from '../components/PayoutHistory';
+import MemberAnalytics from '../components/MemberAnalytics';
 
 const MemberDashboard = ({ onLogout = () => {} }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { groupId } = useParams();
 
   const groupName = location.state?.groupName || 'Stokvel Group';
   const amount = location.state?.contributionAmount || '0';
@@ -61,7 +63,6 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
     if (activeTab === 'contributions') return 'My Contribution History';
     if (activeTab === 'contribution-compliance') return 'Contribution Compliance Report';
     if (activeTab === 'payout-history') return 'Payout History';
-
     return activeTab.replace(/-/g, ' ');
   };
 
@@ -71,37 +72,18 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
         <aside className="sidebar">
           <header className="sidebar-brand">
             <figure className="brand-identity">
-              <svg
-                width="32"
-                height="32"
-                viewBox="0 0 32 32"
-                fill="none"
-                aria-hidden="true"
-              >
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
                 <circle cx="16" cy="16" r="16" fill="#F5C842" />
-                <path
-                  d="M10 20 L16 10 L22 20"
-                  stroke="#1A3A6B"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
+                <path d="M10 20 L16 10 L22 20" stroke="#1A3A6B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                 <circle cx="16" cy="22" r="2" fill="#1A3A6B" />
               </svg>
-
-              <figcaption className="brand-text">
-                StokvelStokkie
-              </figcaption>
+              <figcaption className="brand-text">StokvelStokkie</figcaption>
             </figure>
           </header>
 
           <hr className="sidebar-divider" />
 
-          <button
-            type="button"
-            className="back-to-dashboard"
-            onClick={handleBackToDashboard}
-          >
+          <button type="button" className="back-to-dashboard" onClick={handleBackToDashboard}>
             ← Back to Dashboard
           </button>
         </aside>
@@ -118,27 +100,12 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
       <aside className="sidebar">
         <header className="sidebar-brand">
           <figure className="brand-identity">
-            <svg
-              width="32"
-              height="32"
-              viewBox="0 0 32 32"
-              fill="none"
-              aria-hidden="true"
-            >
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
               <circle cx="16" cy="16" r="16" fill="#F5C842" />
-              <path
-                d="M10 20 L16 10 L22 20"
-                stroke="#1A3A6B"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
+              <path d="M10 20 L16 10 L22 20" stroke="#1A3A6B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
               <circle cx="16" cy="22" r="2" fill="#1A3A6B" />
             </svg>
-
-            <figcaption className="brand-text">
-              StokvelStokkie
-            </figcaption>
+            <figcaption className="brand-text">StokvelStokkie</figcaption>
           </figure>
         </header>
 
@@ -159,22 +126,14 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
             </li>
 
             <li>
-              <button
-                type="button"
-                onClick={() => navigate('/home')}
-                className="nav-item"
-              >
+              <button type="button" onClick={() => navigate('/home')} className="nav-item">
                 <Home size={20} />
                 <small>Home</small>
               </button>
             </li>
 
             <li>
-              <button
-                type="button"
-                onClick={() => navigate('/my-groups')}
-                className="nav-item"
-              >
+              <button type="button" onClick={() => navigate('/my-groups')} className="nav-item">
                 <Users size={20} />
                 <small>My Groups</small>
               </button>
@@ -214,11 +173,7 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
               >
                 <CalendarDays size={20} />
                 <small>My Reports</small>
-
-                <ChevronDown
-                  size={16}
-                  className={`chevron-icon ${isMeetingsOpen ? 'rotate' : ''}`}
-                />
+                <ChevronDown size={16} className={`chevron-icon ${isMeetingsOpen ? 'rotate' : ''}`} />
               </button>
 
               {isMeetingsOpen && (
@@ -228,11 +183,7 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
                     <button
                       type="button"
                       onClick={() => setActiveTab('projected-savings-growth')}
-                      className={`submenu-btn ${
-                        activeTab === 'projected-savings-growth'
-                          ? 'active-sub'
-                          : ''
-                      }`}
+                      className={`submenu-btn ${activeTab === 'projected-savings-growth' ? 'active-sub' : ''}`}
                     >
                       <CalendarDays size={16} />
                       <small>Projected Savings Growth</small>
@@ -243,11 +194,7 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
                     <button
                       type="button"
                       onClick={() => setActiveTab('financial-health-scoring')}
-                      className={`submenu-btn ${
-                        activeTab === 'financial-health-scoring'
-                          ? 'active-sub'
-                          : ''
-                      }`}
+                      className={`submenu-btn ${activeTab === 'financial-health-scoring' ? 'active-sub' : ''}`}
                     >
                       <FileText size={16} />
                       <small>Financial Health Scoring</small>
@@ -258,11 +205,7 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
                     <button
                       type="button"
                       onClick={() => setActiveTab('payout-history')}
-                      className={`submenu-btn ${
-                        activeTab === 'payout-history'
-                          ? 'active-sub'
-                          : ''
-                      }`}
+                      className={`submenu-btn ${activeTab === 'payout-history' ? 'active-sub' : ''}`}
                     >
                       <Mic2 size={16} />
                       <small>Payout History</small>
@@ -273,11 +216,7 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
                     <button
                       type="button"
                       onClick={() => setActiveTab('contribution-compliance')}
-                      className={`submenu-btn ${
-                        activeTab === 'contribution-compliance'
-                          ? 'active-sub'
-                          : ''
-                      }`}
+                      className={`submenu-btn ${activeTab === 'contribution-compliance' ? 'active-sub' : ''}`}
                     >
                       <FileText size={16} />
                       <small>Contribution Compliance</small>
@@ -305,22 +244,14 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
               </li>
 
               <li>
-                <button
-                  type="button"
-                  className="footer-item"
-                  onClick={handleProfileClick}
-                >
+                <button type="button" className="footer-item" onClick={handleProfileClick}>
                   <UserCircle size={20} />
                   <small>Profile</small>
                 </button>
               </li>
 
               <li>
-                <button
-                  type="button"
-                  className="footer-item logout-btn"
-                  onClick={onLogout}
-                >
+                <button type="button" className="footer-item logout-btn" onClick={onLogout}>
                   <LogOut size={20} />
                   <small>Logout</small>
                 </button>
@@ -334,43 +265,34 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
       <main className="main-content">
 
         <header className="content-header">
-          <h1 className="dashboard-title">
-            {getPageTitle()}
-          </h1>
+          <h1 className="dashboard-title">{getPageTitle()}</h1>
         </header>
 
         <section className="content-body">
 
           {activeTab === 'dashboard' && (
-            <>
-              <section className="welcome-hero">
-                <h2>
-                  Welcome back,{' '}
-                  {sessionUser?.name ||
-                    sessionUser?.firstName ||
-                    'Member'}
-                </h2>
+            <section className="welcome-hero">
+              <h2>Welcome back, {sessionUser?.name || sessionUser?.firstName || 'Member'}</h2>
+              <p>You are viewing details for the <strong>{groupName}</strong> group.</p>
+              <p>Monitor your stokvel activity, financial growth, meetings, contributions, and payouts from one place.</p>
 
-                <p>
-                  You are viewing details for the{' '}
-                  <strong>{groupName}</strong> group.
-                </p>
+              <hr style={{ margin: '30px 0', border: '1px solid #eee' }} />
 
-                <p>
-                  Monitor your stokvel activity, financial growth,
-                  meetings, contributions, and payouts from one place.
-                </p>
-              </section>
+              {/* Member Analytics — from teammate's branch */}
+              <MemberAnalytics />
 
+              <hr style={{ margin: '30px 0', border: '1px solid #eee' }} />
+
+              {/* Savings Projection — your Sprint 3 user story */}
               <SavingsProjection />
-            </>
+            </section>
           )}
 
           {activeTab === 'contributions' && (
             <PaymentHistory
               user={sessionUser}
               groupName={groupName}
-              groupId={location.state?.groupId}
+              groupId={groupId || location.state?.groupId}
             />
           )}
 
@@ -421,39 +343,37 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
             <ContributionCompliance
               user={sessionUser}
               groupName={groupName}
-              groupId={location.state?.groupId}
+              groupId={groupId || location.state?.groupId}
               monthlyContribution={amount}
             />
           )}
 
           {activeTab === 'financial-health-scoring' && (
-            <div className="feature-placeholder">
+            <section className="feature-placeholder">
               <h2>Financial Health Scoring</h2>
-              <p>
-                Financial health scoring feature coming soon.
-              </p>
-            </div>
+              <p>Financial health scoring feature coming soon.</p>
+            </section>
           )}
 
           {activeTab === 'schedule-meeting' && (
-            <div className="feature-placeholder">
+            <section className="feature-placeholder">
               <h2>Schedule Meeting</h2>
               <p>Meeting scheduling feature coming soon.</p>
-            </div>
+            </section>
           )}
 
           {activeTab === 'post-agenda' && (
-            <div className="feature-placeholder">
+            <section className="feature-placeholder">
               <h2>Post Agenda</h2>
               <p>Agenda management feature coming soon.</p>
-            </div>
+            </section>
           )}
 
           {activeTab === 'record-minutes' && (
-            <div className="feature-placeholder">
+            <section className="feature-placeholder">
               <h2>Record Minutes</h2>
               <p>Minutes recording feature coming soon.</p>
-            </div>
+            </section>
           )}
 
         </section>

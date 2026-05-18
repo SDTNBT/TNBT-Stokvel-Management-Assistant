@@ -8,6 +8,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const admin = require('firebase-admin');
 
+// --- 1. ROUTE IMPORTS ---
 const payoutRoutes = require('./routes/payoutRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const stokvelRoutes = require('./routes/stokvelRoutes');
@@ -21,7 +22,9 @@ const rateRoutes = require('./routes/rateRoutes');
 const minutesRoutes = require('./routes/recordMinutesRoutes');
 const bankingRoutes = require('./routes/bankingRoutes');
 const paymentTrackerRoutes = require('./routes/paymentTrackerRoutes');
+const analyticsRoutes = require('./routes/analyticsRoutes'); // <-- ADDED THIS!
 
+// --- 2. APP INITIALIZATION ---
 const app = express();
 
 app.use(cors({
@@ -38,8 +41,8 @@ app.use((req, res, next) => {
   next();
 });
 
+// --- 3. FIREBASE SETUP ---
 let serviceAccount;
-
 try {
   if (process.env.FIREBASE_SERVICE_ACCOUNT) {
     serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
@@ -62,6 +65,7 @@ try {
   console.log('⚠️ Skipping Firebase Admin initialization (No credentials found)');
 }
 
+// --- 4. ROUTE ATTACHMENTS ---
 app.use('/api/payments', paymentRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/stokvel', stokvelRoutes);
@@ -75,7 +79,9 @@ app.use('/api/minutes', minutesRoutes);
 app.use('/api/banking', bankingRoutes);
 app.use('/api/payouts', payoutRoutes);
 app.use('/api/groups', paymentTrackerRoutes);
+app.use('/api/analytics', analyticsRoutes); // <-- ADDED THIS SO 404 GOES AWAY!
 
+// --- 5. HEALTH CHECK & DB ---
 app.get('/', (req, res) => {
   res.send('Stokvel Assistant API is running and healthy!');
 });
@@ -98,6 +104,7 @@ const connectDB = async (dbUri = process.env.MONGO_URI) => {
   }
 };
 
+// --- 6. SERVER STARTUP ---
 if (require.main === module) {
   if (
     process.env.NODE_ENV === 'production' &&

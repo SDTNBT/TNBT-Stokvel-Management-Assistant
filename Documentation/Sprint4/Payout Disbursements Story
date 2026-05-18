@@ -1,0 +1,26 @@
+### **User Story**
+As a Treasurer, I want to initiate payout disbursements so that member payouts can be processed and recorded digitally.
+
+### **Acceptance Criteria (UATs)**
+- Given a Treasurer is on the "Initiate Payout" page for a specific group; when the page mounts, then the system fetches the next scheduled payout from the database and automatically pre-fills the recipient details and expected amount.
+- Given a Treasurer wants to bypass the automated schedule; when they click the "Change Member Manually" button and select an alternative member from the dropdown, then the form target shifts to that member and unlocks custom amount inputs.
+- Given a Treasurer attempts to submit the disbursement form; when the amount field is empty, zero, or negative, then the system displays a validation error message and blocks the network request.
+- Given a Treasurer submits a valid payout configuration; when the request is processed via POST /api/payouts/initiate, then a new payout document is written to the database with a mandatory userId, payoutDate, and a default status of "pending".
+- Given a new payout is successfully initialized; when the response resolves, then the record is optimistically injected at the top of the "Active Payouts" tracking table and the input fields reset.
+- Given an unresolved payout is present in the "Active Payouts" table; when the Treasurer clicks either the "Mark as Paid" or "Mark as Failed" action utility, then a PUT request updates its tracking status in the backend and mutates the corresponding UI status badge in real time.
+- Given a valid recipient and amount have been specified; when the Treasurer clicks the "Download PDF" button, then a separate browser window initializes an ephemeral HTML structure and prompts the native window print dialogue interface automatically.
+
+### **Tasks**
+Define the core Payout schema in Mongoose containing fields for groupName, memberId, userId, recipientEmail, amount, method, reference, notes, payoutDate, and status.
+
+- Create backend API endpoint: GET /api/payouts/:groupName/next to fetch sequential rotation data from the schedule pipeline.
+- Create backend API endpoint: GET /api/payouts/:groupName/pending to gather all active, un-cleared payout transactions for the ledger view.
+- Create backend API endpoint: POST /api/payouts/initiate to evaluate payload criteria and commit a fresh digital transaction record.
+- Create backend API endpoint: PUT /api/payouts/:id/status to handle state transitions between pending, paid, and failed conditions.
+- Design the React InitiatePayout functional component mapping members, groupId, and groupName down as operational props. 
+- Implement a robust useMemo selector layer (displayMember) capable of parsing multiple incoming id/email data configurations (memberEmail, userEmail, memberId, etc.) to find structural matches in the membership array.
+- Set up synchronized form behavior to automatically lock down or override recommended layout values depending on the boolean state of manualMode.
+- Program the standard JavaScript window generation script (downloadPDF) to generate isolated document prints with styled markup components matching the application layout theme.
+
+### **Data Structure Justification**
+The application passes both memberId and userId explicitly inside the initiation block to satisfy strict data-relation validation rules without requiring the backend to run synchronous lookups during a write cycle. Using the human-readable groupName as a direct URL route parameter (/payouts/${groupName}/next) eliminates complex ID mapping logic throughout the app's global navigation states.

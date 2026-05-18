@@ -7,8 +7,9 @@ const { app } = require('../server');
 const Payout = require('../models/Payout');
 const BankingDetails = require('../models/BankingDetails');
 
-
-// Database Setup
+// ==========================================
+// DATABASE SETUP & TEARDOWN
+// ==========================================
 
 beforeAll(async () => {
   if (
@@ -16,10 +17,9 @@ beforeAll(async () => {
     !process.env.MONGO_URI.includes('stokvel_test_db')
   ) {
     throw new Error(
-      'STOP! You are NOT connected to the test database. Check .env.test'
+      'STOP! You are NOT connected to the test database. Check your .env.test file.'
     );
   }
-
   await mongoose.connect(process.env.MONGO_URI);
 });
 
@@ -32,14 +32,17 @@ beforeEach(async () => {
   await BankingDetails.deleteMany({});
 });
 
+// ==========================================
+// PAYOUT CONTROLLER TESTS
+// ==========================================
+
 describe('Payout Controller Tests', () => {
 
-  
+  // ------------------------------------------
   // Rule 1: Successful payout scheduling
-  
+  // ------------------------------------------
   test('Should successfully schedule a payout and return 201', async () => {
 
-    // Create mock banking details first
     await BankingDetails.create({
       user: 'test-user-id-123',
       bankName: 'Nedbank',
@@ -59,17 +62,17 @@ describe('Payout Controller Tests', () => {
       });
 
     expect(response.status).toBe(201);
-    expect(response.body.message)
-      .toBe('Payout scheduled successfully and linked to member banking details');
-
+    expect(response.body.message).toBe(
+      'Payout scheduled successfully and linked to member banking details'
+    );
     expect(response.body.payout.amount).toBe(500);
     expect(response.body.payout.status).toBe('Scheduled');
     expect(response.body.payout.bankName).toBe('Nedbank');
   });
 
-  
+  // ------------------------------------------
   // Rule 2: Reject missing banking details
-  
+  // ------------------------------------------
   test('Should reject payout when banking details are missing', async () => {
 
     const response = await request(app)
@@ -84,13 +87,14 @@ describe('Payout Controller Tests', () => {
       });
 
     expect(response.status).toBe(400);
-    expect(response.body.message)
-      .toBe('Cannot schedule payout. This member has not saved banking details yet.');
+    expect(response.body.message).toBe(
+      'Cannot schedule payout. This member has not saved banking details yet.'
+    );
   });
 
-  
+  // ------------------------------------------
   // Rule 3: Invalid amount
-  
+  // ------------------------------------------
   test('Should reject payout if amount is zero or negative', async () => {
 
     const response = await request(app)
@@ -105,13 +109,14 @@ describe('Payout Controller Tests', () => {
       });
 
     expect(response.status).toBe(400);
-    expect(response.body.message)
-      .toBe('Payout amount must be greater than zero');
+    expect(response.body.message).toBe(
+      'Payout amount must be greater than zero'
+    );
   });
 
- 
-  // Rule 4: Update payout status
-  
+  // ------------------------------------------
+  // Rule 4: Update payout status to Paid
+  // ------------------------------------------
   test('Should update payout status to Paid', async () => {
 
     const payout = await Payout.create({
@@ -126,20 +131,32 @@ describe('Payout Controller Tests', () => {
     const response = await request(app)
       .put(`/api/payouts/${payout._id}/status`)
       .set('x-user-role', 'Treasurer')
-      .send({
-        status: 'Paid'
-      });
+      .send({ status: 'Paid' });
 
     expect(response.status).toBe(200);
-    expect(response.body.message)
-      .toBe('Payout status updated successfully');
-
+    expect(response.body.message).toBe('Payout status updated successfully');
     expect(response.body.payout.status).toBe('Paid');
   });
 
-  
+  // ------------------------------------------
+  // Rule 4b: Return 404 if payout ID not found
+  // ------------------------------------------
+  test('Should return 404 if payout ID does not exist', async () => {
+
+    const fakeId = new mongoose.Types.ObjectId();
+
+    const response = await request(app)
+      .put(`/api/payouts/${fakeId}/status`)
+      .set('x-user-role', 'Treasurer')
+      .send({ status: 'Paid' });
+
+    expect(response.status).toBe(404);
+    expect(response.body.message).toBe('Payout not found');
+  });
+
+  // ------------------------------------------
   // Rule 5: Member can retrieve payout history
-  
+  // ------------------------------------------
   test('Should get member payout history', async () => {
 
     await Payout.create({
@@ -159,9 +176,9 @@ describe('Payout Controller Tests', () => {
     expect(response.body.length).toBeGreaterThan(0);
   });
 
-  
-  // Rule 6: Security - Members blocked
-  
+  // ------------------------------------------
+  // Rule 6: Members are blocked from scheduling
+  // ------------------------------------------
   test('Should block Members from scheduling payouts', async () => {
 
     const response = await request(app)
@@ -176,8 +193,7 @@ describe('Payout Controller Tests', () => {
       });
 
     expect(response.status).toBe(403);
-    expect(response.body.message)
-      .toBe('Access denied. Treasurers only.');
+    expect(response.body.message).toBe('Access denied. Treasurers only.');
   });
 
 });
