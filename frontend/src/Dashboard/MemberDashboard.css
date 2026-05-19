@@ -34,7 +34,7 @@
   text-decoration: none !important;
 }
 
-/* --- TYPOGRAPHY & SIZING --- */
+/* --- TYPOGRAPHY & SIZING (SIDEBAR) --- */
 .dashboard-shell .nav-item, 
 .dashboard-shell .footer-item {
   display: flex !important;
@@ -48,9 +48,14 @@
 }
 
 .dashboard-shell small {
-  font-size: 1.1rem !important; /* Larger text */
+  font-size: 1.1rem !important; 
   font-weight: 600 !important;
   white-space: nowrap !important;
+}
+
+.dashboard-shell .sidebar :is(small, label, p, span) {
+  font-size: 0.85rem !important; 
+  font-weight: 500 !important;
 }
 
 /* --- SUBMENU STYLES --- */
@@ -61,7 +66,7 @@
 }
 
 .dashboard-shell .submenu-btn {
-  padding: 10px 20px 10px 50px !important; /* Indented */
+  padding: 10px 20px 10px 50px !important; 
   display: flex !important;
   align-items: center !important;
   gap: 12px !important;
@@ -71,7 +76,7 @@
 }
 
 .dashboard-shell .submenu-btn small {
-  font-size: 1rem !important;
+  font-size: 0.8rem !important;
   font-weight: 500 !important;
 }
 
@@ -116,27 +121,70 @@
   margin: 0 0 15px 0 !important;
 }
 
-/* --- MAIN CONTENT TITLE --- */
-.dashboard-shell .dashboard-title {
-  color: #2d3748;
-  font-size: 2.2rem;
-  font-weight: 800;
-  text-transform: capitalize;
-}
+/* =========================================
+   MAIN CONTENT AREA (COLOR & VISIBILITY)
+   ========================================= */
 
 .dashboard-shell .main-content {
   flex: 1 !important;
   padding: 40px !important;
   overflow-y: auto !important;
+  color: #2d3748; /* BASE DARK TEXT for the light #f4f7fe background */
 }
 
-/* Target .dashboard-shell instead of .treasurer-theme */
-.dashboard-shell .sidebar :is(small, label, p, span) {
-  font-size: 0.85rem !important; /* This is approx 13.6px */
-  font-weight: 500 !important;
+.dashboard-shell .dashboard-title {
+  color: #1A3A6B; /* Deep blue for the page title */
+  font-size: 2.2rem;
+  font-weight: 800;
+  text-transform: capitalize;
+  margin-bottom: 20px;
 }
 
-/* Specifically target the submenu text to be slightly smaller than the main items */
-.dashboard-shell .submenu-btn small {
-  font-size: 0.8rem !important;
+/* General text defaults for main area */
+.dashboard-shell .welcome-hero h2,
+.dashboard-shell .welcome-hero p,
+.dashboard-shell .content-body h2,
+.dashboard-shell .content-body p,
+.dashboard-shell .content-body label {
+  color: #2d3748 !important; /* Forces readable dark grey text everywhere by default */
+}
+
+/* --- THE EXCEPTION: MEMBER ANALYTICS (DARK BLUE BOX) --- */
+/* We target the Analytics component and force its text to be white */
+.dashboard-shell .analytics-dashboard h2,
+.dashboard-shell .analytics-dashboard p,
+.dashboard-shell .analytics-dashboard label,
+.dashboard-shell .analytics-dashboard legend,
+.dashboard-shell .analytics-dashboard span,
+.dashboard-shell .analytics-dashboard th,
+.dashboard-shell .analytics-dashboard td,
+.dashboard-shell .analytics-dashboard output {
+  color: #ffffff !important; 
+}
+
+/* Keep the actual typing inputs dark inside the analytics so you can see what you type */
+.dashboard-shell .analytics-dashboard input[type="date"],
+.dashboard-shell .analytics-dashboard input,
+.dashboard-shell .analytics-dashboard select {
+  color: #2d3748 !important;
+  background-color: #ffffff !important;
+  font-weight: bold;
+}
+
+/* --- FIX INVISIBLE SPANS & HEADINGS IN SAVINGS PROJECTION --- */
+.dashboard-shell .content-body span,
+.dashboard-shell .content-body small,
+.dashboard-shell .content-body h3,
+.dashboard-shell .content-body h4,
+.dashboard-shell .content-body h5 {
+  color: #2d3748 !important; /* Forces these tags to be dark grey everywhere */
+}
+
+/* --- RE-ENFORCE WHITE TEXT FOR ANALYTICS --- */
+.dashboard-shell .analytics-dashboard span,
+.dashboard-shell .analytics-dashboard small,
+.dashboard-shell .analytics-dashboard h3,
+.dashboard-shell .analytics-dashboard h4,
+.dashboard-shell .analytics-dashboard h5 {
+  color: #ffffff !important; /* Keeps them white inside the blue analytics box */
 }

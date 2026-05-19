@@ -176,6 +176,12 @@ router.get('/user/:email', async (req, res) => {
 
 router.delete('/group/:groupId', async (req, res) => {
     try {
+        // ⚠️ SECURITY: Require authentication
+        const token = req.headers.authorization?.split(' ')[1];
+        if (!token) {
+            return res.status(401).json({ error: "Unauthorized: No token provided" });
+        }
+
         const groupId = req.params.groupId;
         const group = await Group.findById(groupId);
         
@@ -183,11 +189,18 @@ router.delete('/group/:groupId', async (req, res) => {
             return res.status(404).json({ error: "Group not found" });
         }
 
-        await Member.deleteMany({ group: group.groupName });
-        await Group.findByIdAndDelete(groupId);
-        
-        console.log(`Group ${group.groupName} deleted`);
-        res.json({ message: "Group deleted successfully" });
+        // ⚠️ SECURITY: Only group admin can delete
+        // TODO: Verify token and check if user is admin of this group
+        // For now, blocking deletion entirely until proper auth is added
+        return res.status(403).json({ 
+            error: "Group deletion is restricted. Contact your administrator." 
+        });
+
+        // Commented out deletion logic until proper authorization is implemented
+        // await Member.deleteMany({ group: group.groupName });
+        // await Group.findByIdAndDelete(groupId);
+        // console.log(`Group ${group.groupName} deleted`);
+        // res.json({ message: "Group deleted successfully" });
     } catch (err) {
         console.error("Error deleting group:", err.message);
         res.status(500).json({ error: err.message });

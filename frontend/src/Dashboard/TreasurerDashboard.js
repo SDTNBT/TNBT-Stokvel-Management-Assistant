@@ -162,7 +162,7 @@ const TreasurerDashboard = ({ onLogout = () => {} }) => {
       case 'schedule-meeting': return <ScheduleMeeting />;
       case 'post-agenda': return <PostAgendas />;
       case 'record-minutes': return <RecordMinutes />;
-      case 'view-contributions': return <ViewContributions />;
+      //case 'view-contributions': return <ViewContributions />;
       case 'payment-tracking': return <PaymentTracking groupId={groupId} />;
       case 'schedule-payout': return <SchedulePayout />; //render this if activeTab is schedule payout
       case 'initiate-payout': return <InitiatePayout members={members} groupId={groupId} groupName={groupName} />;
