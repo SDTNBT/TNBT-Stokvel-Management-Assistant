@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 import './MemberAnalytics.css'; 
 
 const MemberAnalytics = () => {
@@ -14,9 +16,11 @@ const MemberAnalytics = () => {
     const fetchAnalytics = async () => {
         setLoading(true);
         try {
+            const userToken = localStorage.getItem('token');
+
             const response = await axios.get(`${API_BASE_URL}/analytics/member`, {
                 params: { startDate, endDate },
-                headers: { 'x-user-id': 'test-user-123' } // Replace with real auth token later!
+                headers: { 'Authorization': `Bearer ${userToken}` }
             });
             
             setSummary(response.data.summary);
@@ -33,9 +37,11 @@ const MemberAnalytics = () => {
 
     const handleExportCSV = async () => {
         try {
+            const userToken = localStorage.getItem('token');
+            
             const response = await axios.get(`${API_BASE_URL}/analytics/member`, {
                 params: { startDate, endDate, format: 'csv' },
-                headers: { 'x-user-id': 'test-user-123' },
+                headers: { 'Authorization': `Bearer ${userToken}` },
                 responseType: 'blob', 
             });
 
@@ -49,6 +55,43 @@ const MemberAnalytics = () => {
         } catch (error) {
             console.error("Failed to download CSV:", error);
         }
+    };
+
+    const handleExportPDF = () => {
+        const doc = new jsPDF();
+        
+        // Add Title and Summary info to the top of the PDF
+        doc.setFontSize(18);
+        doc.text("My Financial Analytics - [StokvelStokkie Pty Ltd]", 14, 22);
+        
+        doc.setFontSize(11);
+        doc.setTextColor(100);
+        doc.text(`Total Contributions: R ${summary.totalContributions.toLocaleString()}`, 14, 30);
+        
+        // Define the table columns and map the data into rows
+        const tableColumn = ["Date", "Transaction ID", "Amount"];
+        const tableRows = [];
+
+        transactions.forEach(transaction => {
+            const transactionData = [
+                new Date(transaction.date).toLocaleDateString(),
+                transaction.transactionId,
+                `R ${transaction.amount.toLocaleString()}`
+            ];
+            tableRows.push(transactionData);
+        });
+
+        // here I am generating the table
+        doc.autoTable({
+            head: [tableColumn],
+            body: tableRows,
+            startY: 35,
+            theme: 'striped',
+            styles: { fontSize: 10 }
+        });
+
+        // Trigger the download
+        doc.save("my_financial_records.pdf");
     };
 
     return (
@@ -85,9 +128,21 @@ const MemberAnalytics = () => {
             </article>
 
             {/* --- ACTIONS / EXPORT --- */}
-            <menu className="dashboard-actions">
-                <button type="button" onClick={handleExportCSV}>
-                    📥 Download CSV Records
+            <menu className="dashboard-actions" style={{ display: 'flex', gap: '15px', margin: '20px 0', padding: 0 }}>
+                <button 
+                    type="button" 
+                    onClick={handleExportCSV} 
+                    style={{ padding: '10px 15px', cursor: 'pointer', fontWeight: 'bold' }}
+                >
+                    📥 Download CSV
+                </button>
+                
+                <button 
+                    type="button" 
+                    onClick={handleExportPDF} 
+                    style={{ padding: '10px 15px', cursor: 'pointer', fontWeight: 'bold' }}
+                >
+                    📄 Download PDF
                 </button>
             </menu>
 
