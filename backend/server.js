@@ -22,24 +22,36 @@ const rateRoutes = require('./routes/rateRoutes');
 const minutesRoutes = require('./routes/recordMinutesRoutes');
 const bankingRoutes = require('./routes/bankingRoutes');
 const paymentTrackerRoutes = require('./routes/paymentTrackerRoutes');
-const analyticsRoutes = require('./routes/analyticsRoutes'); // <-- ADDED THIS!
+const analyticsRoutes = require('./routes/analyticsRoutes');
 
 // --- 2. APP INITIALIZATION ---
 const app = express();
 
-app.use(cors({
-  origin: ['http://localhost:3000', 'https://gomolemorampa.github.io'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-user-role']
-}));
+// Create a hybrid array: Hardcoded guaranteed links + Dynamic .env links
+const allowedOrigins = [
+  'http://localhost:3000', 
+  'http://localhost:5000', 
+  'http://localhost:5001', 
+  'https://gomolemorampa.github.io',
+  process.env.LOCAL_FRONTEND, 
+  process.env.PROD_FRONTEND
+].filter(Boolean); // Removes any empty/undefined values if .env is missing
 
+const corsOptions = {
+  origin: allowedOrigins,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  // Kept x-user-id and Authorization so your CSV downloads and Logins don't break!
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-user-role', 'x-user-id'],
+  credentials: true 
+};
+
+// Apply CORS and force preflight check allowance
+app.use(cors(corsOptions));
+app.options(/.*/, cors(corsOptions));
+
+// Initialize Body Parsers (Must come AFTER cors!)
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
-app.use((req, res, next) => {
-  console.log(`${req.method} request received at ${req.url}`);
-  next();
-});
 
 // --- 3. FIREBASE SETUP ---
 let serviceAccount;

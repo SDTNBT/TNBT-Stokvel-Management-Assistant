@@ -1,7 +1,7 @@
 require('dotenv').config({ path: '.env.test', override: true });
 const request = require('supertest');
 const mongoose = require('mongoose');
-const { app } = require('../server'); // <-- We are back connected to the main app!
+const { app } = require('../server');
 
 jest.setTimeout(30000);
 
