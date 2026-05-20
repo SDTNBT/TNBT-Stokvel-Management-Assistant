@@ -12,14 +12,24 @@ const MemberAnalytics = () => {
 
     const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
+    // Helper to grab the user ID exactly how the rest of your dashboard does
+    const getUserId = () => {
+        const sessionUser = JSON.parse(sessionStorage.getItem('user') || localStorage.getItem('user') || '{}');
+        return sessionUser._id || sessionUser.id || '';
+    };
+
     const fetchAnalytics = async () => {
         setLoading(true);
         try {
             const userToken = localStorage.getItem('token');
+            const userId = getUserId(); // 1. Get the ID
 
             const response = await axios.get(`${API_BASE_URL}/analytics/member`, {
                 params: { startDate, endDate },
-                headers: { 'Authorization': `Bearer ${userToken}` }
+                headers: { 
+                    'Authorization': `Bearer ${userToken}`,
+                    'x-user-id': userId // 2. Send the ID to bypass the 401 Unauthorized!
+                }
             });
             
             setSummary(response.data.summary);
@@ -37,10 +47,14 @@ const MemberAnalytics = () => {
     const handleExportCSV = async () => {
         try {
             const userToken = localStorage.getItem('token');
-            
+            const userId = getUserId(); // 1. Get the ID
+
             const response = await axios.get(`${API_BASE_URL}/analytics/member`, {
                 params: { startDate, endDate, format: 'csv' },
-                headers: { 'Authorization': `Bearer ${userToken}` },
+                headers: { 
+                    'Authorization': `Bearer ${userToken}`,
+                    'x-user-id': userId // 2. Send the ID here too!
+                },
                 responseType: 'blob', 
             });
 
@@ -80,7 +94,7 @@ const MemberAnalytics = () => {
             tableRows.push(transactionData);
         });
 
-        // here I am generating the table
+        // Generate the table
         autoTable(doc, {
             head: [tableColumn],
             body: tableRows,
