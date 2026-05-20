@@ -42,16 +42,16 @@ jobs:
     # --- 3. UPLOAD EVERYTHING TO CODECOV ---
     - name: Upload backend coverage to Codecov
       uses: codecov/codecov-action@v5
+      working-directory: ./backend
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-        directory: ./backend/coverage
-        files: ./backend/coverage/lcov.info
+        files: coverage/lcov.info
         flags: backend
 
     - name: Upload frontend coverage to Codecov
       uses: codecov/codecov-action@v5
+      working-directory: ./frontend
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-        directory: ./frontend/coverage
-        files: ./frontend/coverage/lcov.info
+        files: coverage/lcov.info
         flags: frontend
