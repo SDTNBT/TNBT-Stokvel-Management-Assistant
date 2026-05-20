@@ -40,7 +40,18 @@ jobs:
       run: npm test -- --coverage
 
     # --- 3. UPLOAD EVERYTHING TO CODECOV ---
-    - name: Upload coverage reports to Codecov
+    - name: Upload backend coverage to Codecov
       uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
+        directory: ./backend/coverage
+        files: ./backend/coverage/lcov.info
+        flags: backend
+
+    - name: Upload frontend coverage to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        directory: ./frontend/coverage
+        files: ./frontend/coverage/lcov.info
+        flags: frontend
