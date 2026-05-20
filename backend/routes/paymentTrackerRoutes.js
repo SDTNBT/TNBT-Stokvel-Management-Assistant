@@ -5,5 +5,6 @@ const PaymentTrackerController = require('../controllers/PaymentTrackerControlle
 
 
 router.get('/:groupId/contributions', PaymentTrackerController.getGroupContributions);
+router.patch('/:groupId/contributions/:memberId', PaymentTrackerController.updateContributionStatus);
 
 module.exports = router;

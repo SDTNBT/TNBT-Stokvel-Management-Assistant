@@ -39,7 +39,7 @@ const allowedOrigins = [
 
 const corsOptions = {
   origin: allowedOrigins,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS','PATCH'],
   // Kept x-user-id and Authorization so your CSV downloads and Logins don't break!
   allowedHeaders: ['Content-Type', 'Authorization', 'x-user-role', 'x-user-id'],
   credentials: true 

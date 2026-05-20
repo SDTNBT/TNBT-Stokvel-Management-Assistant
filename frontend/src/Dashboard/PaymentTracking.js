@@ -98,6 +98,13 @@ const PaymentTracking = ({ groupId }) => {
   const [notification, setNotification] = useState({ show: false, message: '', type: '' });
 
   
+  const baseUrl = useMemo(() => {
+    return window.location.hostname === 'localhost'
+      ? 'http://localhost:5000/api'
+      : (process.env.REACT_APP_API_URL || 'https://tnbt-stokvel-management-assistant.onrender.com/api');
+  }, []);
+
+  
   useEffect(() => {
     if (!groupId) {
       setError("No group ID provided.");
@@ -108,11 +115,6 @@ const PaymentTracking = ({ groupId }) => {
     const fetchGroupMembers = async () => {
       try {
         setLoading(true);
-        
-        
-        const baseUrl = window.location.hostname === 'localhost'
-        ? 'http://localhost:5000/api'
-        : (process.env.REACT_APP_API_URL || 'https://tnbt-stokvel-management-assistant.onrender.com/api');
         const response = await fetch(`${baseUrl}/groups/${groupId}/contributions`);
         
         if (!response.ok) throw new Error('Failed to load group database ledger');
@@ -121,12 +123,12 @@ const PaymentTracking = ({ groupId }) => {
         
         
         const formattedData = data.map((record) => ({
-          id: record._id || record.id,
+          id: record.id || record._id,
           firstName: record.name || '',
           lastName: record.surname || '',
           email: record.email || '',
           amount: record.amount || 0,
-          status: 'pending',
+          status: record.status || 'pending',
           dueDate: '2026-06-01' 
         }));
 
@@ -140,7 +142,7 @@ const PaymentTracking = ({ groupId }) => {
     };
 
     fetchGroupMembers();
-  }, [groupId]);
+  }, [groupId, baseUrl]);
 
   
   const showToast = (message, type = 'info') => {
@@ -149,29 +151,60 @@ const PaymentTracking = ({ groupId }) => {
   };
 
   
-  const handleToggleFlag = (id) => {
-    setPayments(prev => prev.map(p => {
-      if (p.id === id) {
-        const newStatus = p.status === 'flagged' ? 'pending' : 'flagged';
-        const fullName = `${p.firstName} ${p.lastName}`;
-        showToast(
-          newStatus === 'flagged' ? `${fullName} flagged` : `${fullName} unflagged`,
-          newStatus === 'flagged' ? 'info' : 'success'
-        );
-        return { ...p, status: newStatus };
-      }
-      return p;
-    }));
+  const handleToggleFlag = async (id) => {
+    const target = payments.find(p => p.id === id);
+    if (!target) return;
+
+    const newStatus = target.status === 'flagged' ? 'pending' : 'flagged';
+    const fullName = `${target.firstName} ${target.lastName}`;
+
+    
+    setPayments(prev => prev.map(p => p.id === id ? { ...p, status: newStatus } : p));
+
+    try {
+      const response = await fetch(`${baseUrl}/groups/${groupId}/contributions/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      });
+
+      if (!response.ok) throw new Error('Database synchronization failed');
+
+      showToast(
+        newStatus === 'flagged' ? `${fullName} flagged` : `${fullName} unflagged`,
+        newStatus === 'flagged' ? 'info' : 'success'
+      );
+    } catch (err) {
+      
+      setPayments(prev => prev.map(p => p.id === id ? { ...p, status: target.status } : p));
+      showToast(`Error saving flag status: ${err.message}`, 'error');
+    }
   };
 
-  const handleStatusChange = (id, newStatus) => {
-    setPayments(prev => prev.map(p => {
-      if (p.id === id) {
-        showToast(`${p.firstName} ${p.lastName} set to ${newStatus}`, 'success');
-        return { ...p, status: newStatus };
-      }
-      return p;
-    }));
+  const handleStatusChange = async (id, newStatus) => {
+    const target = payments.find(p => p.id === id);
+    if (!target) return;
+
+    const originalStatus = target.status;
+
+    
+    setPayments(prev => prev.map(p => p.id === id ? { ...p, status: newStatus } : p));
+
+    try {
+      const response = await fetch(`${baseUrl}/groups/${groupId}/contributions/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      });
+
+      if (!response.ok) throw new Error('Failed to update status on server');
+
+      showToast(`${target.firstName} ${target.lastName} set to ${newStatus}`, 'success');
+    } catch (err) {
+      
+      setPayments(prev => prev.map(p => p.id === id ? { ...p, status: originalStatus } : p));
+      showToast(`Error updating database field: ${err.message}`, 'error');
+    }
   };
 
   const handleReminder = (payment) => {
@@ -206,8 +239,9 @@ const PaymentTracking = ({ groupId }) => {
     return { total, paid: paid.length, outstanding: outstanding.length, totalCollected, totalOutstanding, completionRate };
   }, [payments]);
 
+  
   const flaggedPayments = useMemo(() => {
-    return payments.filter(p => p.status === 'flagged' || p.status === 'missed');
+    return payments.filter(p => p.status === 'flagged' || p.status === 'missed' || p.status === 'pending');
   }, [payments]);
 
   if (loading) return <article className="table-empty"><p>Loading tracking ledger data...</p></article>;
@@ -281,7 +315,7 @@ const PaymentTracking = ({ groupId }) => {
 
         {/* Interactive Workspace Area */}
         <section className="treasurer-body">
-          <section>
+          <section style={{ flex: 1 }}>
             <nav className="filters-bar">
               <input
                 className="filter-search"
