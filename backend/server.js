@@ -23,6 +23,7 @@ const minutesRoutes = require('./routes/recordMinutesRoutes');
 const bankingRoutes = require('./routes/bankingRoutes');
 const paymentTrackerRoutes = require('./routes/paymentTrackerRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
+const myNotificationRoutes = require('./routes/myNotificationRoutes');
 
 // --- 2. APP INITIALIZATION ---
 const app = express();
@@ -92,6 +93,7 @@ app.use('/api/banking', bankingRoutes);
 app.use('/api/payouts', payoutRoutes);
 app.use('/api/groups', paymentTrackerRoutes);
 app.use('/api/analytics', analyticsRoutes); // <-- ADDED THIS SO 404 GOES AWAY!
+app.use('/api/notifications', myNotificationRoutes);
 
 // --- 5. HEALTH CHECK & DB ---
 app.get('/', (req, res) => {
