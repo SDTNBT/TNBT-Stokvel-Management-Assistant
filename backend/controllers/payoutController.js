@@ -1,5 +1,6 @@
 const Payout = require('../models/Payout');
 const BankingDetails = require('../models/BankingDetails');
+const Member = require('../models/Member');
 
 // ==========================================
 // HELPER
@@ -17,7 +18,8 @@ const schedulePayout = async (req, res) => {
   try {
     const { groupName, userId, userEmail, amount, payoutDate } = req.body;
 
-    if (!userId || !userEmail || !amount || !payoutDate) {
+    // Validate required fields
+    if (!groupName || !userId || !userEmail || !amount || !payoutDate) {
       return res.status(400).json({
         message: 'Please provide groupName, userId, userEmail, amount, and payoutDate'
       });
@@ -25,6 +27,7 @@ const schedulePayout = async (req, res) => {
 
     const payoutAmount = Number(amount);
 
+    // Rule: amount must be positive
     if (payoutAmount <= 0) {
       return res.status(400).json({
         message: 'Payout amount must be greater than zero'
@@ -33,7 +36,23 @@ const schedulePayout = async (req, res) => {
 
     const cleanEmail = userEmail.toLowerCase().trim();
 
-    // Check banking details by email OR userId
+    // =====================================================
+    // STEP 1: CHECK IF USER IS A MEMBER OF THIS GROUP
+    // =====================================================
+    const memberExists = await Member.findOne({
+      user: cleanEmail,
+      group: groupName
+    });
+
+    if (!memberExists) {
+      return res.status(400).json({
+        message: 'This user is not a member of the selected group.'
+      });
+    }
+
+    // =====================================================
+    // STEP 2: CHECK BANKING DETAILS
+    // =====================================================
     const bankingDetails = await BankingDetails.findOne({
       $or: [
         { user: cleanEmail },
@@ -50,8 +69,11 @@ const schedulePayout = async (req, res) => {
     const accountNumber = bankingDetails.accountNumber || '';
     const accountNumberLast4 = accountNumber.slice(-4);
 
+    // =====================================================
+    // STEP 3: CREATE PAYOUT
+    // =====================================================
     const newPayout = new Payout({
-      groupName: groupName || null,
+      groupName,
       userId,
       userEmail: cleanEmail,
       amount: payoutAmount,

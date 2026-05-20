@@ -21,6 +21,7 @@ import PostAgendas from './Dashboard/PostAgendas';
 import { RecordMinutes } from './Dashboard/RecordMinutes';
 import NotificationsPage from './components/NotificationsPage';
 import NotificationDetails from './components/NotificationDetails';
+import VirtualAccount from './components/VirtualAccount';
 
 function App() {
   const handleLogout = () => {
@@ -53,6 +54,12 @@ function App() {
           <Route path="/notifications/:id" element={<NotificationDetails />} />
 
           <Route path="/profile" element={<Profile user={user} onLogout={handleLogout} />} />
+
+          {/* Virtual Account Page */}
+          <Route
+            path="/virtual-account/:groupId"
+            element={<VirtualAccount user={user} onLogout={handleLogout} />}
+          />
 
           <Route
             path="/admin-dashboard/:groupId"

@@ -10,7 +10,8 @@ import {
   LogOut,
   Bell,
   FileText,
-  Home
+  Home,
+  Wallet
 } from 'lucide-react';
 
 import React, { useState } from 'react';
@@ -49,9 +50,7 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
   const handleProfileClick = () => setShowProfile(true);
   const handleBackToDashboard = () => setShowProfile(false);
 
-  const handleConfirmPayment = () => {
-    setPaymentStage('gateway');
-  };
+  const handleConfirmPayment = () => setPaymentStage('gateway');
 
   const handlePaymentSuccess = (id) => {
     setTransactionId(id);
@@ -84,14 +83,11 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
               <figcaption className="brand-text">StokvelStokkie</figcaption>
             </figure>
           </header>
-
           <hr className="sidebar-divider" />
-
           <button type="button" className="back-to-dashboard" onClick={handleBackToDashboard}>
             ← Back to Dashboard
           </button>
         </aside>
-
         <main className="main-content">
           <Profile user={sessionUser} onLogout={onLogout} />
         </main>
@@ -168,6 +164,22 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
               </button>
             </li>
 
+            {/* Virtual Account Link */}
+            <li>
+              <button
+                type="button"
+                onClick={() =>
+                  navigate(`/virtual-account/${groupId}`, {
+                    state: { groupName, user: sessionUser }
+                  })
+                }
+                className="nav-item"
+              >
+                <Wallet size={20} />
+                <small>My Account</small>
+              </button>
+            </li>
+
             <li>
               <button
                 type="button"
@@ -182,7 +194,6 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
 
               {isMeetingsOpen && (
                 <ul className="submenu">
-
                   <li>
                     <button
                       type="button"
@@ -226,7 +237,6 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
                       <small>Contribution Compliance</small>
                     </button>
                   </li>
-
                 </ul>
               )}
             </li>
@@ -236,10 +246,8 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
 
         <footer className="sidebar-footer">
           <hr className="sidebar-divider" />
-
           <nav aria-label="User Actions">
             <ul className="footer-list">
-
               <li>
                 <button 
                   type="button" 
@@ -256,28 +264,24 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
                   <small>Notifications</small>
                 </button>
               </li>
-
               <li>
                 <button type="button" className="footer-item" onClick={handleProfileClick}>
                   <UserCircle size={20} />
                   <small>Profile</small>
                 </button>
               </li>
-
               <li>
                 <button type="button" className="footer-item logout-btn" onClick={onLogout}>
                   <LogOut size={20} />
                   <small>Logout</small>
                 </button>
               </li>
-
             </ul>
           </nav>
         </footer>
       </aside>
 
       <main className="main-content">
-
         <header className="content-header">
           <h1 className="dashboard-title">{getPageTitle()}</h1>
         </header>
@@ -292,12 +296,10 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
 
               <hr style={{ margin: '30px 0', border: '1px solid #eee' }} />
 
-              {/* Member Analytics — from teammate's branch */}
               <MemberAnalytics />
 
               <hr style={{ margin: '30px 0', border: '1px solid #eee' }} />
 
-              {/* Savings Projection — your Sprint 3 user story */}
               <SavingsProjection />
             </section>
           )}
@@ -320,7 +322,6 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
                   onCancel={handleCancelPayment}
                 />
               )}
-
               {paymentStage === 'gateway' && (
                 <PaymentGateway
                   groupName={groupName}
@@ -331,7 +332,6 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
                   onSuccess={handlePaymentSuccess}
                 />
               )}
-
               {paymentStage === 'success' && (
                 <PaymentSuccess
                   transactionId={transactionId}
@@ -345,9 +345,7 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
             </>
           )}
 
-          {activeTab === 'projected-savings-growth' && (
-            <SavingsProjection />
-          )}
+          {activeTab === 'projected-savings-growth' && <SavingsProjection />}
 
           {activeTab === 'payout-history' && (
   <MemberPayoutView 
