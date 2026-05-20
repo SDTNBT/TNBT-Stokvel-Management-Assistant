@@ -81,7 +81,7 @@ describe('Notification Controller Integration Tests', () => {
       const response = await request(app).patch('/api/notifications/n1/read');
       
       expect(response.statusCode).toBe(500);
-      expect(response.body.message).toBe('Server error updating status status');
+      expect(response.body.message).toBe('Server error updating notification status');
     });
   });
 });

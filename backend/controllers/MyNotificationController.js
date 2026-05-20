@@ -43,7 +43,7 @@ const markAsRead = async (req, res) => {
     return res.status(200).json({ success: true, data: updatedNotification });
   } catch (error) {
     console.error('Error updating notification read flag:', error);
-    return res.status(500).json({ message: 'Server error updating status status' });
+    return res.status(500).json({ message: 'Server error updating notification status' });
   }
 };
 
