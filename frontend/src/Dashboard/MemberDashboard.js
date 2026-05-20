@@ -25,6 +25,7 @@ import PaymentHistory from '../components/PaymentHistory';
 import ContributionCompliance from '../components/ContributionCompliance';
 import PayoutHistory from '../components/PayoutHistory';
 import MemberAnalytics from '../components/MemberAnalytics';
+import { useNotifications } from '../hooks/useNotifications';
 
 const MemberDashboard = ({ onLogout = () => {} }) => {
   const navigate = useNavigate();
@@ -41,6 +42,7 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
   const [showProfile, setShowProfile] = useState(false);
   const [paymentStage, setPaymentStage] = useState('preview');
   const [transactionId, setTransactionId] = useState('');
+  const { notifications, paymentNotifications, isNotifOpen, setIsNotifOpen, unreadCount, handleDismissNotification } = useNotifications(sessionUser?.email);
 
   const handleProfileClick = () => setShowProfile(true);
   const handleBackToDashboard = () => setShowProfile(false);
@@ -237,8 +239,18 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
             <ul className="footer-list">
 
               <li>
-                <button type="button" className="footer-item">
+                <button 
+                  type="button" 
+                  className={`footer-item notif-badge-anchor ${isNotifOpen ? 'active' : ''}`}
+                  onClick={() => setIsNotifOpen(true)}
+                  style={{ position: 'relative' }}
+                >
                   <Bell size={20} />
+                  {unreadCount > 0 && (
+                    <mark className="sidebar-unread-indicator">
+                      {unreadCount}
+                    </mark>
+                  )}
                   <small>Notifications</small>
                 </button>
               </li>
@@ -378,6 +390,68 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
 
         </section>
       </main>
+      {isNotifOpen && (
+        <dialog className="notif-modal-overlay" open onClick={() => setIsNotifOpen(false)}>
+          <section className="notif-modal-card" onClick={(e) => e.stopPropagation()}>
+            <header className="notif-modal-header">
+              <hgroup className="header-headline-group">
+                <h3>Notification Hub</h3>
+                {/* Use paymentNotifications.filter logic if you want the unread count to reflect only payments */}
+                {unreadCount > 0 && <mark className="notif-pill">{unreadCount} unread</mark>}
+              </hgroup>
+              <button 
+              type="button"
+              className="notif-close-x" 
+              onClick={() => setIsNotifOpen(false)}
+              style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+              >
+               ✕
+              </button>
+            </header>
+
+          <section className="notif-modal-body">
+          {/* FIX 1: Check length of paymentNotifications */}
+          {paymentNotifications.length === 0 ? (
+          <article className="notif-empty-state">
+              <Bell size={40} className="empty-bell-icon" />
+              <p>Your payment notification feed is completely clear.</p>
+            </article>
+         ) : (
+          <ol className="notif-list-stream" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {/* FIX 2: Map over paymentNotifications */}
+            {paymentNotifications.map((item) => (
+              <li 
+                key={item._id} 
+                className={`notif-stream-card ${item.isRead ? 'item-read' : 'item-unread'}`}
+              >
+                <article className="notif-stream-core">
+                  <header className="notif-stream-meta">
+                    <cite className="notif-stream-tag">{item.details?.groupName || 'System'}</cite>
+                    <time className="notif-stream-date">
+                      {new Date(item.createdAt).toLocaleDateString('en-ZA', { hour: '2-digit', minute: '2-digit' })}
+                    </time>
+                  </header>
+                  <h4 className="notif-stream-title">{item.title}</h4>
+                  <p className="notif-stream-message">{item.message}</p>
+                </article>
+                
+                {!item.isRead && (
+                  <button 
+                    type="button"
+                    className="notif-stream-dismiss" 
+                    onClick={() => handleDismissNotification(item._id)}
+                  >
+                    Mark Read
+                  </button>
+                )}
+              </li>
+            ))}
+          </ol>
+        )}
+      </section>
+    </section>
+  </dialog>
+)}
     </article>
   );
 };

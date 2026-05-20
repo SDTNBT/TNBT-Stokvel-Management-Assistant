@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import './PaymentTracking.css';
 
-
 const LayoutDashboardIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/>
@@ -77,7 +76,6 @@ const SearchIcon = () => (
   </svg>
 );
 
-
 const getInitials = (firstName, lastName) => {
   const f = firstName ? firstName[0] : '';
   const l = lastName ? lastName[0] : '';
@@ -88,7 +86,6 @@ const formatCurrency = (amount) => {
   return `R ${Number(amount || 0).toLocaleString('en-ZA')}`;
 };
 
-
 const PaymentTracking = ({ groupId }) => {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -97,14 +94,12 @@ const PaymentTracking = ({ groupId }) => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [notification, setNotification] = useState({ show: false, message: '', type: '' });
 
-  
   const baseUrl = useMemo(() => {
     return window.location.hostname === 'localhost'
       ? 'http://localhost:5000/api'
       : (process.env.REACT_APP_API_URL || 'https://tnbt-stokvel-management-assistant.onrender.com/api');
   }, []);
 
-  
   useEffect(() => {
     if (!groupId) {
       setError("No group ID provided.");
@@ -121,11 +116,10 @@ const PaymentTracking = ({ groupId }) => {
         
         const data = await response.json();
         
-        
         const formattedData = data.map((record) => ({
           id: record.id || record._id,
-          firstName: record.name || '',
-          lastName: record.surname || '',
+          firstName: record.firstName || '',
+          lastName: record.lastName || '',
           email: record.email || '',
           amount: record.amount || 0,
           status: record.status || 'pending',
@@ -144,13 +138,11 @@ const PaymentTracking = ({ groupId }) => {
     fetchGroupMembers();
   }, [groupId, baseUrl]);
 
-  
   const showToast = (message, type = 'info') => {
     setNotification({ show: true, message, type });
     setTimeout(() => setNotification({ show: false, message: '', type: '' }), 2500);
   };
 
-  
   const handleToggleFlag = async (id) => {
     const target = payments.find(p => p.id === id);
     if (!target) return;
@@ -158,7 +150,6 @@ const PaymentTracking = ({ groupId }) => {
     const newStatus = target.status === 'flagged' ? 'pending' : 'flagged';
     const fullName = `${target.firstName} ${target.lastName}`;
 
-    
     setPayments(prev => prev.map(p => p.id === id ? { ...p, status: newStatus } : p));
 
     try {
@@ -170,12 +161,12 @@ const PaymentTracking = ({ groupId }) => {
 
       if (!response.ok) throw new Error('Database synchronization failed');
 
-      showToast(
-        newStatus === 'flagged' ? `${fullName} flagged` : `${fullName} unflagged`,
-        newStatus === 'flagged' ? 'info' : 'success'
-      );
+      if (newStatus === 'flagged') {
+        showToast('notification sent successfully', 'success');
+      } else {
+        showToast(`${fullName} unflagged`, 'success');
+      }
     } catch (err) {
-      
       setPayments(prev => prev.map(p => p.id === id ? { ...p, status: target.status } : p));
       showToast(`Error saving flag status: ${err.message}`, 'error');
     }
@@ -186,8 +177,6 @@ const PaymentTracking = ({ groupId }) => {
     if (!target) return;
 
     const originalStatus = target.status;
-
-    
     setPayments(prev => prev.map(p => p.id === id ? { ...p, status: newStatus } : p));
 
     try {
@@ -199,24 +188,57 @@ const PaymentTracking = ({ groupId }) => {
 
       if (!response.ok) throw new Error('Failed to update status on server');
 
-      showToast(`${target.firstName} ${target.lastName} set to ${newStatus}`, 'success');
+      if (newStatus === 'flagged' || newStatus === 'missed') {
+        showToast('notification sent successfully', 'success');
+      } else {
+        showToast(`${target.firstName} ${target.lastName} set to ${newStatus}`, 'success');
+      }
     } catch (err) {
-      
       setPayments(prev => prev.map(p => p.id === id ? { ...p, status: originalStatus } : p));
       showToast(`Error updating database field: ${err.message}`, 'error');
     }
   };
 
-  const handleReminder = (payment) => {
-    showToast(`Reminder alert generated for ${payment.firstName}`, 'success');
+  // Triggered when clicking individual row bell icons
+  const handleReminder = async (payment) => {
+    try {
+      const response = await fetch(`${baseUrl}/groups/${groupId}/contributions/${payment.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: payment.status }) 
+      });
+
+      if (!response.ok) throw new Error('Failed to broadcast reminder ping');
+
+      showToast('notification sent successfully', 'success');
+    } catch (err) {
+      showToast(`Failed to dispatch notification: ${err.message}`, 'error');
+    }
   };
 
-  const handleEmailAllOutstanding = () => {
+  // Dispatches actual emails via the background bulk endpoint execution system
+  const handleEmailAllOutstanding = async () => {
     const outstanding = payments.filter(p => p.status === 'missed' || p.status === 'flagged');
-    showToast(`Dispatched reminders to ${outstanding.length} outstanding accounts`, 'success');
+    
+    if (outstanding.length === 0) {
+      showToast('No outstanding accounts found to remind.', 'info');
+      return;
+    }
+
+    try {
+      const response = await fetch(`${baseUrl}/groups/${groupId}/email-outstanding`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!response.ok) throw new Error('Server batch operational error');
+
+      showToast(`Dispatched reminders to ${outstanding.length} outstanding accounts`, 'success');
+    } catch (err) {
+      showToast('Error broadcasting batch reminders to server.', 'error');
+    }
   };
 
-  
   const filteredPayments = useMemo(() => {
     return payments.filter(p => {
       const fullName = `${p.firstName} ${p.lastName}`.toLowerCase();
@@ -228,7 +250,6 @@ const PaymentTracking = ({ groupId }) => {
     });
   }, [payments, searchQuery, statusFilter]);
 
-  
   const metrics = useMemo(() => {
     const total = payments.length;
     const paid = payments.filter(p => p.status === 'paid');
@@ -239,9 +260,9 @@ const PaymentTracking = ({ groupId }) => {
     return { total, paid: paid.length, outstanding: outstanding.length, totalCollected, totalOutstanding, completionRate };
   }, [payments]);
 
-  
+  // Clean filtering logic targeting only flagged or missed members for outstanding operations
   const flaggedPayments = useMemo(() => {
-    return payments.filter(p => p.status === 'flagged' || p.status === 'missed' || p.status === 'pending');
+    return payments.filter(p => p.status === 'flagged' || p.status === 'missed');
   }, [payments]);
 
   if (loading) return <article className="table-empty"><p>Loading tracking ledger data...</p></article>;
@@ -261,7 +282,6 @@ const PaymentTracking = ({ groupId }) => {
             </hgroup>
           </nav>
           <nav className="treasurer-header-actions">
-            <button className="btn-secondary" title="Export CSV"><DownloadIcon /> Export</button>
             <button className="btn-primary" onClick={handleEmailAllOutstanding}><MailIcon /> Email Outstanding</button>
           </nav>
         </header>
