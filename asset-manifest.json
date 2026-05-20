@@ -1,21 +1,21 @@
 {
   "files": {
-    "main.css": "/TNBT-Stokvel-Management-Assistant/static/css/main.5241658d.css",
-    "main.js": "/TNBT-Stokvel-Management-Assistant/static/js/main.13ae06bc.js",
+    "main.css": "/TNBT-Stokvel-Management-Assistant/static/css/main.a1c137a4.css",
+    "main.js": "/TNBT-Stokvel-Management-Assistant/static/js/main.85a328db.js",
     "static/js/239.c5f68727.chunk.js": "/TNBT-Stokvel-Management-Assistant/static/js/239.c5f68727.chunk.js",
     "static/js/977.269a902f.chunk.js": "/TNBT-Stokvel-Management-Assistant/static/js/977.269a902f.chunk.js",
     "static/js/732.fda73a07.chunk.js": "/TNBT-Stokvel-Management-Assistant/static/js/732.fda73a07.chunk.js",
     "static/js/453.825386d9.chunk.js": "/TNBT-Stokvel-Management-Assistant/static/js/453.825386d9.chunk.js",
     "index.html": "/TNBT-Stokvel-Management-Assistant/index.html",
-    "main.5241658d.css.map": "/TNBT-Stokvel-Management-Assistant/static/css/main.5241658d.css.map",
-    "main.13ae06bc.js.map": "/TNBT-Stokvel-Management-Assistant/static/js/main.13ae06bc.js.map",
+    "main.a1c137a4.css.map": "/TNBT-Stokvel-Management-Assistant/static/css/main.a1c137a4.css.map",
+    "main.85a328db.js.map": "/TNBT-Stokvel-Management-Assistant/static/js/main.85a328db.js.map",
     "239.c5f68727.chunk.js.map": "/TNBT-Stokvel-Management-Assistant/static/js/239.c5f68727.chunk.js.map",
     "977.269a902f.chunk.js.map": "/TNBT-Stokvel-Management-Assistant/static/js/977.269a902f.chunk.js.map",
     "732.fda73a07.chunk.js.map": "/TNBT-Stokvel-Management-Assistant/static/js/732.fda73a07.chunk.js.map",
     "453.825386d9.chunk.js.map": "/TNBT-Stokvel-Management-Assistant/static/js/453.825386d9.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.5241658d.css",
-    "static/js/main.13ae06bc.js"
+    "static/css/main.a1c137a4.css",
+    "static/js/main.85a328db.js"
   ]
 }
