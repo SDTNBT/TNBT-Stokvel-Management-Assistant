@@ -9,7 +9,7 @@ import {
   useElements 
 } from '@stripe/react-stripe-js';
 import { ArrowLeft } from 'lucide-react';
-import Swal from 'sweetalert2'; // 1. Import SweetAlert2
+import Swal from 'sweetalert2'; 
 import './PaymentGateway.css';
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
@@ -26,11 +26,12 @@ const CheckoutForm = (props) => {
     event.preventDefault();
     if (!stripe || !elements) return;
 
-    if (zipCode.length !== 5) {
+    // FIX 1: Allow South African 4-digit postal codes alongside 5-digit codes
+    if (zipCode.length < 4 || zipCode.length > 5) {
       Swal.fire({
         icon: 'warning',
-        title: 'Invalid ZIP Code',
-        text: 'Please enter a valid 5-digit ZIP code.',
+        title: 'Invalid Postal Code',
+        text: 'Please enter a valid 4 or 5-digit postal code.',
         confirmButtonColor: '#4c1d95'
       });
       return;
@@ -54,7 +55,7 @@ const CheckoutForm = (props) => {
         Swal.fire({
           icon: 'error',
           title: 'Payment Error',
-          text: data.message || 'The payment server is currently unavailable.',
+          text: data.error || data.message || 'The payment server is currently unavailable.',
           confirmButtonColor: '#4c1d95'
         });
         return; 
@@ -74,7 +75,6 @@ const CheckoutForm = (props) => {
       });
 
       if (result.error) {
-        // This catches "Card is expired", "Incorrect CVC", etc.
         Swal.fire({
           icon: 'error',
           title: 'Card Declined',
@@ -83,8 +83,9 @@ const CheckoutForm = (props) => {
         });
       } else if (result.paymentIntent.status === 'succeeded') {
         
+        // FIX 2: Wrapped database storage into an isolated, strict promise chain
         try {
-          await fetch(`${API_BASE_URL}/payments/save-success`, {
+          const dbResponse = await fetch(`${API_BASE_URL}/payments/save-success`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -97,26 +98,40 @@ const CheckoutForm = (props) => {
               zipCode: zipCode
             }),
           });
+
+          // Fallback if Mongoose schema validation fails (e.g., missing userId/userEmail)
+          if (!dbResponse.ok) {
+            const dbErrorData = await dbResponse.json();
+            throw new Error(dbErrorData.message || "Failed to record payment in database.");
+          }
+
+          // FIX 3: Success modal ONLY runs if the database step succeeded safely
+          Swal.fire({
+            icon: 'success',
+            title: 'Payment Successful!',
+            text: `R${amount} has been paid to ${groupName}`,
+            timer: 2000,
+            showConfirmButton: false
+          });
+
+          onSuccess(result.paymentIntent.id);
+
         } catch (dbError) {
           console.error("Database recording failed:", dbError);
+          Swal.fire({
+            icon: 'error',
+            title: 'Database Error',
+            text: `Stripe payment processed, but failed to save in your local records: ${dbError.message}`,
+            confirmButtonColor: '#4c1d95'
+          });
         }
-
-        // Show a success message before moving to the next screen
-        Swal.fire({
-          icon: 'success',
-          title: 'Payment Successful!',
-          text: `R${amount} has been paid to ${groupName}`,
-          timer: 2000,
-          showConfirmButton: false
-        });
-
-        onSuccess(result.paymentIntent.id);
       }
     } catch (err) {
+      // Diagnostic Fix: Dynamic output of runtime errors to pinpoint exactly where it crashes
       Swal.fire({
         icon: 'error',
         title: 'System Error',
-        text: 'An unexpected error occurred. Please try again.',
+        text: err.message || 'An unexpected error occurred. Please try again.',
         confirmButtonColor: '#4c1d95'
       });
       console.error("Payment Handler Error:", err);
@@ -179,8 +194,8 @@ const CheckoutForm = (props) => {
         <input 
           id="zip"
           type="text"
-          placeholder="10001"
-          maxLength="5"
+          placeholder="2000"
+          maxLength="5" 
           value={zipCode}
           onChange={(e) => setZipCode(e.target.value.replace(/\D/g, ''))} 
           required

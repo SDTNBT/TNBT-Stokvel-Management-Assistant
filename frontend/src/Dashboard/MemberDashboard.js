@@ -25,6 +25,7 @@ import PaymentHistory from '../components/PaymentHistory';
 import ContributionCompliance from '../components/ContributionCompliance';
 import PayoutHistory from '../components/PayoutHistory';
 import MemberAnalytics from '../components/MemberAnalytics';
+import { MemberPayoutView } from './MemberPayoutView';
 
 const MemberDashboard = ({ onLogout = () => {} }) => {
   const navigate = useNavigate();
@@ -336,8 +337,13 @@ const MemberDashboard = ({ onLogout = () => {} }) => {
           )}
 
           {activeTab === 'payout-history' && (
-            <PayoutHistory user={sessionUser} />
-          )}
+  <MemberPayoutView 
+    user={sessionUser} 
+    groupName={groupName}
+    contributionAmount={amount}
+    members={location.state?.members || []} 
+  />
+)}
 
           {activeTab === 'contribution-compliance' && (
             <ContributionCompliance
