@@ -263,9 +263,9 @@ const Home = () => {
   };
 
   const getActivityIcon = (type) => {
-    if (type === 'group') return '👥';
-    if (type === 'payment') return '💰';
-    return '📋';
+    if (type === 'group') return 'G';
+    if (type === 'payment') return 'P';
+    return 'A';
   };
 
   // Load data when tabs are activated
@@ -399,7 +399,7 @@ const Home = () => {
                   {walletData.transactions.slice(0, 10).map((transaction) => (
                     <li key={transaction._id} className="transaction-item">
                       <output className="transaction-icon">
-                        {transaction.status === 'Confirmed' ? '✅' : '⏳'}
+                        {transaction.status === 'Confirmed' ? 'C' : 'P'}
                       </output>
                       <section className="transaction-details">
                         <p className="transaction-group">{transaction.groupName}</p>
@@ -479,20 +479,16 @@ const Home = () => {
                       <li key={group._id}>
                         <article
                           className="group-tile"
+                          data-role={group.userRole}
                           onClick={() => handleGroupClick(group)}
                           style={{ cursor: 'pointer' }}
                         >
                           <header className="tile-banner"></header>
                           <section className="tile-content">
                             <h3>{group.groupName}</h3>
-                            <p style={{
-                              color: '#8b5cf6',
-                              fontWeight: 'bold',
-                              textTransform: 'capitalize',
-                              margin: '4px 0'
-                            }}>
+                            <output className={`role-badge role-${group.userRole?.toLowerCase()}`}>
                               {group.userRole}
-                            </p>
+                            </output>
                             <p>{group.frequency} • R{group.contributionAmount}</p>
                             <footer className="tile-actions">
                               <button
