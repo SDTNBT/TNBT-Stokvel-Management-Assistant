@@ -23,6 +23,8 @@ jobs:
           node-version: '24.x'
 
       - name: npm install, build, and test
+        env:
+          REACT_APP_API_URL: https://tnbt-stokvel-api-prod-fsagbre0fyg3d2ax.southafricanorth-01.azurewebsites.net
         run: |
           cd frontend
           npm install
