@@ -33,7 +33,7 @@
     "deploy": "gh-pages -d build",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "test:coverage": "react-scripts test --watchAll=false --coverage",
+    "test:coverage": "react-scripts test --watchAll=false --coverage --coverageReporters=text",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -55,15 +55,23 @@
     ]
   },
   "devDependencies": {
+    "@babel/core": "^7.29.0",
+    "@babel/preset-env": "^7.29.5",
+    "@babel/preset-react": "^7.28.5",
+    "babel-jest": "^30.4.1",
     "gh-pages": "^6.3.0",
     "jest": "^27.5.1"
   },
-  "jest": {
-    "transformIgnorePatterns": [
-      "node_modules/(?!react-quill-new|lodash-es|@react-oauth/google)"
-    ],
-    "moduleNameMapper": {
-      "^react-quill-new$": "<rootDir>/__mocks__/react-quill-new.js"
-    }
+ "jest": {
+  "transform": {
+    "^.+\\.(js|jsx|ts|tsx)$": "babel-jest"
+  },
+  "transformIgnorePatterns": [
+    "node_modules/(?!react-quill-new|lodash-es|@react-oauth/google)"
+  ],
+  "moduleNameMapper": {
+    "^react-quill-new$": "<rootDir>/__mocks__/react-quill-new.js",
+    "\\.(css|less|scss|sass)$": "identity-obj-proxy"
   }
+}
 }
