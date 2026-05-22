@@ -250,7 +250,15 @@ const NewAdminDashboard = ({ user = {}, onLogout = () => {} }) => {
           <hr className="sidebar-divider" />
           <nav>
             <ul className="footer-list">
-              <li><button className="footer-item"><Bell size={20} /><p>Notifications</p></button></li>
+             <li>
+  <button 
+    className="footer-item"
+    onClick={() => navigate('/notifications')}
+  >
+    <Bell size={20} />
+    <p>Notifications</p>
+  </button>
+</li>
               <li><button className={`footer-item ${showProfile ? 'active' : ''}`} onClick={() => setShowProfile(true)}><UserCircle size={20} /><p>Profile</p></button></li>
               <li><button className="footer-item logout-btn" onClick={onLogout}><LogOut size={20} /><p>Logout</p></button></li>
             </ul>

@@ -1,28 +1,74 @@
-/* --- 1. CORE RESET --- */
-.dashboard-shell { 
-  display: flex !important; 
-  height: 100vh !important; 
-  width: 100vw !important; 
-  background: #f4f7fe !important; 
-  overflow: hidden !important; 
-  margin: 0; padding: 0;
+
+/* --- 1. CORE LAYOUT --- */
+.dashboard-shell {
+  display: flex !important;
+  height: 100vh !important;
+  width: 100vw !important;
+  background: #f4f6fb !important;
+  overflow: hidden !important;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', 'Segoe UI', sans-serif !important;
 }
 
 .dashboard-shell * { box-sizing: border-box; }
 
+/* --- 2. SIDEBAR --- */
 .dashboard-shell .sidebar {
-  width: 280px !important;
-  background: #3d2b56 !important;
+  width: 260px !important;
+  background: #1a1a2e !important;
   display: flex !important;
   flex-direction: column !important;
-  border: none !important;
-
-  /* --- THE SCROLL LOGIC --- */
-  height: 100vh !important; /* Full screen height */
-  overflow-y: auto !important; /* Enable vertical scrolling */
-  overflow-x: hidden !important; /* Prevent side scrolling */
-  position: sticky !important; /* Keeps it in place */
+  height: 100vh !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  position: sticky !important;
   top: 0 !important;
+  flex-shrink: 0 !important;
+}
+
+/* Scrollbar */
+.dashboard-shell .sidebar::-webkit-scrollbar { width: 4px; }
+.dashboard-shell .sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.15);
+  border-radius: 10px;
+}
+
+/* --- 3. BRAND --- */
+.dashboard-shell .brand-identity {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 22px 18px !important;
+}
+
+.dashboard-shell .brand-text {
+  font-size: 1.15rem !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  margin: 0 !important;
+  white-space: nowrap !important;
+  letter-spacing: -0.3px !important;
+}
+
+/* --- 4. DIVIDERS --- */
+.dashboard-shell .sidebar-divider {
+  display: block !important;
+  border: none !important;
+  border-top: 1px solid rgba(255,255,255,0.08) !important;
+  margin: 6px 0 !important;
+  width: 100% !important;
+}
+
+/* --- 5. NAV ITEMS --- */
+.dashboard-shell .sidebar-nav,
+.dashboard-shell .nav-list {
+  padding: 8px 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
 }
 
 .dashboard-shell .nav-list li,
@@ -36,451 +82,385 @@
   background: transparent !important;
 }
 
-.dashboard-shell .sidebar-nav,
-.dashboard-shell .nav-list {
-  padding: 0 !important;
-  margin: 0 !important;
-  width: 100% !important;
-  display: flex !important;
-  flex-direction: column !important;
-}
-
 .dashboard-shell .nav-item {
   display: flex !important;
-  flex-direction: row !important; /* Force side-by-side */
-  flex-wrap: nowrap !important;   /* Strictly prevent wrapping to next line */
-  align-items: center !important;  /* Center icon and text vertically */
-  justify-content: flex-start !important;
-  gap: 12px !important;
-  width: 100% !important;
-  padding: 12px 18px !important; 
-  
-  background: transparent !important;
-  border: none !important;
-  color: #d1d5db !important;
-  cursor: pointer !important;
-  font-family: inherit !important;
-  text-decoration: none !important;
-}
-
-.dashboard-shell .footer-item {
-  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
   align-items: center !important;
   justify-content: flex-start !important;
-  gap: 12px !important;
+  gap: 10px !important;
   width: 100% !important;
-  padding: 12px 18px !important; 
-  
+  padding: 11px 18px !important;
   background: transparent !important;
   border: none !important;
-  outline: none !important;
+  color: #a0aec0 !important;
   cursor: pointer !important;
-  margin: 0 !important;
-  
-  color: #d1d5db !important;
   font-family: inherit !important;
-  font-size: 0.95rem !important; 
+  font-size: 0.9rem !important;
   font-weight: 500 !important;
   text-decoration: none !important;
+  transition: all 0.18s ease !important;
+  border-radius: 0 !important;
   text-align: left !important;
-  
-  /* THIS PREVENTS THE DOUBLE LINE */
-  white-space: nowrap !important; 
 }
 
-.dashboard-shell .nav-item svg {
-  flex-shrink: 0 !important; 
-  color: inherit !important;
+.dashboard-shell .nav-item:hover {
+  background: rgba(255,255,255,0.07) !important;
+  color: #ffffff !important;
 }
 
-.dashboard-shell .nav-item p {
-  margin: 0 !important;
-  padding: 0 !important;
-  flex-grow: 1 !important; 
-  text-align: left !important;
-  display: inline-block !important;
-  white-space: nowrap !important;
-}
-/* Hover and Active states */
-.dashboard-shell .nav-item:hover, 
-.dashboard-shell .nav-item.active { 
-  background: rgba(255, 255, 255, 0.1) !important; 
-  color: white !important; 
+.dashboard-shell .nav-item.active {
+  background: rgba(99,102,241,0.18) !important;
+  color: #818cf8 !important;
+  border-right: 3px solid #6366f1 !important;
 }
 
-/* --- 4. SUBMENU & CHEVRON --- */
-.dashboard-shell .submenu { padding: 0 !important; }
-.dashboard-shell .submenu li a {
-  display: flex !important;
-  align-items: center !important;
-  gap: 12px !important;
-  padding-left: 50px !important; /* Keep your indentation */
-  text-decoration: none !important;
-  color: #d1d5db !important;
-  white-space: nowrap !important;
-}
-.dashboard-shell .chevron-icon {
-  margin-left: auto !important;
-  flex-shrink: 0 !important; /* Ensures chevron doesn't disappear */
-  
-}
-
-.dashboard-shell .rotate { transform: rotate(180deg) !important; }
-
-/* --- 5. LOGO & BRANDING FIXED --- */
-.dashboard-shell .brand-identity {
-  display: flex !important;    /* Forces side-by-side layout */
-  align-items: center !important; /* Centers logo and text vertically */
-  gap: 12px !important;         /* Space between logo and text */
-  padding: 20px !important;     /* Adjust padding as needed */
-  width: auto !important;       /* Allow container to grow with text */
-  height: auto !important;      /* Remove fixed 32px height */
-}
-
-.dashboard-shell .brand-text {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: white;
-  margin: 0;                   /* Removes default paragraph/caption margins */
-  white-space: nowrap;         /* Prevents the name from breaking into two lines */
-}
-
-.dashboard-shell .brand-text { font-size: 1.3rem; font-weight: 800; color: white; }
-
-.dashboard-shell .sidebar-divider {
-  display: block !important;
-  border: none !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
-  margin: 10px 0 20px 0 !important;
-  width: 100% !important;
-}
-
-/* --- 6. MAIN CONTENT --- */
-.dashboard-shell .main-content {
-  flex: 1 !important;
-  /*padding: 40px !important;*/
-  overflow-y: auto !important;
-  padding: 20px 40px 40px 40px !important; 
-
-}
-
-/* Header container fix */
-.dashboard-shell .content-header {
-  margin: 0 !important;
-  padding: 0 !important;
-}
-.dashboard-shell .dropdown-trigger {
-  display: flex !important;
-  flex-direction: row !important; /* Force horizontal alignment */
-  align-items: center !important;
-  width: 100% !important;
-  gap: 12px !important;
-  white-space: nowrap !important; /* Prevents text from wrapping to a second line */
-}
-
-.dashboard-shell .nav-section-end {
-  margin-bottom: 10px !important; /* Adjust this value for more or less space */
-}
-
-.dashboard-shell .logout-btn {
-  color: #ff4d4d !important; /* A clean 'danger' red */
-  transition: opacity 0.2s ease;
-}
-
-.dashboard-shell .logout-btn:hover {
-  background: rgba(255, 77, 77, 0.1) !important; /* Light red hover tint */
-  color: #ff6666 !important;
-}
-
-/* Ensure the icon inside logout inherits the red color */
-.dashboard-shell .logout-btn svg {
-  color: inherit !important;
-}
-
-.dashboard-shell .sidebar-footer .sidebar-divider {
-  /*margin: 65px 0 !important;*/ 
-  display: block !important;
-  border: none !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
-  margin: 120px 0 10px 0 !important; 
-  width: 100% !important;
-}
-
-/* --- SEMANTIC RESET --- */
-.dashboard-shell ul.calendar-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  text-align: center;
-  list-style: none; /* Removes bullets */
-  padding: 0;
-  margin: 0;
-}
-
-.dashboard-shell .calendar-day {
-  padding: 20px 0;
-  font-weight: 500;
-  color: #475569;
-  border-top: 1px solid #f1f5f9;
-}
-
-/* Replaces the old span/div behavior */
-.dashboard-shell label {
-  cursor: pointer;
-  font-weight: inherit;
-}
-
-.dashboard-shell picture {
-  display: block;
-}
-
-/* Empty State adjustment */
-.dashboard-shell .empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 60px 0;
-  margin: 0;
-}
-
-.dashboard-shell .dashboard-title {
-  color: #2d3748;
-  font-size: 2rem;
-  font-weight: 800;
-  margin-top: 0 !important;
-  margin-bottom: 20px !important;
-  
-}
-
-.dashboard-shell .content-card {
-  background: #ffffff !important;
-  border-radius: 24px !important;
-  padding: 32px !important;
-  margin-bottom: 32px !important;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04) !important;
-  display: block;
-}
-
-.dashboard-shell .content-card h2 {
-  font-size: 1.5rem;
-  color: #1a202c;
-  margin-top: 0;
-  /*margin-bottom: 24px;*/
-  margin-bottom: 15px !important;
-}
-
-/* --- TIMELINE / EMPTY STATE --- */
-.dashboard-shell figure.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 60px 0;
-  margin: 0;
-}
-
-.dashboard-shell .empty-icon {
-  color: #cbd5e0;
-  opacity: 0.4; /* "Watermarked" look */
-  margin-bottom: 12px;
-}
-
-.dashboard-shell figcaption {
-  color: #a0aec0;
-  font-size: 1rem;
-  font-weight: 500;
-}
-
-/* --- CALENDAR SPECIFICS --- */
-.dashboard-shell .calendar-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 40px;
-}
-
-.dashboard-shell .new-event-btn {
-  background: #2563eb;
-  color: white;
-  border: none;
-  padding: 10px 24px;
-  border-radius: 12px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.dashboard-shell .calendar-nav {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 40px;
-  margin-bottom: 40px;
-}
-
-.dashboard-shell .month-nav-btn {
-  background: transparent;
-  border: none;
-  color: #2563eb;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-}
-
-.dashboard-shell .calendar-current-date {
-  font-size: 1.6rem;
-  color: #1e293b;
-  margin: 0;
-}
-
-/* Calendar Grid Logic */
-.dashboard-shell ul.calendar-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.dashboard-shell .weekday-label abbr {
-  text-decoration: none;
-  color: #94a3b8;
-  font-weight: 700;
-  font-size: 0.85rem;
-}
-
-.dashboard-shell .calendar-day {
-  padding: 24px 0;
-  border-top: 1px solid #f1f5f9;
-  text-align: center;
-}
-
-.dashboard-shell .calendar-day time {
-  color: #475569;
-  font-weight: 500;
-}
-
-.dashboard-shell .calendar-day.today time {
-  color: #2563eb;
-  font-weight: 800;
-}
-
-.dashboard-shell .card-divider {
-  display: block !important;
-  border: none !important;
-  /* Matching the subtle transparency of your sidebar divider */
-  border-top: 1px solid rgba(0, 0, 0, 0.08) !important; 
-  margin: 0 0 20px 0 !important;
-  width: 100% !important;
-}
-
-.dashboard-shell .submenu-btn { /* Added submenu-btn here for consistency */
-  display: flex !important;
-  flex-direction: row !important; /* Forces horizontal alignment */
-  align-items: center !important;  /* Centers icon and text vertically */
-  justify-content: flex-start !important;
-  gap: 12px !important;
-  width: 100% !important;
-  padding: 12px 18px !important; 
-  
-  background: transparent !important;
-  border: none !important;
-  outline: none !important;
-  cursor: pointer !important;
-  margin: 0 !important;
-  
-  color: #d1d5db !important;
-  font-family: inherit !important;
-  font-size: 0.95rem !important; 
-  font-weight: 500 !important;
-  text-decoration: none !important;
-  text-align: left !important;
-  white-space: nowrap !important; 
-}
-
+.dashboard-shell .nav-item svg { flex-shrink: 0 !important; }
 
 .dashboard-shell .nav-item p,
 .dashboard-shell .submenu-btn p,
 .dashboard-shell .footer-item p {
   margin: 0 !important;
   padding: 0 !important;
-  display: inline-block !important; /* Keeps it on the same line as the icon */
+  display: inline-block !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 
-.dashboard-shell .sidebar::-webkit-scrollbar {
-  width: 15px;
+/* --- 6. DROPDOWN TRIGGER --- */
+.dashboard-shell .dropdown-trigger {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  width: 100% !important;
+  gap: 10px !important;
+  white-space: nowrap !important;
 }
 
-.dashboard-shell .sidebar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+.dashboard-shell .chevron-icon {
+  margin-left: auto !important;
+  flex-shrink: 0 !important;
+  transition: transform 0.2s ease !important;
+  color: #718096 !important;
 }
 
-.dashboard-shell .sidebar::-webkit-scrollbar-thumb:hover {
- background-color: #e0e0e0;
- background: rgba(255, 255, 255, 0.2);
+.dashboard-shell .rotate { transform: rotate(180deg) !important; }
+
+/* --- 7. SUBMENU --- */
+.dashboard-shell .submenu {
+  padding: 2px 0 !important;
+  background: rgba(0,0,0,0.15) !important;
 }
 
-
-.dashboard-shell .sidebar::-webkit-scrollbar-thumb {
-    /* A light grey/off-white color */
-  border-radius: 10px;
-  border: 2px solid transparent; /* Adds a little padding around the handle */
-  background-clip: content-box;
+.dashboard-shell .submenu-btn {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  width: 100% !important;
+  padding: 9px 18px 9px 42px !important;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  cursor: pointer !important;
+  margin: 0 !important;
+  color: #718096 !important;
+  font-family: inherit !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  text-decoration: none !important;
+  text-align: left !important;
+  white-space: nowrap !important;
+  transition: all 0.18s ease !important;
 }
 
-.calendar-day.today {
-  /*background-color: #F5C842 !important; Your brand gold/yellow */
-  color: #1A3A6B !important;           /* Your brand dark blue */
-  font-weight: bold;
-  border-radius: 50%;                  /* Makes it a circle */
-  border: 2px solid #1A3A6B;           /* Adds an outline */
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+.dashboard-shell .submenu-btn:hover {
+  background: rgba(255,255,255,0.06) !important;
+  color: #e2e8f0 !important;
 }
 
-
-.calendar-day {
-  list-style: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 40px;
-  width: 40px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin: auto;
+.dashboard-shell .submenu-btn.active-sub {
+  color: #818cf8 !important;
+  background: rgba(99,102,241,0.12) !important;
 }
 
-.calendar-day:hover:not(.empty) {
-  background-color: #f0f0f0;
-  border-radius: 50%;
+/* --- 8. FOOTER --- */
+.dashboard-shell .sidebar-footer {
+  margin-top: auto !important;
+  padding-bottom: 8px !important;
 }
 
-/* Container for the title and the group name */
-.content-header-main {
-  display: flex;
-  justify-content: space-between; /* Pushes Dashboard to left, Name to right */
-  align-items: center;            /* Vertically centers them */
-  padding-bottom: 20px;
-  border-bottom: 1px solid #e2e8f0; /* Optional: adds a clean line under the header */
-  margin-bottom: 20px;
+.dashboard-shell .sidebar-footer .sidebar-divider {
+  margin: 8px 0 !important;
 }
 
-.dashboard-title {
-  margin: 0;
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: #1e293b;
+.dashboard-shell .footer-list {
+  padding: 0 !important;
+  margin: 0 !important;
+  list-style: none !important;
 }
 
-/* The styled box for the group name */
+.dashboard-shell .footer-item {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  width: 100% !important;
+  padding: 11px 18px !important;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  cursor: pointer !important;
+  margin: 0 !important;
+  color: #a0aec0 !important;
+  font-family: inherit !important;
+  font-size: 0.9rem !important;
+  font-weight: 500 !important;
+  text-decoration: none !important;
+  text-align: left !important;
+  white-space: nowrap !important;
+  transition: all 0.18s ease !important;
+}
+
+.dashboard-shell .footer-item:hover {
+  background: rgba(255,255,255,0.07) !important;
+  color: #ffffff !important;
+}
+
+.dashboard-shell .footer-item.active {
+  color: #818cf8 !important;
+}
+
+.dashboard-shell .logout-btn {
+  color: #fc8181 !important;
+}
+
+.dashboard-shell .logout-btn:hover {
+  background: rgba(252,129,129,0.1) !important;
+  color: #feb2b2 !important;
+}
+
+/* --- 9. MAIN CONTENT --- */
+.dashboard-shell .main-content {
+  flex: 1 !important;
+  overflow-y: auto !important;
+  padding: 32px 36px 40px 36px !important;
+  background: #f4f6fb !important;
+}
+
+/* --- 10. CONTENT HEADER --- */
+.dashboard-shell .content-header {
+  margin: 0 0 28px 0 !important;
+  padding: 0 !important;
+}
+
+.dashboard-shell .dashboard-title {
+  color: #1a202c !important;
+  font-size: 1.75rem !important;
+  font-weight: 800 !important;
+  margin: 0 0 8px 0 !important;
+  letter-spacing: -0.5px !important;
+}
+
+/* --- 11. CARDS --- */
+.dashboard-shell .content-card {
+  background: #ffffff !important;
+  border-radius: 16px !important;
+  padding: 28px !important;
+  margin-bottom: 24px !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04) !important;
+}
+
+.dashboard-shell .content-card h2 {
+  font-size: 1.15rem !important;
+  font-weight: 700 !important;
+  color: #1a202c !important;
+  margin: 0 0 16px 0 !important;
+  letter-spacing: -0.2px !important;
+}
+
+.dashboard-shell .card-divider {
+  display: block !important;
+  border: none !important;
+  border-top: 1px solid #f1f5f9 !important;
+  margin: 0 0 20px 0 !important;
+  width: 100% !important;
+}
+
+/* --- 12. TIMELINE --- */
+.dashboard-shell .timeline-section { margin-bottom: 4px; }
+
+.dashboard-shell .timeline-item {
+  padding: 14px 16px !important;
+  border-left: 3px solid #6366f1 !important;
+  background: #f8faff !important;
+  margin-bottom: 10px !important;
+  border-radius: 0 10px 10px 0 !important;
+  transition: background 0.2s !important;
+}
+
+.dashboard-shell .timeline-item:hover {
+  background: #eef2ff !important;
+}
+
+.dashboard-shell .timeline-item strong {
+  display: block !important;
+  font-size: 0.95rem !important;
+  font-weight: 600 !important;
+  color: #1a202c !important;
+  margin-bottom: 4px !important;
+}
+
+.dashboard-shell .timeline-item time {
+  font-size: 0.82rem !important;
+  color: #718096 !important;
+}
+
+/* --- 13. EMPTY STATE --- */
+.dashboard-shell .empty-state {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 48px 0 !important;
+  margin: 0 !important;
+}
+
+.dashboard-shell .empty-icon {
+  color: #e2e8f0 !important;
+  margin-bottom: 12px !important;
+}
+
+.dashboard-shell figcaption {
+  color: #a0aec0 !important;
+  font-size: 0.9rem !important;
+  font-weight: 500 !important;
+}
+
+/* --- 14. CALENDAR --- */
+.dashboard-shell .calendar-card-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 24px !important;
+}
+
+.dashboard-shell .new-event-btn {
+  background: #6366f1 !important;
+  color: white !important;
+  border: none !important;
+  padding: 8px 20px !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  font-size: 0.85rem !important;
+  cursor: pointer !important;
+  transition: background 0.2s !important;
+}
+
+.dashboard-shell .new-event-btn:hover {
+  background: #4f46e5 !important;
+}
+
+.dashboard-shell .calendar-nav {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 32px !important;
+  margin-bottom: 24px !important;
+}
+
+.dashboard-shell .month-nav-btn {
+  background: transparent !important;
+  border: none !important;
+  color: #6366f1 !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  cursor: pointer !important;
+  padding: 6px 12px !important;
+  border-radius: 8px !important;
+  transition: background 0.2s !important;
+}
+
+.dashboard-shell .month-nav-btn:hover {
+  background: #eef2ff !important;
+}
+
+.dashboard-shell .calendar-current-date {
+  font-size: 1.1rem !important;
+  font-weight: 700 !important;
+  color: #1e293b !important;
+  margin: 0 !important;
+}
+
+.dashboard-shell ul.calendar-grid {
+  display: grid !important;
+  grid-template-columns: repeat(7, 1fr) !important;
+  list-style: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  gap: 4px 0 !important;
+}
+
+.dashboard-shell .weekday-label {
+  text-align: center !important;
+  color: #94a3b8 !important;
+  font-weight: 700 !important;
+  font-size: 0.75rem !important;
+  padding: 8px 0 12px !important;
+  letter-spacing: 0.5px !important;
+}
+
+.dashboard-shell .calendar-day {
+  list-style: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 38px !important;
+  width: 38px !important;
+  margin: auto !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  color: #475569 !important;
+  cursor: pointer !important;
+  border-radius: 50% !important;
+  transition: all 0.15s ease !important;
+  border-top: none !important;
+}
+
+.dashboard-shell .calendar-day:hover:not(.empty) {
+  background: #eef2ff !important;
+  color: #4f46e5 !important;
+}
+
+.dashboard-shell .calendar-day.today {
+  background: #6366f1 !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(99,102,241,0.35) !important;
+}
+
+.dashboard-shell .calendar-day.empty {
+  cursor: default !important;
+}
+
+/* --- 15. GROUP BADGE --- */
 .group-badge {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #4f46e5;
-  background: #eef2ff;
-  padding: 6px 16px;
-  border-radius: 8px;
-  border: 1px solid #e0e7ff;
+  display: inline-block !important;
+  font-size: 0.875rem !important;
+  font-weight: 700 !important;
+  color: #6366f1 !important;
+  background: #eef2ff !important;
+  padding: 5px 14px !important;
+  border-radius: 8px !important;
+  border: 1px solid #e0e7ff !important;
 }
+
+/* --- 16. SEMANTIC HELPERS --- */
+.dashboard-shell label { cursor: pointer; font-weight: inherit; }
+.dashboard-shell picture { display: block; }
