@@ -1,28 +1,29 @@
 import React, { useState } from 'react';
 import ReactQuill from 'react-quill-new';
-import 'react-quill-new/dist/quill.snow.css'; // The Quill styling
+import 'react-quill-new/dist/quill.snow.css';
 import axios from 'axios';
 import './PostAgendas.css';
-import { useParams, useNavigate } from 'react-router-dom'; 
+import { useParams, useNavigate } from 'react-router-dom';
+
+const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 const PostAgendas = () => {
   const { groupId } = useParams();
   const navigate = useNavigate();
+
   const [title, setTitle] = useState('');
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
-  const [agenda, setAgenda] = useState(''); // Stores the HTML from ReactQuill
-  
+  const [agenda, setAgenda] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const [isError, setIsError] = useState(false);
 
-  // Keep the toolbar simple and clean (From your team's code)
   const quillModules = {
     toolbar: [
-      ['bold', 'italic', 'underline'], 
-      [{'list': 'ordered'}, {'list': 'bullet'}], 
-      ['clean'] 
+      ['bold', 'italic', 'underline'],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      ['clean']
     ],
   };
 
@@ -32,30 +33,24 @@ const PostAgendas = () => {
     setMessage(null);
     setIsError(false);
 
-    // Basic validation: ReactQuill leaves '<p><br></p>' when empty
     if (!agenda || agenda === '<p><br></p>') {
-      setMessage("Please enter agenda details.");
+      setMessage('Please enter agenda details.');
       setIsError(true);
       setLoading(false);
       return;
     }
 
     try {
-      //const apiUrl = 'http://localhost:5000/api';
-      const apiUrl = 'https://tnbt-stokvel-management-assistant.onrender.com/api';
-      
-      // Grabbing the token just like your team's code does
-      const token = localStorage.getItem('token') || sessionStorage.getItem('token'); 
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
 
-      const agendaData = { 
-        groupId: groupId, // <-- Added this!
-        title: title, 
-        date: date, 
-        time: time, 
-        agenda: agenda 
+      const agendaData = {
+        groupId,
+        title,
+        date,
+        time,
+        agenda
       };
 
-      // Pointing to the correct meetings/agenda route
       const response = await axios.post(`${apiUrl}/meetings/agenda`, agendaData, {
         headers: {
           'Content-Type': 'application/json',
@@ -81,16 +76,25 @@ const PostAgendas = () => {
   };
 
   return (
-    // <main> represents the dominant content of the page
     <main className="agenda-page-wrapper">
-        <button 
-            onClick={() => navigate(-1)} 
-            style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', marginBottom: '15px' }}
-        >
-            ← Back to Dashboard
-        </button>
+      <button
+        onClick={() => navigate(-1)}
+        style={{
+          background: 'none',
+          border: 'none',
+          fontSize: '15px',
+          cursor: 'pointer',
+          marginBottom: '12px',
+          color: '#64748b',
+          fontWeight: '500',
+          alignSelf: 'flex-start',
+          padding: '8px 0',
+          fontFamily: 'Inter, sans-serif'
+        }}
+      >
+        ← Back to Dashboard
+      </button>
 
-      {/* <article> is perfect for a self-contained widget like a form card */}
       <article className="agenda-form-card">
         <header className="agenda-header">
           <h2>Post Meeting Agenda</h2>
@@ -98,60 +102,56 @@ const PostAgendas = () => {
         </header>
 
         {message && (
-          // <output> is semantically designed to show the result of a user action (like a form submission)
           <output className={`agenda-message ${isError ? 'error' : 'success'}`}>
             {message}
           </output>
         )}
 
         <form onSubmit={handleSubmit}>
-          {/* <section> represents a standalone thematic grouping, making it a great valid block wrapper */}
           <section className="agenda-form-group">
             <label htmlFor="title" className="agenda-label">Meeting Title</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               id="title"
               className="agenda-input"
-              value={title} 
-              onChange={(e) => setTitle(e.target.value)} 
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g., April Monthly Contributions"
-              required 
+              required
             />
           </section>
 
-          {/* <fieldset> is the ultimate semantic tag for grouping related form elements together (like date/time).
-              I added inline style reset so it doesn't add an ugly default border to your flex row */}
           <fieldset className="agenda-form-row" style={{ border: 'none', padding: 0, margin: 0 }}>
             <section className="agenda-form-group">
               <label htmlFor="date" className="agenda-label">Date</label>
-              <input 
-                type="date" 
+              <input
+                type="date"
                 id="date"
                 className="agenda-input"
-                value={date} 
-                onChange={(e) => setDate(e.target.value)} 
-                required 
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                required
               />
             </section>
             <section className="agenda-form-group">
               <label htmlFor="time" className="agenda-label">Time</label>
-              <input 
-                type="time" 
+              <input
+                type="time"
                 id="time"
                 className="agenda-input"
-                value={time} 
-                onChange={(e) => setTime(e.target.value)} 
-                required 
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+                required
               />
             </section>
           </fieldset>
 
           <section className="agenda-form-group">
             <label className="agenda-label">Agenda Items</label>
-            <ReactQuill 
-              theme="snow" 
-              value={agenda} 
-              onChange={setAgenda} 
+            <ReactQuill
+              theme="snow"
+              value={agenda}
+              onChange={setAgenda}
               modules={quillModules}
               placeholder="Type the agenda here. Use the toolbar to format..."
             />
@@ -164,6 +164,6 @@ const PostAgendas = () => {
       </article>
     </main>
   );
-}
+};
 
 export default PostAgendas;

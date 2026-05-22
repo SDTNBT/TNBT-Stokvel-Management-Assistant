@@ -131,7 +131,7 @@ ul, ol, fieldset { list-style: none; border: none; padding: 0; }
 .po-card {
   background: var(--white);
   border-radius: 20px;
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--box-shadow);
   width: 100%; max-width: 680px;
   padding: 40px 48px 48px;
   position: relative; z-index: 1;
@@ -329,15 +329,15 @@ ul, ol, fieldset { list-style: none; border: none; padding: 0; }
 }
 
 .po-method-card:hover {
-  border-color: var(--blue-mid);
-  background: #dce9ff;
+  border-color: var(--yellow);
+  background: #243b64;
 }
 
 .po-method-card--active {
   border-color: var(--blue);
   background: var(--white);
   color: var(--blue);
-  box-shadow: 0 4px 14px rgba(37, 99, 200, 0.14);
+  box-shadow: 0 4px 14px rgba(240, 240, 3, 0.14);
   font-weight: 600;
 }
 
@@ -596,3 +596,4 @@ ul, ol, fieldset { list-style: none; border: none; padding: 0; }
   color: var(--text-faint);
   padding: 32px 0;
 }
+
