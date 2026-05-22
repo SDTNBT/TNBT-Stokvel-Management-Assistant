@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'frontend/**' # Only runs when frontend files change
+      - 'frontend/**'
   workflow_dispatch:
 
 jobs:
@@ -23,8 +23,6 @@ jobs:
           node-version: '24.x'
 
       - name: npm install, build, and test
-        env:
-          REACT_APP_API_URL: https://tnbt-stokvel-api-prod-fsagbre0fyg3d2ax.southafricanorth-01.azurewebsites.net
         run: |
           cd frontend
           npm install
@@ -35,7 +33,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: ./frontend # Upload only the frontend folder contents
+          path: ./frontend/build # Upload ONLY the compiled public assets
 
   deploy:
     runs-on: ubuntu-latest
@@ -64,4 +62,4 @@ jobs:
           app-name: 'tnbt-stokvel-frontend'
           slot-name: 'Production'
           package: .
-          startup-command: 'npx serve -s build -l 8080' # <-- Change . to build
+          startup-command: 'npx serve -s . -p 8080'
