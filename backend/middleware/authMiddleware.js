@@ -1,4 +1,5 @@
 const admin = require('firebase-admin');
+const serviceAccount = require("../serviceAccountKey.json"); // Ensure this path is correct based on your project structure
 
 // 1. Safely initialize Firebase ONLY if it hasn't been initialized yet by server.js
 if (!admin.apps.length) {

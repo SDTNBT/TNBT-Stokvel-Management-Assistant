@@ -99,10 +99,18 @@ exports.getBankingDetails = async (req, res) => {
       }
     });
 
+
+
   } catch (error) {
     res.status(500).json({
       success: false,
       message: 'Error fetching banking details'
     });
   }
+};
+
+module.exports = {
+    getSABanks,
+    getBankingDetails,
+    saveBankingDetails 
 };
