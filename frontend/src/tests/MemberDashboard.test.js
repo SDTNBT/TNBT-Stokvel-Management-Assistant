@@ -24,12 +24,16 @@ jest.mock('react-router-dom', () => ({
   useParams: () => ({ groupId: 'group123' })
 }));
 
-// Mock child components
+// Mock child components - FIXED PATHS
 jest.mock('../components/Profile', () => () => <div data-testid="profile-component">Profile Component</div>);
 jest.mock('../components/PaymentHistory', () => () => <div data-testid="payment-history">Payment History</div>);
 jest.mock('../components/ContributionCompliance', () => () => <div data-testid="contribution-compliance">Contribution Compliance</div>);
 jest.mock('../components/MemberAnalytics', () => () => <div data-testid="member-analytics">Member Analytics</div>);
-jest.mock('../components/SavingsProjection', () => () => <div data-testid="savings-projection">Savings Projection</div>);
+
+// FIXED: The SavingsProjection component is in the Dashboard folder, not components
+jest.mock('../Dashboard/SavingsProjection', () => () => <div data-testid="savings-projection">Savings Projection</div>);
+
+// FIXED: These components are also in the Dashboard folder
 jest.mock('../Dashboard/PaymentPreview', () => () => <div data-testid="payment-preview">Payment Preview</div>);
 jest.mock('../Dashboard/PaymentGateway', () => () => <div data-testid="payment-gateway">Payment Gateway</div>);
 jest.mock('../Dashboard/PaymentSuccess', () => () => <div data-testid="payment-success">Payment Success</div>);
