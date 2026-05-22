@@ -119,7 +119,7 @@ const connectDB = async (dbUri = process.env.MONGO_URI) => {
 };
 
 // --- 6. SERVER STARTUP ---
-if (require.main === module) {
+if (require.main === module || process.env.PORT) {
   if (
     process.env.NODE_ENV === 'production' &&
     process.env.MONGO_URI &&

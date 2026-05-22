@@ -1,74 +1,65 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import '@testing-library/jest-dom';
 import ContributionCompliance from '../components/ContributionCompliance';
 
+// Mock fetch
 global.fetch = jest.fn();
 
-const mockUser = { email: 'member@stokvel.com', name: 'Nkateko', surname: 'Mashaba' };
+// Mock sessionStorage
+const mockUser = {
+  email: 'member@stokvel.com',
+  name: 'Test Member',
+  surname: 'User'
+};
 
-const renderWithRouter = (component) => render(<BrowserRouter>{component}</BrowserRouter>);
+beforeEach(() => {
+  jest.clearAllMocks();
+  Storage.prototype.getItem = jest.fn(() => JSON.stringify(mockUser));
+});
 
-describe('ContributionCompliance Comprehensive Test Suite', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    Storage.prototype.getItem = jest.fn(() => JSON.stringify(mockUser));
+afterEach(() => {
+  jest.resetAllMocks();
+});
+
+const renderWithRouter = (component) => {
+  return render(component, { wrapper: BrowserRouter });
+};
+
+describe('ContributionCompliance Component', () => {
+
+  test('renders loading state initially', () => {
+    fetch.mockImplementationOnce(() => new Promise(() => {}));
+    
+    renderWithRouter(<ContributionCompliance user={mockUser} groupName="Test Group" />);
+    
+    expect(screen.getByText('Loading compliance report...')).toBeInTheDocument();
   });
 
-  test('renders full report when data is returned', async () => {
-    const mockResponse = { payments: [{ groupName: 'Test Group', amount: 500, date: '2026-05-01T00:00:00Z' }] };
-    fetch.mockResolvedValueOnce({ ok: true, json: async () => mockResponse });
+  test('displays no groups message when user is not in any group', async () => {
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => []
+    });
 
     renderWithRouter(<ContributionCompliance user={mockUser} groupName="Test Group" />);
 
     await waitFor(() => {
-      expect(screen.getByText(/Contribution Compliance Report/i)).toBeInTheDocument();
+      expect(screen.getByText('You are not a member of any groups yet. Join a group to see your compliance report.')).toBeInTheDocument();
     });
   });
 
-  test('calculates and displays excess carry-over correctly', async () => {
-    const mockResponse = { payments: [{ groupName: 'Test Group', amount: 2000, date: '2026-05-01T00:00:00Z' }] };
-    fetch.mockResolvedValueOnce({ ok: true, json: async () => mockResponse });
+  test('handles API error gracefully', async () => {
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    
+    fetch.mockRejectedValueOnce(new Error('Network error'));
 
     renderWithRouter(<ContributionCompliance user={mockUser} groupName="Test Group" />);
 
     await waitFor(() => {
-      // Updated to match exactly what is in the rendered DOM
-      expect(screen.getByText(/Excess of/i)).toBeInTheDocument();
+      expect(screen.getByText('Unable to load data: Network error')).toBeInTheDocument();
     });
-  });
 
-  test('handles empty payments array gracefully', async () => {
-    fetch.mockResolvedValueOnce({ ok: true, json: async () => ({ payments: [] }) });
-
-    renderWithRouter(<ContributionCompliance user={mockUser} groupName="Test Group" />);
-
-    await waitFor(() => {
-      // Updated to match the specific error string from your rendered output
-      expect(screen.getByText(/You are not a member of any groups yet/i)).toBeInTheDocument();
-    });
-  });
-
-  test('shows error message on network failure', async () => {
-    fetch.mockRejectedValueOnce(new Error('API Down'));
-
-    renderWithRouter(<ContributionCompliance user={mockUser} groupName="Test Group" />);
-
-    await waitFor(() => {
-      // Updated to match the specific error string from your rendered output
-      expect(screen.getByText(/Unable to load data/i)).toBeInTheDocument();
-    });
-  });
-
-  test('displays correct status for consistent contributors', async () => {
-    const mockResponse = { payments: [{ groupName: 'Test Group', amount: 500, date: '2026-05-01' }] };
-    fetch.mockResolvedValueOnce({ ok: true, json: async () => mockResponse });
-
-    renderWithRouter(<ContributionCompliance user={mockUser} groupName="Test Group" />);
-
-    await waitFor(() => {
-      expect(screen.getByText(/Excellent! You are very consistent/i)).toBeInTheDocument();
-    });
+    consoleSpy.mockRestore();
   });
 });

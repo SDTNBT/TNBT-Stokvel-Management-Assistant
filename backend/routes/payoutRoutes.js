@@ -5,7 +5,10 @@ const {
   schedulePayout,
   updatePayoutStatus,
   getScheduledPayouts,
-  getMemberPayouts
+  getMemberPayouts,
+  getNextScheduled,
+  getPendingPayouts,
+  initiatePayout
 } = require('../controllers/payoutController');
 
 // ==========================================
@@ -23,6 +26,10 @@ const requireTreasurer = (req, res, next) => {
 
   next();
 };
+
+router.get('/:groupName/next', requireTreasurer, getNextScheduled); 
+router.get('/:groupName/pending', requireTreasurer, getPendingPayouts);
+router.post('/initiate', requireTreasurer, initiatePayout);
 
 // ==========================================
 // TREASURER ROUTES

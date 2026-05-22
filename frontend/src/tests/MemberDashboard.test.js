@@ -1,47 +1,84 @@
-import { render, screen } from '@testing-library/react';
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import MemberDashboard from '../Dashboard/MemberDashboard';
 
-// Mock the user data that the component expects to find
+// Mock fetch
+global.fetch = jest.fn();
+
+// Mock sessionStorage
 const mockUser = {
-  firstName: 'John',
-  surname: 'Doe',
-  email: 'john@example.com',
-  role: 'member'
+  email: 'member@stokvel.com',
+  name: 'Test Member',
+  surname: 'User',
+  _id: 'user123',
+  role: 'Member'
 };
 
-describe('MemberDashboard Component', () => {
-  beforeEach(() => {
-    // This clears any old data before each test
-    sessionStorage.clear();
-    sessionStorage.setItem('user', JSON.stringify(mockUser));
-  });
+// Mock useNavigate
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+  useLocation: () => ({ state: { groupName: 'Test Group', contributionAmount: 500, groupId: 'group123', user: mockUser } }),
+  useParams: () => ({ groupId: 'group123' })
+}));
 
-  test('renders the welcome message with the user name', () => {
-    render(
-      <BrowserRouter>
-        <MemberDashboard />
-      </BrowserRouter>
-    );
+// Mock child components - FIXED PATHS
+jest.mock('../components/Profile', () => () => <div data-testid="profile-component">Profile Component</div>);
+jest.mock('../components/PaymentHistory', () => () => <div data-testid="payment-history">Payment History</div>);
+jest.mock('../components/ContributionCompliance', () => () => <div data-testid="contribution-compliance">Contribution Compliance</div>);
+jest.mock('../components/MemberAnalytics', () => () => <div data-testid="member-analytics">Member Analytics</div>);
 
-    // This checks if "Welcome, John" (or similar) appears
-    const welcomeText = screen.getByText(/Welcome/i);
-    expect(welcomeText).toBeInTheDocument();
-    expect(screen.getByText(/John/i)).toBeInTheDocument();
-  });
+// FIXED: The SavingsProjection component is in the Dashboard folder, not components
+jest.mock('../Dashboard/SavingsProjection', () => () => <div data-testid="savings-projection">Savings Projection</div>);
 
-  test('displays the main navigation sections', () => {
-  render(
-    <BrowserRouter>
-      <MemberDashboard />
-    </BrowserRouter>
-  );
+// FIXED: These components are also in the Dashboard folder
+jest.mock('../Dashboard/PaymentPreview', () => () => <div data-testid="payment-preview">Payment Preview</div>);
+jest.mock('../Dashboard/PaymentGateway', () => () => <div data-testid="payment-gateway">Payment Gateway</div>);
+jest.mock('../Dashboard/PaymentSuccess', () => () => <div data-testid="payment-success">Payment Success</div>);
 
-  expect(screen.getByRole('button', { name: /Dashboard/i })).toBeInTheDocument();
-  expect(screen.getByRole('heading', { name: /dashboard/i, level: 1 })).toBeInTheDocument();
-  expect(screen.getByText(/My Groups/i)).toBeInTheDocument();
-  expect(screen.getByText(/View My Contributions/i)).toBeInTheDocument();
-  expect(screen.getByText(/Payment/i)).toBeInTheDocument(); 
-  expect(screen.getByText(/Logout/i)).toBeInTheDocument();
+beforeEach(() => {
+  jest.clearAllMocks();
+  Storage.prototype.getItem = jest.fn(() => JSON.stringify(mockUser));
 });
+
+describe('MemberDashboard Component', () => {
+
+  test('renders dashboard shell correctly', () => {
+    render(<MemberDashboard onLogout={() => {}} />, { wrapper: BrowserRouter });
+    
+    expect(screen.getByText('StokvelStokkie')).toBeInTheDocument();
+    expect(screen.getByText('Dashboard')).toBeInTheDocument();
+    expect(screen.getByText('Home')).toBeInTheDocument();
+    expect(screen.getByText('My Groups')).toBeInTheDocument();
+  });
+
+  test('navigates to home when Home button is clicked', () => {
+    render(<MemberDashboard onLogout={() => {}} />, { wrapper: BrowserRouter });
+    
+    const homeButton = screen.getByText('Home');
+    fireEvent.click(homeButton);
+    
+    expect(mockNavigate).toHaveBeenCalledWith('/home');
+  });
+
+  test('navigates to my-groups when My Groups button is clicked', () => {
+    render(<MemberDashboard onLogout={() => {}} />, { wrapper: BrowserRouter });
+    
+    const myGroupsButton = screen.getByText('My Groups');
+    fireEvent.click(myGroupsButton);
+    
+    expect(mockNavigate).toHaveBeenCalledWith('/my-groups');
+  });
+
+  test('calls onLogout when Logout button is clicked', () => {
+    const mockLogout = jest.fn();
+    render(<MemberDashboard onLogout={mockLogout} />, { wrapper: BrowserRouter });
+    
+    const logoutButton = screen.getByText('Logout');
+    fireEvent.click(logoutButton);
+    
+    expect(mockLogout).toHaveBeenCalled();
+  });
 });
