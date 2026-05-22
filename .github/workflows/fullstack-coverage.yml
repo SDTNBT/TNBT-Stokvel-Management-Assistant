@@ -1,45 +1,6 @@
-name: Full-Stack Test & Coverage
-
-on:
-  push:
-    branches: [ "main", "master" ]
-  pull_request:
-    branches: [ "main", "master" ]
-
-jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v5
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v5
+# --- CODACY UPLOAD ---
+    - name: Upload Coverage to Codacy
+      uses: codacy/codacy-coverage-reporter-action@v1
       with:
-        node-version: '20' 
-
-    # --- BACKEND TESTING ---
-    - name: Install Backend Dependencies
-      working-directory: ./backend
-      run: npm install
-
-    - name: Run Backend Tests & Generate Coverage
-      working-directory: ./backend
-      run: npm test -- --coverage
-
-    # --- FRONTEND TESTING ---
-    - name: Install Frontend Dependencies
-      working-directory: ./frontend
-      run: npm install
-
-    - name: Run Frontend Tests & Generate Coverage
-      working-directory: ./frontend
-      run: npm test -- --coverage --watchAll=false 
-
-    # --- CODECOV UPLOAD ---
-    - name: Upload Unified Coverage to Codecov
-      uses: codecov/codecov-action@v5
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }} 
-        fail_ci_if_error: true
+        project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        coverage-reports: backend/coverage/lcov.info,frontend/coverage/lcov.info
