@@ -2,6 +2,72 @@ const Payout = require('../models/Payout');
 const BankingDetails = require('../models/BankingDetails');
 const Member = require('../models/Member');
 
+// 1. Get the next scheduled payout
+const getNextScheduled = async (req, res) => {
+    try {
+        // We take the groupName from the URL instead of groupId
+        const { groupName } = req.params;
+
+        // Find the earliest scheduled payout for this group
+        const nextPayout = await Payout.findOne({ 
+            groupName: groupName, 
+            status: 'Scheduled' 
+        }).sort({ payoutDate: 1 }); // 1 means ascending (closest date first!)
+
+        if (!nextPayout) {
+            return res.status(404).json({ message: 'No upcoming payouts scheduled.' });
+        }
+
+        // Send back the raw data from the DB document
+        res.status(200).json({
+            memberEmail: nextPayout.userEmail, // e.g., "bottlejob101@gmail.com"
+            memberId: nextPayout.userId,       // e.g., "2121"
+            expectedAmount: nextPayout.amount, // e.g., 650
+            payoutDate: nextPayout.payoutDate  // e.g., "2026-05-17T..."
+        });
+    } catch (error) {
+        console.error("Error fetching next payout:", error);
+        res.status(500).json({ message: 'Server error fetching schedule' });
+    }
+};
+
+// 2. Get active pending payouts for your table
+const getPendingPayouts = async (req, res) => {
+    try {
+        const { groupId } = req.params;
+        const pendingPayouts = await Payout.find({ status: 'pending' }); // Add groupId filter if needed
+        res.status(200).json(pendingPayouts);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error fetching pending payouts' });
+    }
+};
+
+// 3. Initiate the payout (Your POST action)
+const initiatePayout = async (req, res) => {
+    try {
+        // ✅ Added payoutDate, groupName, and userId to match what React is sending
+        const { groupName, userId, recipientEmail, amount, method, reference, notes, payoutDate } = req.body;
+
+        const newPayout = new Payout({
+            groupName, 
+            userId, 
+            userEmail: recipientEmail, // Maps recipientEmail from frontend to userEmail for DB
+            amount,
+            payoutDate, // ✅ Added so the database stops complaining!
+            method,
+            reference,
+            notes,
+            status: 'pending' 
+        });
+
+        await newPayout.save();
+        res.status(201).json(newPayout);
+    } catch (error) {
+        console.error('Error initiating payout:', error);
+        res.status(500).json({ message: 'Server error initiating payout', error: error.message });
+    }
+};
+
 // ==========================================
 // HELPER
 // ==========================================
@@ -194,5 +260,8 @@ module.exports = {
   schedulePayout,
   updatePayoutStatus,
   getScheduledPayouts,
-  getMemberPayouts
+  getMemberPayouts,
+  getNextScheduled,
+  getPendingPayouts,
+  initiatePayout
 };
