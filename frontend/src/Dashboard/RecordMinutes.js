@@ -138,7 +138,7 @@ export const RecordMinutes = () => {
       // Grab the URL from the .env file
       const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000'; // Fallback to localhost if env variable is missing
 
-      const res = await fetch(`${apiUrl}/api/minutes/${groupId}`, {
+      const res = await fetch(`${apiUrl}/minutes/${groupId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(buildPayload()),
@@ -207,7 +207,9 @@ export const RecordMinutes = () => {
           {/* ── 1. Date & time ──────────────────────────────────────── */}
           <section className="rm-section" aria-labelledby="section-details">
             <h2 className="rm-section-title" id="section-details">Meeting Details</h2>
-            <div className="rm-row">
+            
+            {/* Fixed and replaced this with <fieldset> to satisfy the strict semantic rule */}
+            <fieldset className="rm-row" style={{ border: 'none', padding: 0, margin: 0 }}>
               <label className="rm-field">
                 <span className="rm-label">Date <abbr title="required">*</abbr></span>
                 <input
@@ -228,7 +230,8 @@ export const RecordMinutes = () => {
                   required
                 />
               </label>
-            </div>
+            </fieldset>
+            
           </section>
 
           {/* ── 2. Contributions ────────────────────────────────────── */}
