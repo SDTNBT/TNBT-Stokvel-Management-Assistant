@@ -64,4 +64,4 @@ jobs:
           app-name: 'tnbt-stokvel-frontend'
           slot-name: 'Production'
           package: .
-          startup-command: 'npx serve -s . -l 8080' # <-- THIS SECURES THE FRONTEND LOGIC DIRECTLY!
+          startup-command: 'npx serve -s build -l 8080' # <-- Change . to build
