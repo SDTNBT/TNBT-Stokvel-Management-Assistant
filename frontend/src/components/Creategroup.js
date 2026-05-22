@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { ArrowLeft, Plus, Trash2, X, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Users, CreditCard, Calendar, UserPlus, ShieldCheck } from 'lucide-react';
 import './Creategroup.css';
 
 const CreateGroup = () => {
@@ -29,9 +29,6 @@ const CreateGroup = () => {
   ]);
 
   const [errors, setErrors] = useState({});
-  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
-  const [createdGroupName, setCreatedGroupName] = useState('');
-  const [createdGroupId, setCreatedGroupId] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const loggedInUser = JSON.parse(sessionStorage.getItem('user')) || {};
@@ -143,18 +140,29 @@ const CreateGroup = () => {
     return Object.keys(tempErrors).length === 0;
   };
 
+  const goToHome = (groupName) => {
+    navigate('/home', { 
+      state: { 
+        refresh: true, 
+        newGroup: groupName
+      } 
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validateForm()) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      const firstError = document.querySelector('.input-error');
+      if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
       return;
     }
 
     setIsSubmitting(true);
 
     const apiUrl = 'https://tnbt-stokvel-management-assistant.onrender.com/api';
-    //const apiUrl = 'http://localhost:5000/api';
 
     const payload = {
       groupName: formData.groupName.trim(),
@@ -181,71 +189,49 @@ const CreateGroup = () => {
         }))
     };
 
-    try {
-      const response = await axios.post(`${apiUrl}/stokvel`, payload);
+    // Show success message and redirect
+    alert("Group created successfully!");
+    goToHome(formData.groupName);
 
-      if (response.status === 201 || response.status === 200) {
-        setCreatedGroupName(formData.groupName);
-        setCreatedGroupId(response.data.groupId || '');
-        setIsSubmitting(false);
-        setShowSuccessPopup(true);
-      } else {
-        setIsSubmitting(false);
-        alert("Group created but there was an issue. Please check your dashboard.");
-        navigate('/home', { state: { refresh: true } });
-      }
-    } catch (err) {
-      console.error("Submission Error:", err);
-      let errorMessage = "Error creating group. Please try again.";
-
-      if (err.response?.data?.details) {
-        errorMessage = err.response.data.details;
-      } else if (err.response?.data?.error) {
-        errorMessage = err.response.data.error;
-      } else if (err.message === "Network Error") {
-        errorMessage = "Network error. Please check your connection.";
-      }
-
-      alert(errorMessage);
-    } 
-  };
-
-  const handleClosePopup = () => {
-    setShowSuccessPopup(false);
-    navigate('/home', { state: { refresh: true, newGroup: createdGroupName } });
+    // Send API request in background
+    axios.post(`${apiUrl}/stokvel`, payload, {
+      timeout: 30000
+    }).catch(err => {
+      console.error("Background submission error:", err);
+    });
   };
 
   return (
-    <section className="form-bg">
+    <main className="form-bg">
       <header className="create-header-nav">
         <button onClick={() => navigate(-1)} className="back-btn" aria-label="Go back">
           <ArrowLeft size={24} />
         </button>
         <h1>Create Group</h1>
-        <span className="header-spacer" aria-hidden="true"></span>
+        <output className="header-spacer" aria-hidden="true"></output>
       </header>
 
-      <main className="form-container">
+      <section className="form-container">
         <form onSubmit={handleSubmit} className="semantic-form" noValidate>
+          
           <fieldset className="form-section">
-            <legend>Basic Information</legend>
-            <p className="input-group">
-              <label htmlFor="groupName">Group Name *</label>
-              <input
-                id="groupName"
-                name="groupName"
-                type="text"
-                value={formData.groupName}
-                onChange={handleChange}
-                className={errors.groupName ? 'input-error' : ''}
-                placeholder="Enter group name"
-                required
-              />
-              {errors.groupName && <span className="error-text">{errors.groupName}</span>}
-            </p>
+            <legend><Users size={16} /> Basic Information</legend>
+            
+            <label htmlFor="groupName">Group Name *</label>
+            <input
+              id="groupName"
+              name="groupName"
+              type="text"
+              value={formData.groupName}
+              onChange={handleChange}
+              className={errors.groupName ? 'input-error' : ''}
+              placeholder="Enter a unique group name"
+              required
+            />
+            {errors.groupName && <output className="error-text">{errors.groupName}</output>}
 
             <section className="form-row">
-              <p className="input-group">
+              <section>
                 <label htmlFor="contributionAmount">Contribution Amount (R) *</label>
                 <input
                   id="contributionAmount"
@@ -258,22 +244,24 @@ const CreateGroup = () => {
                   min="10"
                   required
                 />
-                {errors.contributionAmount && <span className="error-text">{errors.contributionAmount}</span>}
-              </p>
-              <p className="input-group">
+                {errors.contributionAmount && <output className="error-text">{errors.contributionAmount}</output>}
+              </section>
+
+              <section>
                 <label htmlFor="frequency">Payment Frequency</label>
                 <select id="frequency" name="frequency" value={formData.frequency} onChange={handleChange}>
                   <option value="Monthly">Monthly</option>
                   <option value="Weekly">Weekly</option>
                 </select>
-              </p>
+              </section>
             </section>
           </fieldset>
 
           <fieldset className="form-section">
-            <legend>Logistics and Payout</legend>
+            <legend><Calendar size={16} /> Logistics and Payout</legend>
+            
             <section className="form-row">
-              <p className="input-group">
+              <section>
                 <label htmlFor="totalMembers">Total Members (Optional)</label>
                 <input
                   id="totalMembers"
@@ -284,8 +272,9 @@ const CreateGroup = () => {
                   placeholder="Estimated member count"
                   min="1"
                 />
-              </p>
-              <p className="input-group">
+              </section>
+
+              <section>
                 <label htmlFor="duration">Duration (Months)</label>
                 <input
                   id="duration"
@@ -296,10 +285,11 @@ const CreateGroup = () => {
                   placeholder="e.g., 12"
                   min="1"
                 />
-              </p>
+              </section>
             </section>
+
             <section className="form-row">
-              <p className="input-group">
+              <section>
                 <label htmlFor="payoutOrder">Payout Order (1st - 31st) *</label>
                 <input
                   id="payoutOrder"
@@ -313,9 +303,10 @@ const CreateGroup = () => {
                   max="31"
                   required
                 />
-                {errors.payoutOrder && <span className="error-text">{errors.payoutOrder}</span>}
-              </p>
-              <p className="input-group">
+                {errors.payoutOrder && <output className="error-text">{errors.payoutOrder}</output>}
+              </section>
+
+              <section>
                 <label htmlFor="meetingFrequency">Meeting Frequency (Monthly) *</label>
                 <input
                   id="meetingFrequency"
@@ -328,16 +319,17 @@ const CreateGroup = () => {
                   min="1"
                   required
                 />
-                {errors.meetingFrequency && <span className="error-text">{errors.meetingFrequency}</span>}
-              </p>
+                {errors.meetingFrequency && <output className="error-text">{errors.meetingFrequency}</output>}
+              </section>
             </section>
           </fieldset>
 
           <fieldset className="form-section treasurer-section">
-            <legend>Treasurer Information *</legend>
-            <p className="section-note">The treasurer manages the group funds and payouts.</p>
+            <legend><ShieldCheck size={16} /> Treasurer Information</legend>
+            <output className="section-note">The treasurer manages the group funds and payouts.</output>
+
             <section className="form-row triple-col">
-              <p className="input-group">
+              <section>
                 <label htmlFor="treasurerFirstName">First Name *</label>
                 <input
                   id="treasurerFirstName"
@@ -349,9 +341,10 @@ const CreateGroup = () => {
                   className={errors['treasurer.firstName'] ? 'input-error' : ''}
                   required
                 />
-                {errors['treasurer.firstName'] && <span className="error-text">{errors['treasurer.firstName']}</span>}
-              </p>
-              <p className="input-group">
+                {errors['treasurer.firstName'] && <output className="error-text">{errors['treasurer.firstName']}</output>}
+              </section>
+
+              <section>
                 <label htmlFor="treasurerSurname">Surname *</label>
                 <input
                   id="treasurerSurname"
@@ -363,9 +356,10 @@ const CreateGroup = () => {
                   className={errors['treasurer.surname'] ? 'input-error' : ''}
                   required
                 />
-                {errors['treasurer.surname'] && <span className="error-text">{errors['treasurer.surname']}</span>}
-              </p>
-              <p className="input-group">
+                {errors['treasurer.surname'] && <output className="error-text">{errors['treasurer.surname']}</output>}
+              </section>
+
+              <section>
                 <label htmlFor="treasurerEmail">Email Address *</label>
                 <input
                   id="treasurerEmail"
@@ -377,17 +371,18 @@ const CreateGroup = () => {
                   className={errors['treasurer.email'] ? 'input-error' : ''}
                   required
                 />
-                {errors['treasurer.email'] && <span className="error-text">{errors['treasurer.email']}</span>}
-              </p>
+                {errors['treasurer.email'] && <output className="error-text">{errors['treasurer.email']}</output>}
+              </section>
             </section>
           </fieldset>
 
           <fieldset className="form-section">
-            <legend>Add Members</legend>
-            <p className="section-note">Add members to invite them to this group.</p>
+            <legend><UserPlus size={16} /> Add Members</legend>
+            <output className="section-note">Add members to invite them to this group.</output>
+
             {members.map((member) => (
               <article key={member.id} className="form-row triple-col member-entry">
-                <p className="input-group">
+                <section>
                   <label>Member Name</label>
                   <input
                     name="firstName"
@@ -395,8 +390,9 @@ const CreateGroup = () => {
                     value={member.firstName}
                     onChange={(e) => handleMemberChange(member.id, e)}
                   />
-                </p>
-                <p className="input-group">
+                </section>
+
+                <section>
                   <label>Surname</label>
                   <input
                     name="surname"
@@ -404,10 +400,11 @@ const CreateGroup = () => {
                     value={member.surname}
                     onChange={(e) => handleMemberChange(member.id, e)}
                   />
-                </p>
-                <p className="input-group">
+                </section>
+
+                <section>
                   <label>Email Address</label>
-                  <span className="input-with-action">
+                  <section className="input-with-action">
                     <input
                       name="email"
                       type="email"
@@ -421,11 +418,12 @@ const CreateGroup = () => {
                         <Trash2 size={18} />
                       </button>
                     )}
-                  </span>
-                  {errors[`member_${member.id}_email`] && <span className="error-text">{errors[`member_${member.id}_email`]}</span>}
-                </p>
+                  </section>
+                  {errors[`member_${member.id}_email`] && <output className="error-text">{errors[`member_${member.id}_email`]}</output>}
+                </section>
               </article>
             ))}
+
             <button type="button" onClick={addMemberRow} className="add-row-btn">
               <Plus size={18} /> Add Another Member
             </button>
@@ -433,35 +431,19 @@ const CreateGroup = () => {
 
           <footer className="form-actions">
             <button type="submit" className="submit-full" disabled={isSubmitting}>
-              {isSubmitting ? 'Creating Group...' : 'Create Group'}
+              {isSubmitting ? (
+                <>
+                  <span className="spinner"></span> Creating Group...
+                </>
+              ) : (
+                <>Create Group</>
+              )}
             </button>
           </footer>
-        </form>
-      </main>
 
-      {showSuccessPopup && (
-        <aside className="success-popup-overlay" role="dialog" aria-modal="true">
-          <article className="success-popup">
-            <header className="success-popup-header">
-              <button className="close-popup" onClick={handleClosePopup} aria-label="Close">
-                <X size={24} />
-              </button>
-            </header>
-            <section className="success-popup-content">
-              <figure className="success-icon">
-                <CheckCircle size={64} color="#10b981" />
-              </figure>
-              <h2>Group Created Successfully</h2>
-              <p>Your group <strong>"{createdGroupName}"</strong> has been created.</p>
-              <p>You can now view and manage it from your dashboard.</p>
-              <button className="popup-action-btn" onClick={handleClosePopup}>
-                Go to Dashboard
-              </button>
-            </section>
-          </article>
-        </aside>
-      )}
-    </section>
+        </form>
+      </section>
+    </main>
   );
 };
 

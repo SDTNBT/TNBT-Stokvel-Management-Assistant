@@ -32,7 +32,7 @@ describe('useBanking Hook', () => {
     jest.clearAllMocks();
   });
 
-  /*it('should fetch banking details on initialization', async () => {
+  it('should fetch banking details on initialization', async () => {
     // 1. Define the mock data
     const mockData = { 
       success: true, 
@@ -59,7 +59,7 @@ describe('useBanking Hook', () => {
     expect(result.current.hasBankingDetails).toBe(true);
     expect(result.current.bankData).not.toBeNull();
     expect(result.current.bankData.bankName).toBe('Standard Bank');
-  });*/
+  });
 
   it('should handle API errors gracefully', async () => {
     axios.get.mockRejectedValue(new Error('Network Error'));

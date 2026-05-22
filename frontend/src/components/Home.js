@@ -1,4 +1,4 @@
-import React, { useState, useEffect , useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import './Home.css';
@@ -263,9 +263,9 @@ const Home = () => {
   };
 
   const getActivityIcon = (type) => {
-    if (type === 'group') return '👥';
-    if (type === 'payment') return '💰';
-    return '📋';
+    if (type === 'group') return 'G';
+    if (type === 'payment') return 'P';
+    return 'A';
   };
 
   // Load data when tabs are activated
@@ -293,7 +293,7 @@ const Home = () => {
         }
         return (
           <BankingOptions 
-            hasBankingDetails={hasBankingDetails} // You can link this to a state/API later
+            hasBankingDetails={hasBankingDetails}
             onViewDetails={handleViewDetails}
             onAddEditDetails={navigateToForm}
             onBack={() => setActiveTab('home')}
@@ -309,8 +309,8 @@ const Home = () => {
               <p>Find groups or members to connect with</p>
             </header>
             
-            <div className="search-box-wrapper">
-              <div className="search-tabs">
+            <section className="search-box-wrapper">
+              <section className="search-tabs">
                 <button 
                   className={`search-tab ${searchType === 'groups' ? 'active' : ''}`}
                   onClick={() => setSearchType('groups')}
@@ -323,9 +323,9 @@ const Home = () => {
                 >
                   Search Members
                 </button>
-              </div>
+              </section>
               
-              <div className="search-input-wrapper">
+              <section className="search-input-wrapper">
                 <input
                   type="text"
                   className="search-input-field"
@@ -337,8 +337,8 @@ const Home = () => {
                 <button className="search-submit-btn" onClick={handleSearch} disabled={searching}>
                   {searching ? 'Searching...' : 'Search'}
                 </button>
-              </div>
-            </div>
+              </section>
+            </section>
             
             {searchResults.length > 0 && (
               <section className="search-results">
@@ -346,11 +346,11 @@ const Home = () => {
                 <ul className="results-list">
                   {searchResults.map((result, index) => (
                     <li key={result._id || index} className="result-item">
-                      <div className="result-info">
+                      <section className="result-info">
                         <h4>{result.groupName || result.name}</h4>
                         <p>{result.description || result.email}</p>
-                        {result.userRole && <span className="result-role">{result.userRole}</span>}
-                      </div>
+                        {result.userRole && <output className="result-role">{result.userRole}</output>}
+                      </section>
                       <button className="result-action-btn">View</button>
                     </li>
                   ))}
@@ -373,20 +373,20 @@ const Home = () => {
               <p>Track your contributions and payment history</p>
             </header>
             
-            <div className="wallet-summary-cards">
-              <div className="wallet-summary-card">
+            <section className="wallet-summary-cards">
+              <article className="wallet-summary-card">
                 <h3>Total Paid</h3>
                 <p className="wallet-amount">{formatCurrency(walletData.totalPaid)}</p>
-              </div>
-              <div className="wallet-summary-card">
+              </article>
+              <article className="wallet-summary-card">
                 <h3>Pending</h3>
                 <p className="wallet-amount pending">{formatCurrency(walletData.pendingPayments)}</p>
-              </div>
-              <div className="wallet-summary-card">
+              </article>
+              <article className="wallet-summary-card">
                 <h3>Transactions</h3>
                 <p className="wallet-amount">{walletData.transactions.length}</p>
-              </div>
-            </div>
+              </article>
+            </section>
             
             <section className="wallet-transactions">
               <h3>Recent Transactions</h3>
@@ -398,19 +398,19 @@ const Home = () => {
                 <ul className="transactions-list">
                   {walletData.transactions.slice(0, 10).map((transaction) => (
                     <li key={transaction._id} className="transaction-item">
-                      <div className="transaction-icon">
-                        {transaction.status === 'Confirmed' ? '✅' : '⏳'}
-                      </div>
-                      <div className="transaction-details">
+                      <output className="transaction-icon">
+                        {transaction.status === 'Confirmed' ? 'C' : 'P'}
+                      </output>
+                      <section className="transaction-details">
                         <p className="transaction-group">{transaction.groupName}</p>
                         <p className="transaction-date">{formatDate(transaction.date)}</p>
-                      </div>
-                      <div className="transaction-amount">
+                      </section>
+                      <section className="transaction-amount">
                         <p className={`amount-value ${transaction.status === 'Confirmed' ? 'confirmed' : 'pending'}`}>
                           {formatCurrency(transaction.amount)}
                         </p>
                         <p className="transaction-status">{transaction.status || 'Pending'}</p>
-                      </div>
+                      </section>
                     </li>
                   ))}
                 </ul>
@@ -430,21 +430,21 @@ const Home = () => {
             {activityLoading ? (
               <p className="loading-text">Loading activities...</p>
             ) : activities.length === 0 ? (
-              <div className="no-activities">
+              <section className="no-activities">
                 <Bell size={48} color="#cbd5e0" />
                 <p>No recent activities</p>
                 <small>Activities will appear here when you join groups or make payments</small>
-              </div>
+              </section>
             ) : (
               <ul className="activities-list">
                 {activities.map((activity) => (
                   <li key={activity.id} className="activity-item">
-                    <div className="activity-icon">{getActivityIcon(activity.type)}</div>
-                    <div className="activity-content">
+                    <output className="activity-icon">{getActivityIcon(activity.type)}</output>
+                    <section className="activity-content">
                       <p className="activity-title">{activity.title}</p>
                       <p className="activity-description">{activity.description}</p>
                       <time className="activity-date">{formatDate(activity.date)}</time>
-                    </div>
+                    </section>
                   </li>
                 ))}
               </ul>
@@ -479,20 +479,16 @@ const Home = () => {
                       <li key={group._id}>
                         <article
                           className="group-tile"
+                          data-role={group.userRole}
                           onClick={() => handleGroupClick(group)}
                           style={{ cursor: 'pointer' }}
                         >
                           <header className="tile-banner"></header>
                           <section className="tile-content">
                             <h3>{group.groupName}</h3>
-                            <p style={{
-                              color: '#8b5cf6',
-                              fontWeight: 'bold',
-                              textTransform: 'capitalize',
-                              margin: '4px 0'
-                            }}>
+                            <output className={`role-badge role-${group.userRole?.toLowerCase()}`}>
                               {group.userRole}
-                            </p>
+                            </output>
                             <p>{group.frequency} • R{group.contributionAmount}</p>
                             <footer className="tile-actions">
                               <button
@@ -529,7 +525,7 @@ const Home = () => {
   };
 
   return (
-    <section className="layout-root">
+    <main className="layout-root">
       {showSuccessToast && (
         <aside className="success-toast" role="alert" aria-live="polite">
           <figure className="toast-icon">
@@ -592,11 +588,12 @@ const Home = () => {
                 <small>Search</small>
               </button>
             </li>
-            <li><button onClick={() => setActiveTab('account')} className={activeTab === 'account' ? 'active' : ''}>
-              <CreditCard size={24} />
-              <small>My Account Details</small>
+            <li>
+              <button onClick={() => setActiveTab('account')} className={activeTab === 'account' ? 'active' : ''}>
+                <CreditCard size={24} />
+                <small>My Account Details</small>
               </button>
-              </li>
+            </li>
             <li>
               <button onClick={() => handleTabChange('activity')} className={activeTab === 'activity' ? 'active' : ''}>
                 <Bell size={24} />
@@ -612,7 +609,7 @@ const Home = () => {
           </ul>
         </nav>
       </footer>
-    </section>
+    </main>
   );
 };
 

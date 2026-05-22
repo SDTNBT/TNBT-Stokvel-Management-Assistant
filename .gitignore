@@ -8,3 +8,4 @@ yarn-error.log*
 # Firebase Admin SDK Private Key
 serviceAccountKey.json
 backend/.env.test
+frontend/.env

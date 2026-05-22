@@ -249,6 +249,7 @@ button {
 .tile-banner {
   height: 120px;
   background: linear-gradient(135deg, #a78bfa, #7c3aed);
+  transition: all 0.3s ease;
 }
 
 .tile-content {
@@ -310,6 +311,49 @@ button {
 
 .remove-opt:hover {
   background: #fee2e2;
+}
+
+/* --- Role-Based Group Tile Colors --- */
+
+/* Admin Role - Red Theme */
+.group-tile[data-role="Admin"] .tile-banner {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+}
+
+.group-tile[data-role="Admin"] .role-badge {
+  background: #dc2626;
+  color: white;
+}
+
+/* Treasurer Role - Orange/Yellow Theme */
+.group-tile[data-role="Treasurer"] .tile-banner {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.group-tile[data-role="Treasurer"] .role-badge {
+  background: #f59e0b;
+  color: white;
+}
+
+/* Member Role - Purple Theme */
+.group-tile[data-role="Member"] .tile-banner {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+}
+
+.group-tile[data-role="Member"] .role-badge {
+  background: #8b5cf6;
+  color: white;
+}
+
+/* Role Badge Styling */
+.role-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  margin-bottom: 8px;
 }
 
 /* --- Empty State --- */

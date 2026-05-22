@@ -4,10 +4,8 @@ import './Profile.css';
 
 const Profile = ({ user = {}, onLogout = () => {}, onUpdate = () => {} }) => {
   const [profileData, setProfileData] = useState({
-    firstName: '',
-    surname: '',
+    name: '',
     email: '',
-    role: 'Member',
     createdAt: ''
   });
   const [userGroups, setUserGroups] = useState([]);
@@ -19,24 +17,19 @@ const Profile = ({ user = {}, onLogout = () => {}, onUpdate = () => {} }) => {
   const loggedInUser = sessionUser ? JSON.parse(sessionUser) : {};
 
   useEffect(() => {
-    // Log to see what data is actually in sessionStorage
     console.log('loggedInUser from sessionStorage:', loggedInUser);
     
     // Load data from sessionStorage immediately if available
     if (loggedInUser) {
       setProfileData({
-        firstName: loggedInUser.name || loggedInUser.firstName || '',
-        surname: loggedInUser.surname || loggedInUser.lastName || '',
+        name: loggedInUser.name || '',
         email: loggedInUser.email || 'Not set',
-        role: loggedInUser.role || 'Member',
         createdAt: loggedInUser.createdAt || new Date().toISOString()
       });
     } else if (user) {
       setProfileData({
-        firstName: user.name || user.firstName || '',
-        surname: user.surname || user.lastName || '',
+        name: user.name || '',
         email: user.email || 'Not set',
-        role: user.role || 'Member',
         createdAt: user.createdAt || new Date().toISOString()
       });
     }
@@ -67,24 +60,19 @@ const Profile = ({ user = {}, onLogout = () => {}, onUpdate = () => {} }) => {
         
         console.log('API response user data:', data.user);
         
-        const firstName = data.user?.name || data.user?.firstName || '';
-        const surname = data.user?.surname || data.user?.lastName || '';
+        const name = data.user?.name || '';
         
         setProfileData({
-          firstName: firstName,
-          surname: surname,
+          name: name,
           email: data.user?.email || loggedInUser.email || user.email || 'Not set',
-          role: data.user?.role || loggedInUser.role || user.role || 'Member',
           createdAt: data.user?.createdAt || new Date().toISOString()
         });
         
         // Update sessionStorage with correct data
         const updatedUser = {
           ...loggedInUser,
-          name: firstName,
-          surname: surname,
-          email: data.user?.email || loggedInUser.email,
-          role: data.user?.role || loggedInUser.role
+          name: name,
+          email: data.user?.email || loggedInUser.email
         };
         sessionStorage.setItem('user', JSON.stringify(updatedUser));
         console.log('Updated sessionStorage:', updatedUser);
@@ -137,16 +125,6 @@ const Profile = ({ user = {}, onLogout = () => {}, onUpdate = () => {} }) => {
     }
   };
 
-  const getFullName = () => {
-    if (profileData.firstName && profileData.surname) {
-      return `${profileData.firstName} ${profileData.surname}`;
-    }
-    if (profileData.firstName) {
-      return profileData.firstName;
-    }
-    return 'User';
-  };
-
   const formatDate = (dateString) => {
     if (!dateString) return 'Not available';
     const date = new Date(dateString);
@@ -173,7 +151,6 @@ const Profile = ({ user = {}, onLogout = () => {}, onUpdate = () => {} }) => {
   };
 
   const accountStatus = getAccountStatus();
-  const fullName = getFullName();
 
   if (loading) {
     return (
@@ -199,7 +176,7 @@ const Profile = ({ user = {}, onLogout = () => {}, onUpdate = () => {} }) => {
           <figure className="profile-avatar">
             <figcaption>Profile avatar showing first letter of name</figcaption>
             <output className="avatar-large" htmlFor="profile-name" aria-label="Profile initial">
-              {fullName.charAt(0) || 'U'}
+              {profileData.name?.charAt(0) || 'U'}
             </output>
           </figure>
         </header>
@@ -207,7 +184,7 @@ const Profile = ({ user = {}, onLogout = () => {}, onUpdate = () => {} }) => {
         <section className="profile-info">
           <header className="profile-header-actions">
             <hgroup>
-              <h1 id="profile-name">{fullName}</h1>
+              <h1 id="profile-name">{profileData.name || 'User'}</h1>
             </hgroup>
             <nav aria-label="Profile actions">
               <menu className="profile-actions">
@@ -221,13 +198,7 @@ const Profile = ({ user = {}, onLogout = () => {}, onUpdate = () => {} }) => {
               <h2 id="account-info-heading">Account Information</h2>
               <dl>
                 <dt>First Name</dt>
-                <dd>{profileData.firstName || 'Not set'}</dd>
-                
-                <dt>Surname</dt>
-                <dd>{profileData.surname || 'Not set'}</dd>
-                
-                <dt>Full Name</dt>
-                <dd>{fullName}</dd>
+                <dd>{profileData.name || 'Not set'}</dd>
                 
                 <dt>Email Address</dt>
                 <dd>{profileData.email || 'Not set'}</dd>

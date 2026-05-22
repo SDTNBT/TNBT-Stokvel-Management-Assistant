@@ -1,190 +1,386 @@
-/* --- CORE LAYOUT --- */
-.dashboard-shell { 
-  display: flex !important; 
-  height: 100vh !important; 
-  width: 100vw !important; 
-  background: #f4f7fe !important; 
-  overflow: hidden !important; 
-  margin: 0; padding: 0;
+/* MemberDashboard.css — Matches TreasurerDashboard Design */
+
+/* =====================
+   CORE LAYOUT
+   ===================== */
+.dashboard-shell {
+  display: flex;
+  min-height: 100vh;
+  width: 100vw;
+  background: linear-gradient(135deg, #f5f7fa 0%, #f0f2f5 100%);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
 }
 
+/* =====================
+   SIDEBAR
+   ===================== */
 .dashboard-shell .sidebar {
-  width: 280px !important;
-  background: #3d2b56 !important;
-  display: flex !important;
-  flex-direction: column !important;
-  height: 100vh !important;
-  overflow-y: auto !important;
-  position: sticky !important;
-  top: 0 !important;
+  width: 280px;
+  background: white;
+  border-right: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.04);
+  overflow-y: auto;
 }
 
-.dashboard-shell .nav-item,
-.dashboard-shell .footer-item,
-.dashboard-shell .submenu-btn,
-.dashboard-shell .nav-item small,
-.dashboard-shell .footer-item small,
-.dashboard-shell .submenu-btn small,
-.dashboard-shell .nav-item svg,
-.dashboard-shell .footer-item svg,
-.dashboard-shell .submenu-btn svg {
-  color: #ffffff !important;
-  stroke: #ffffff !important; /* Forces icons to be white */
-  opacity: 1 !important;
-  text-decoration: none !important;
+/* Brand */
+.dashboard-shell .sidebar-brand {
+  margin-bottom: 2rem;
 }
 
-/* --- TYPOGRAPHY & SIZING (SIDEBAR) --- */
-.dashboard-shell .nav-item, 
-.dashboard-shell .footer-item {
-  display: flex !important;
-  align-items: center !important;
-  gap: 14px !important;
-  padding: 14px 20px !important;
-  background: transparent !important;
-  border: none !important;
-  cursor: pointer !important;
-  width: 100% !important;
-}
-
-.dashboard-shell small {
-  font-size: 1.1rem !important; 
-  font-weight: 600 !important;
-  white-space: nowrap !important;
-}
-
-.dashboard-shell .sidebar :is(small, label, p, span) {
-  font-size: 0.85rem !important; 
-  font-weight: 500 !important;
-}
-
-/* --- SUBMENU STYLES --- */
-.dashboard-shell .submenu {
-  list-style: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
-}
-
-.dashboard-shell .submenu-btn {
-  padding: 10px 20px 10px 50px !important; 
-  display: flex !important;
-  align-items: center !important;
-  gap: 12px !important;
-  width: 100% !important;
-  background: transparent !important;
-  border: none !important;
-}
-
-.dashboard-shell .submenu-btn small {
-  font-size: 0.8rem !important;
-  font-weight: 500 !important;
-}
-
-/* --- LOGOUT (DANGER COLOR) --- */
-.dashboard-shell .logout-btn,
-.dashboard-shell .logout-btn small,
-.dashboard-shell .logout-btn svg {
-  color: #ff4d4d !important;
-  stroke: #ff4d4d !important;
-}
-
-/* --- HOVER & ACTIVE --- */
-.dashboard-shell .nav-item:hover, 
-.dashboard-shell .nav-item.active { 
-  background: rgba(255, 255, 255, 0.12) !important; 
-}
-
-.dashboard-shell .chevron-icon {
-  margin-left: auto !important;
-  transition: transform 0.3s ease;
-}
-
-.dashboard-shell .rotate { transform: rotate(180deg) !important; }
-
-/* --- BRANDING --- */
 .dashboard-shell .brand-identity {
-  display: flex !important;
-  align-items: center !important;
-  gap: 12px !important;
-  padding: 24px 20px !important;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .dashboard-shell .brand-text {
-  font-size: 1.0rem !important;
-  font-weight: 800 !important;
-  color: white !important;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #1a202c;
+  letter-spacing: -0.5px;
 }
 
 .dashboard-shell .sidebar-divider {
-  border: none !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
-  margin: 0 0 15px 0 !important;
+  margin: 1rem 0;
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, #e2e8f0, transparent);
 }
 
-/* =========================================
-   MAIN CONTENT AREA (COLOR & VISIBILITY)
-   ========================================= */
+/* Nav list */
+.dashboard-shell .sidebar-nav {
+  flex: 1;
+}
 
+.dashboard-shell .nav-list,
+.dashboard-shell .footer-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dashboard-shell .nav-item,
+.dashboard-shell .footer-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  color: #64748b;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  width: 100%;
+  background: none;
+  border: none;
+}
+
+.dashboard-shell .nav-item svg,
+.dashboard-shell .footer-item svg {
+  color: inherit;
+  stroke: currentColor;
+}
+
+.dashboard-shell .nav-item label,
+.dashboard-shell .footer-item label {
+  cursor: pointer;
+  margin: 0;
+}
+
+.dashboard-shell .nav-item:hover,
+.dashboard-shell .footer-item:hover {
+  background: #f1f5f9;
+  color: #004aad;
+  transform: translateX(4px);
+}
+
+.dashboard-shell .nav-item.active {
+  background: linear-gradient(135deg, #004aad, #0062e3);
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 74, 173, 0.3);
+}
+
+/* Dropdown chevron */
+.dashboard-shell .dropdown-trigger {
+  justify-content: space-between;
+}
+
+.dashboard-shell .chevron-icon {
+  margin-left: auto;
+  transition: transform 0.3s ease;
+}
+
+.dashboard-shell .chevron-icon.rotate {
+  transform: rotate(180deg);
+}
+
+/* Submenu */
+.dashboard-shell .submenu {
+  list-style: none;
+  padding-left: 48px;
+  margin: 6px 0;
+}
+
+.dashboard-shell .submenu-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  color: #64748b;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+  width: 100%;
+  background: none;
+  border: none;
+}
+
+.dashboard-shell .submenu-btn label {
+  cursor: pointer;
+  margin: 0;
+}
+
+.dashboard-shell .submenu-btn:hover {
+  background: #f1f5f9;
+  color: #004aad;
+}
+
+.dashboard-shell .submenu-btn.active-sub {
+  background: #e0e7ff;
+  color: #004aad;
+  font-weight: 600;
+}
+
+/* Sidebar footer */
+.dashboard-shell .sidebar-footer {
+  margin-top: auto;
+  padding-top: 1rem;
+}
+
+.dashboard-shell .footer-item.logout-btn {
+  color: #ef4444;
+}
+
+.dashboard-shell .footer-item.logout-btn:hover {
+  background: #fee2e2;
+  color: #dc2626;
+  transform: translateX(4px);
+}
+
+/* =====================
+   MAIN CONTENT
+   ===================== */
 .dashboard-shell .main-content {
-  flex: 1 !important;
-  padding: 40px !important;
-  overflow-y: auto !important;
-  color: #2d3748; /* BASE DARK TEXT for the light #f4f7fe background */
+  flex: 1;
+  padding: 2rem 3rem;
+  overflow-y: auto;
+  color: #2d3748;
+}
+
+.dashboard-shell .content-header {
+  margin-bottom: 2rem;
 }
 
 .dashboard-shell .dashboard-title {
-  color: #1A3A6B; /* Deep blue for the page title */
-  font-size: 2.2rem;
-  font-weight: 800;
+  font-size: 1.75rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #004aad, #0062e3);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin: 0;
   text-transform: capitalize;
-  margin-bottom: 20px;
 }
 
-/* General text defaults for main area */
-.dashboard-shell .welcome-hero h2,
-.dashboard-shell .welcome-hero p,
+.dashboard-shell .content-body {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Welcome hero */
+.dashboard-shell .welcome-hero {
+  background: linear-gradient(135deg, #004aad, #0062e3);
+  border-radius: 24px;
+  padding: 2rem;
+  color: white;
+  margin-bottom: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 74, 173, 0.2);
+}
+
+.dashboard-shell .welcome-hero h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: white;
+}
+
+.dashboard-shell .welcome-hero p {
+  font-size: 1rem;
+  opacity: 0.9;
+  margin: 0;
+  color: white;
+}
+
+/* =====================
+   GENERAL CONTENT TEXT
+   ===================== */
 .dashboard-shell .content-body h2,
+.dashboard-shell .content-body h3,
+.dashboard-shell .content-body h4,
+.dashboard-shell .content-body h5,
 .dashboard-shell .content-body p,
-.dashboard-shell .content-body label {
-  color: #2d3748 !important; /* Forces readable dark grey text everywhere by default */
+.dashboard-shell .content-body label,
+.dashboard-shell .content-body legend,
+.dashboard-shell .content-body fieldset,
+.dashboard-shell .content-body output,
+.dashboard-shell .content-body span,
+.dashboard-shell .content-body small,
+.dashboard-shell .content-body th,
+.dashboard-shell .content-body td {
+  color: #2d3748;
 }
 
-/* --- THE EXCEPTION: MEMBER ANALYTICS (DARK BLUE BOX) --- */
-/* We target the Analytics component and force its text to be white */
+/* =====================
+   ANALYTICS EXCEPTION
+   (dark-background section keeps white text)
+   ===================== */
 .dashboard-shell .analytics-dashboard h2,
+.dashboard-shell .analytics-dashboard h3,
+.dashboard-shell .analytics-dashboard h4,
+.dashboard-shell .analytics-dashboard h5,
 .dashboard-shell .analytics-dashboard p,
 .dashboard-shell .analytics-dashboard label,
 .dashboard-shell .analytics-dashboard legend,
 .dashboard-shell .analytics-dashboard span,
+.dashboard-shell .analytics-dashboard small,
 .dashboard-shell .analytics-dashboard th,
 .dashboard-shell .analytics-dashboard td,
 .dashboard-shell .analytics-dashboard output {
-  color: #ffffff !important; 
+  color: #ffffff !important;
 }
 
-/* Keep the actual typing inputs dark inside the analytics so you can see what you type */
-.dashboard-shell .analytics-dashboard input[type="date"],
+/* Inputs inside analytics stay readable */
 .dashboard-shell .analytics-dashboard input,
+.dashboard-shell .analytics-dashboard input[type="date"],
 .dashboard-shell .analytics-dashboard select {
   color: #2d3748 !important;
   background-color: #ffffff !important;
-  font-weight: bold;
+  font-weight: 600;
 }
 
-/* --- FIX INVISIBLE SPANS & HEADINGS IN SAVINGS PROJECTION --- */
-.dashboard-shell .content-body span,
-.dashboard-shell .content-body small,
-.dashboard-shell .content-body h3,
-.dashboard-shell .content-body h4,
-.dashboard-shell .content-body h5 {
-  color: #2d3748 !important; /* Forces these tags to be dark grey everywhere */
+/* =====================
+   SHARED CARD STYLES
+   ===================== */
+.dashboard-shell .stat-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border-bottom: 3px solid #004aad;
+  transition: all 0.3s ease;
 }
 
-/* --- RE-ENFORCE WHITE TEXT FOR ANALYTICS --- */
-.dashboard-shell .analytics-dashboard span,
-.dashboard-shell .analytics-dashboard small,
-.dashboard-shell .analytics-dashboard h3,
-.dashboard-shell .analytics-dashboard h4,
-.dashboard-shell .analytics-dashboard h5 {
-  color: #ffffff !important; /* Keeps them white inside the blue analytics box */
+.dashboard-shell .stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-shell .stat-card.warning {
+  border-bottom-color: #f59e0b;
+}
+
+.dashboard-shell .stat-card h3 {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 0.5rem 0;
+}
+
+.dashboard-shell .stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0;
+}
+
+.dashboard-shell .stat-value.warning {
+  color: #f59e0b;
+}
+
+/* Status badges */
+.dashboard-shell .status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.dashboard-shell .status-badge.completed {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.dashboard-shell .status-badge.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* =====================
+   RESPONSIVE
+   ===================== */
+@media (max-width: 1024px) {
+  .dashboard-shell .sidebar {
+    width: 240px;
+    padding: 1.5rem 1rem;
+  }
+
+  .dashboard-shell .main-content {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-shell {
+    flex-direction: column;
+  }
+
+  .dashboard-shell .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+    padding: 1rem;
+  }
+
+  .dashboard-shell .main-content {
+    padding: 1rem;
+  }
+
+  .dashboard-shell .dashboard-title {
+    font-size: 1.25rem;
+  }
+
+  .dashboard-shell .welcome-hero h2 {
+    font-size: 1.2rem;
+  }
 }
