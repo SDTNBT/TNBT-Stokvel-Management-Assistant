@@ -3,61 +3,56 @@ import './ContributionCompliance.css';
 
 const ContributionCompliance = ({ user, groupName: initialGroupName }) => {
   const [allPayments, setAllPayments] = useState([]);
+  const [allMemberships, setAllMemberships] = useState([]);
+  const [groupDetails, setGroupDetails] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [monthlyBreakdown, setMonthlyBreakdown] = useState([]);
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [groups, setGroups] = useState([]);
-  const [groupContributionAmounts, setGroupContributionAmounts] = useState({});
 
   const sessionUser = JSON.parse(sessionStorage.getItem('user')) || {};
   const userEmail = user?.email || sessionUser.email;
 
   useEffect(() => {
     if (userEmail) {
-      fetchAllPayments();
+      fetchUserData();
     }
   }, [userEmail]);
 
-  const fetchAllPayments = async () => {
+  const fetchUserData = async () => {
     setLoading(true);
     setError(null);
     
     try {
-      const response = await fetch(`https://tnbt-stokvel-management-assistant.onrender.com/api/payments/my-payments/${userEmail}`);
+      const membershipsResponse = await fetch(`https://tnbt-stokvel-management-assistant.onrender.com/api/stokvel/user/${userEmail}`);
       
-      if (!response.ok) {
-        throw new Error(`Failed to fetch payments: ${response.status}`);
+      if (!membershipsResponse.ok) {
+        throw new Error(`Failed to fetch memberships: ${membershipsResponse.status}`);
       }
       
-      const data = await response.json();
-      const payments = data.payments || [];
+      const memberships = await membershipsResponse.json();
+      setAllMemberships(memberships);
       
-      setAllPayments(payments);
-      
-      const uniqueGroups = [...new Set(payments.map(p => p.groupName).filter(Boolean))];
-      
-      if (uniqueGroups.length === 0) {
-        setError('You are not a member of any groups yet. Join a group to see compliance data.');
+      if (memberships.length === 0) {
+        setGroups([]);
+        setSelectedGroup(null);
         setLoading(false);
         return;
       }
       
+      const uniqueGroups = memberships.map(m => m.groupName);
       setGroups(uniqueGroups);
       
-      const amounts = {};
-      for (const groupName of uniqueGroups) {
-        const groupPayments = payments.filter(p => p.groupName === groupName);
-        if (groupPayments.length > 0) {
-          const paymentAmounts = groupPayments.map(p => p.amount);
-          const mostCommon = getMostCommonValue(paymentAmounts);
-          amounts[groupName] = mostCommon || 500;
-        } else {
-          amounts[groupName] = 500;
-        }
+      const groupDetailsMap = {};
+      for (const membership of memberships) {
+        groupDetailsMap[membership.groupName] = {
+          contributionAmount: membership.contributionAmount,
+          frequency: membership.frequency || 'Monthly',
+          userRole: membership.userRole
+        };
       }
-      
-      setGroupContributionAmounts(amounts);
+      setGroupDetails(groupDetailsMap);
       
       let defaultGroup = uniqueGroups[0];
       if (initialGroupName && uniqueGroups.includes(initialGroupName)) {
@@ -65,60 +60,78 @@ const ContributionCompliance = ({ user, groupName: initialGroupName }) => {
       }
       setSelectedGroup(defaultGroup);
       
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching payments:', error);
-      setError(`Unable to load data: ${error.message}`);
-      setLoading(false);
-    }
-  };
-
-  const getMostCommonValue = (arr) => {
-    if (arr.length === 0) return null;
-    const frequency = {};
-    let maxFreq = 0;
-    let mostCommon = arr[0];
-    
-    for (const value of arr) {
-      frequency[value] = (frequency[value] || 0) + 1;
-      if (frequency[value] > maxFreq) {
-        maxFreq = frequency[value];
-        mostCommon = value;
+      const paymentsResponse = await fetch(`https://tnbt-stokvel-management-assistant.onrender.com/api/payments/my-payments/${userEmail}`);
+      
+      if (!paymentsResponse.ok) {
+        throw new Error(`Failed to fetch payments: ${paymentsResponse.status}`);
       }
+      
+      const paymentsData = await paymentsResponse.json();
+      const payments = paymentsData.payments || [];
+      setAllPayments(payments);
+      
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setError(`Unable to load data: ${error.message}`);
+    } finally {
+      setLoading(false);
     }
-    return mostCommon;
   };
 
   useEffect(() => {
     if (selectedGroup && allPayments.length > 0) {
       generateComplianceReport(selectedGroup);
+    } else if (selectedGroup && allPayments.length === 0) {
+      setMonthlyBreakdown([]);
     }
   }, [selectedGroup, allPayments]);
 
   const generateComplianceReport = (groupName) => {
     const groupPayments = allPayments.filter(p => p.groupName === groupName);
+    const groupInfo = groupDetails[groupName];
     
-    if (groupPayments.length === 0) {
+    if (!groupInfo) {
       setMonthlyBreakdown([]);
       return;
     }
     
-    const contributionAmount = groupContributionAmounts[groupName] || 500;
+    const contributionAmount = groupInfo.contributionAmount;
+    const frequency = groupInfo.frequency;
+    const isWeekly = frequency === 'Weekly';
+    
     const sortedPayments = [...groupPayments].sort((a, b) => new Date(a.date) - new Date(b.date));
+    
+    if (sortedPayments.length === 0) {
+      setMonthlyBreakdown([]);
+      return;
+    }
+    
     const firstDate = new Date(sortedPayments[0].date);
     const totalPaidAmount = sortedPayments.reduce((sum, p) => sum + p.amount, 0);
-    const monthsCovered = Math.ceil(totalPaidAmount / contributionAmount);
+    const periodsCovered = Math.ceil(totalPaidAmount / contributionAmount);
     
-    const months = [];
-    for (let i = 0; i < monthsCovered; i++) {
-      const date = new Date(firstDate.getFullYear(), firstDate.getMonth() + i, 1);
-      const monthName = date.toLocaleDateString('en-ZA', { year: 'numeric', month: 'long' });
+    const periods = [];
+    for (let i = 0; i < periodsCovered; i++) {
+      let periodName;
+      let dueDay;
       
-      months.push({
-        monthName,
+      if (isWeekly) {
+        const date = new Date(firstDate.getFullYear(), firstDate.getMonth(), firstDate.getDate() + (i * 7));
+        periodName = `Week of ${date.toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+        dueDay = 7;
+      } else {
+        const date = new Date(firstDate.getFullYear(), firstDate.getMonth() + i, 1);
+        periodName = date.toLocaleDateString('en-ZA', { year: 'numeric', month: 'long' });
+        dueDay = 28;
+      }
+      
+      periods.push({
+        periodName,
         expected: contributionAmount,
         paid: 0,
-        dueDate: new Date(date.getFullYear(), date.getMonth(), 28).toLocaleDateString('en-ZA'),
+        dueDate: isWeekly 
+          ? new Date(firstDate.getFullYear(), firstDate.getMonth(), firstDate.getDate() + (i * 7) + dueDay).toLocaleDateString('en-ZA')
+          : new Date(firstDate.getFullYear(), firstDate.getMonth() + i, dueDay).toLocaleDateString('en-ZA'),
         paymentDate: null,
         paymentDates: [],
         status: 'pending',
@@ -130,43 +143,43 @@ const ContributionCompliance = ({ user, groupName: initialGroupName }) => {
     let paymentIndex = 0;
     let carryOver = 0;
     
-    for (let i = 0; i < months.length; i++) {
-      const month = months[i];
-      let totalForMonth = carryOver;
+    for (let i = 0; i < periods.length; i++) {
+      const period = periods[i];
+      let totalForPeriod = carryOver;
       
-      while (paymentIndex < sortedPayments.length && totalForMonth < month.expected) {
+      while (paymentIndex < sortedPayments.length && totalForPeriod < period.expected) {
         const payment = sortedPayments[paymentIndex];
-        totalForMonth += payment.amount;
-        month.payments.push(payment);
-        month.paymentDates.push(payment.date);
+        totalForPeriod += payment.amount;
+        period.payments.push(payment);
+        period.paymentDates.push(payment.date);
         paymentIndex++;
       }
       
-      if (totalForMonth >= month.expected) {
-        month.paid = month.expected;
-        month.status = 'on-time';
-        carryOver = totalForMonth - month.expected;
+      if (totalForPeriod >= period.expected) {
+        period.paid = period.expected;
+        period.status = 'on-time';
+        carryOver = totalForPeriod - period.expected;
         
-        if (month.paymentDates.length > 0) {
-          month.paymentDate = month.paymentDates[month.paymentDates.length - 1];
+        if (period.paymentDates.length > 0) {
+          period.paymentDate = period.paymentDates[period.paymentDates.length - 1];
         }
         
-        if (month.payments.length > 1) {
-          month.notes = `${month.payments.length} payments totalling ${formatCurrency(totalForMonth)}. Made on time.`;
+        if (period.payments.length > 1) {
+          period.notes = `${period.payments.length} payments totalling ${formatCurrency(totalForPeriod)}. Made on time.`;
         } else {
-          month.notes = `Payment of ${formatCurrency(totalForMonth)}. Made on time.`;
+          period.notes = `Payment of ${formatCurrency(totalForPeriod)}. Made on time.`;
         }
         
         if (carryOver > 0) {
-          month.notes += ` Excess of ${formatCurrency(carryOver)} applied to next month.`;
+          period.notes += ` Excess of ${formatCurrency(carryOver)} applied to next ${isWeekly ? 'week' : 'month'}.`;
         }
-      } else if (totalForMonth > 0) {
-        month.paid = totalForMonth;
-        month.status = 'partial';
-        if (month.paymentDates.length > 0) {
-          month.paymentDate = month.paymentDates[month.paymentDates.length - 1];
+      } else if (totalForPeriod > 0) {
+        period.paid = totalForPeriod;
+        period.status = 'partial';
+        if (period.paymentDates.length > 0) {
+          period.paymentDate = period.paymentDates[period.paymentDates.length - 1];
         }
-        month.notes = `Partial payment of ${formatCurrency(totalForMonth)}. Remaining: ${formatCurrency(month.expected - totalForMonth)}`;
+        period.notes = `Partial payment of ${formatCurrency(totalForPeriod)}. Remaining: ${formatCurrency(period.expected - totalForPeriod)}`;
         carryOver = 0;
       }
     }
@@ -175,16 +188,16 @@ const ContributionCompliance = ({ user, groupName: initialGroupName }) => {
     const latestPaymentDate = allPaymentDates[allPaymentDates.length - 1];
     
     let foundLastDirectPayment = false;
-    for (let i = months.length - 1; i >= 0; i--) {
-      const month = months[i];
-      if (month.paymentDate) {
+    for (let i = periods.length - 1; i >= 0; i--) {
+      const period = periods[i];
+      if (period.paymentDate) {
         foundLastDirectPayment = true;
       } else if (!foundLastDirectPayment) {
-        month.paymentDate = latestPaymentDate;
+        period.paymentDate = latestPaymentDate;
       } else {
-        for (let j = i + 1; j < months.length; j++) {
-          if (months[j].paymentDate) {
-            month.paymentDate = months[j].paymentDate;
+        for (let j = i + 1; j < periods.length; j++) {
+          if (periods[j].paymentDate) {
+            period.paymentDate = periods[j].paymentDate;
             break;
           }
         }
@@ -192,15 +205,15 @@ const ContributionCompliance = ({ user, groupName: initialGroupName }) => {
     }
     
     let lastKnownDate = null;
-    for (let i = 0; i < months.length; i++) {
-      if (months[i].paymentDate) {
-        lastKnownDate = months[i].paymentDate;
+    for (let i = 0; i < periods.length; i++) {
+      if (periods[i].paymentDate) {
+        lastKnownDate = periods[i].paymentDate;
       } else if (lastKnownDate) {
-        months[i].paymentDate = lastKnownDate;
+        periods[i].paymentDate = lastKnownDate;
       }
     }
     
-    setMonthlyBreakdown([...months].reverse());
+    setMonthlyBreakdown([...periods].reverse());
   };
 
   const formatCurrency = (amount) => {
@@ -234,45 +247,48 @@ const ContributionCompliance = ({ user, groupName: initialGroupName }) => {
     return 'Needs attention. Consider setting up reminders.';
   };
 
-  const totalExpected = monthlyBreakdown.reduce((sum, month) => sum + month.expected, 0);
-  const totalPaid = monthlyBreakdown.reduce((sum, month) => sum + month.paid, 0);
-  const totalPaymentsMade = monthlyBreakdown.filter(month => month.paid > 0).length;
+  const totalExpected = monthlyBreakdown.reduce((sum, period) => sum + period.expected, 0);
+  const totalPaid = monthlyBreakdown.reduce((sum, period) => sum + period.paid, 0);
+  const totalPaymentsMade = monthlyBreakdown.filter(period => period.paid > 0).length;
   const totalExpectedPayments = monthlyBreakdown.length;
-  const missedPayments = monthlyBreakdown.filter(month => month.status === 'missed').length;
-  const onTimePayments = monthlyBreakdown.filter(month => month.status === 'on-time').length;
+  const missedPayments = monthlyBreakdown.filter(period => period.status === 'pending' || period.status === 'missed').length;
+  const onTimePayments = monthlyBreakdown.filter(period => period.status === 'on-time').length;
   const onTimeRate = totalPaymentsMade > 0 ? Math.round((onTimePayments / totalPaymentsMade) * 100) : 0;
   const complianceRate = totalExpected > 0 ? Math.min(Math.round((totalPaid / totalExpected) * 100), 100) : 0;
 
   if (loading) {
     return (
-      <section className="compliance-container">
+      <main className="compliance-container">
         <p className="loading-text">Loading compliance report...</p>
-      </section>
+      </main>
     );
   }
 
   if (error) {
     return (
-      <section className="compliance-container">
+      <main className="compliance-container">
         <p className="error-text">{error}</p>
-        <button type="button" onClick={() => fetchAllPayments()} className="retry-button">
-          Try Again
-        </button>
-      </section>
+      </main>
     );
   }
 
-  if (groups.length === 0) {
+  const hasNoGroups = groups.length === 0;
+  const hasNoPayments = allPayments.length === 0;
+  const hasMonthlyData = monthlyBreakdown.length > 0;
+  const currentGroupInfo = groupDetails[selectedGroup];
+  const currentContributionAmount = currentGroupInfo?.contributionAmount || 0;
+  const currentFrequency = currentGroupInfo?.frequency || 'Monthly';
+
+  if (hasNoGroups) {
     return (
-      <section className="compliance-container">
+      <main className="compliance-container">
         <p className="no-data-text">You are not a member of any groups yet. Join a group to see your compliance report.</p>
-      </section>
+      </main>
     );
   }
 
   const complianceColor = getComplianceColor(complianceRate);
   const complianceMessage = getComplianceMessage(complianceRate);
-  const currentContributionAmount = groupContributionAmounts[selectedGroup] || 500;
 
   return (
     <main className="compliance-container">
@@ -295,15 +311,17 @@ const ContributionCompliance = ({ user, groupName: initialGroupName }) => {
         </select>
       </section>
 
-      {selectedGroup && monthlyBreakdown.length > 0 && (
+      {selectedGroup && currentGroupInfo && (
         <>
           <article className="compliance-score-card">
             <header className="score-circle">
-              <p className="score-value">{complianceRate}%</p>
+              <p className="score-value">{hasNoPayments ? 0 : complianceRate}%</p>
               <p className="score-label">Compliance Rate</p>
             </header>
             <footer className="score-message">
-              <p className={`score-status ${complianceColor}`}>{complianceMessage}</p>
+              <p className={`score-status ${hasNoPayments ? 'poor' : complianceColor}`}>
+                {hasNoPayments ? 'No payments recorded yet' : complianceMessage}
+              </p>
             </footer>
           </article>
 
@@ -311,13 +329,13 @@ const ContributionCompliance = ({ user, groupName: initialGroupName }) => {
             <article className="compliance-summary-card">
               <h2>Total Expected</h2>
               <p className="summary-number">{formatCurrency(totalExpected)}</p>
-              <small>payments ({formatCurrency(currentContributionAmount)}/month)</small>
+              <small>{currentFrequency} contribution ({formatCurrency(currentContributionAmount)}/{currentFrequency === 'Weekly' ? 'week' : 'month'})</small>
             </article>
             
             <article className="compliance-summary-card">
               <h2>Payments Made</h2>
               <p className="summary-number success">{totalPaymentsMade}</p>
-              <small>of {totalExpectedPayments} months</small>
+              <small>of {totalExpectedPayments} {currentFrequency === 'Weekly' ? 'weeks' : 'months'}</small>
             </article>
             
             <article className="compliance-summary-card">
@@ -335,82 +353,91 @@ const ContributionCompliance = ({ user, groupName: initialGroupName }) => {
             <article className="compliance-summary-card warning">
               <h2>Missed Payments</h2>
               <p className="summary-number warning">{missedPayments}</p>
-              <small>payments</small>
+              <small>{currentFrequency === 'Weekly' ? 'weeks' : 'months'}</small>
             </article>
           </section>
 
           <section className="compliance-table-wrapper">
-            <h2>Monthly Breakdown - {selectedGroup}</h2>
+            <h2>Breakdown - {selectedGroup}</h2>
             <figure className="table-responsive">
-              <table className="compliance-table">
-                <thead>
-                  <tr>
-                    <th scope="col">Month</th>
-                    <th scope="col">Expected</th>
-                    <th scope="col">Paid</th>
-                    <th scope="col">Due Date</th>
-                    <th scope="col">Payment Date</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Notes</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {monthlyBreakdown.map((month, index) => (
-                    <tr key={index} className={`status-${month.status}`}>
-                      <th scope="row"><strong>{month.monthName}</strong></th>
-                      <td>{formatCurrency(month.expected)}</td>
-                      <td>
-                        {month.paid > 0 ? formatCurrency(month.paid) : '-'}
-                        {month.payments && month.payments.length > 1 && (
-                          <small className="multiple-payments-note"> ({month.payments.length} payments)</small>
-                        )}
-                      </td>
-                      <td>{month.dueDate}</td>
-                      <td>{formatDate(month.paymentDate)}</td>
-                      <td>
-                        <span className={`compliance-status-badge ${month.status}`}>
-                          {month.status === 'on-time' ? 'On Time' : 
-                           month.status === 'partial' ? 'Partial' : 'Missed'}
-                        </span>
-                      </td>
-                      <td>
-                        <span className="notes-text">{month.notes}</span>
-                      </td>
+              {hasMonthlyData ? (
+                <table className="compliance-table">
+                  <thead>
+                    <tr>
+                      <th scope="col">{currentFrequency === 'Weekly' ? 'Week' : 'Month'}</th>
+                      <th scope="col">Expected</th>
+                      <th scope="col">Paid</th>
+                      <th scope="col">Due Date</th>
+                      <th scope="col">Payment Date</th>
+                      <th scope="col">Status</th>
+                      <th scope="col">Notes</th>
                     </tr>
-                  ))}
-                </tbody>
-                {totalPaid > 0 && (
-                  <tfoot>
-                    <tr className="table-footer">
-                      <th scope="row" style={{ textAlign: 'right' }}>Totals:</th>
-                      <td style={{ fontWeight: 'bold' }}>{formatCurrency(totalExpected)}</td>
-                      <td style={{ fontWeight: 'bold' }}>{formatCurrency(totalPaid)}</td>
-                      <td colSpan="4"></td>
-                    </tr>
-                  </tfoot>
-                )}
-              </table>
-              <figcaption className="visually-hidden">Monthly contribution breakdown for {selectedGroup}</figcaption>
+                  </thead>
+                  <tbody>
+                    {monthlyBreakdown.map((period, index) => (
+                      <tr key={index} className={`status-${period.status}`}>
+                        <th scope="row"><strong>{period.periodName}</strong></th>
+                        <td>{formatCurrency(period.expected)}</td>
+                        <td>
+                          {period.paid > 0 ? formatCurrency(period.paid) : '-'}
+                          {period.payments && period.payments.length > 1 && (
+                            <small className="multiple-payments-note"> ({period.payments.length} payments)</small>
+                          )}
+                        </td>
+                        <td>{period.dueDate}</td>
+                        <td>{formatDate(period.paymentDate)}</td>
+                        <td>
+                          <span className={`compliance-status-badge ${period.status}`}>
+                            {period.status === 'on-time' ? 'On Time' : 
+                             period.status === 'partial' ? 'Partial' : 'Missed'}
+                          </span>
+                        </td>
+                        <td>
+                          <span className="notes-text">{period.notes}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  {totalPaid > 0 && (
+                    <tfoot>
+                      <tr className="table-footer">
+                        <th scope="row" style={{ textAlign: 'right' }}>Totals:</th>
+                        <td style={{ fontWeight: 'bold' }}>{formatCurrency(totalExpected)}</td>
+                        <td style={{ fontWeight: 'bold' }}>{formatCurrency(totalPaid)}</td>
+                        <td colSpan="4"></td>
+                      </tr>
+                    </tfoot>
+                  )}
+                </table>
+              ) : (
+                <section className="no-payments-placeholder">
+                  <p className="no-data-text">No payment data available for {selectedGroup}. Make your first payment to see the breakdown.</p>
+                </section>
+              )}
+              <figcaption className="visually-hidden">Contribution breakdown for {selectedGroup}</figcaption>
             </figure>
           </section>
 
           <section className="recommendations-section">
             <h2>Recommendations</h2>
             <ul className="recommendations-list">
-              {complianceRate < 75 && totalExpected > 0 && (
-                <li>Set up payment reminders to avoid missing contributions.</li>
+              {hasNoPayments && (
+                <li>Make your first payment of {formatCurrency(currentContributionAmount)} to start building your compliance history.</li>
               )}
-              {missedPayments > 0 && (
-                <li>You have {missedPayments} missed payment(s). Contact your treasurer to catch up.</li>
+              {!hasNoPayments && complianceRate < 75 && totalExpected > 0 && (
+                <li>Set up payment reminders to avoid missing {currentFrequency === 'Weekly' ? 'weekly' : 'monthly'} contributions of {formatCurrency(currentContributionAmount)}.</li>
               )}
-              {onTimeRate < 80 && totalPaymentsMade > 0 && (
-                <li>Consider scheduling automatic payments to improve on-time rate.</li>
+              {!hasNoPayments && missedPayments > 0 && (
+                <li>You have {missedPayments} missed {currentFrequency === 'Weekly' ? 'weeks' : 'months'}. Contact your treasurer to catch up on {formatCurrency(missedPayments * currentContributionAmount)}.</li>
               )}
-              {complianceRate >= 90 && totalExpected > 0 && (
-                <li>Excellent work! You are a highly reliable member.</li>
+              {!hasNoPayments && onTimeRate < 80 && totalPaymentsMade > 0 && (
+                <li>Consider scheduling automatic payments to improve your on-time rate for {currentFrequency === 'Weekly' ? 'weekly' : 'monthly'} contributions.</li>
+              )}
+              {!hasNoPayments && complianceRate >= 90 && totalExpected > 0 && (
+                <li>Excellent work! You are a highly reliable member. Keep up the {currentFrequency === 'Weekly' ? 'weekly' : 'monthly'} contributions of {formatCurrency(currentContributionAmount)}.</li>
               )}
               {currentContributionAmount > 0 && (
-                <li>Your monthly contribution is {formatCurrency(currentContributionAmount)}. Payments are due by the 28th of each month.</li>
+                <li>Your {currentFrequency === 'Weekly' ? 'weekly' : 'monthly'} contribution is {formatCurrency(currentContributionAmount)}. Payments are due by the {currentFrequency === 'Weekly' ? 'end of each week' : '28th of each month'}.</li>
               )}
               <li>Review your contribution schedule and plan ahead for upcoming payments.</li>
             </ul>
