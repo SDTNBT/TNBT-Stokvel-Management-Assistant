@@ -1,5 +1,5 @@
 {
-  "homepage": "https://gomolemorampa.github.io/TNBT-Stokvel-Management-Assistant",
+  "homepage": "https://gomolemorampa.github.io/TNBT-Stokvel-Management-Assistant", 
   "scripts": {
     "start": "node server.js",
     "build": "cd frontend && npm run build",
