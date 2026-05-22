@@ -9,6 +9,7 @@ import {
 } from 'firebase/auth';
 import { auth } from '../services/firebase';
 import './Login.css';
+import googleIcon from '../images/icons8-google-48.png';
 
 export const LoginPage = () => {
   const navigate = useNavigate();
@@ -185,11 +186,9 @@ export const LoginPage = () => {
                 cursor: 'pointer'
               }}
             >
-              <img
-                src="/images/icons8-google-48.png"
-                alt="Google logo"
-                style={{ width: '20px', verticalAlign: 'middle', marginRight: '10px' }}
-              />
+              <img src={googleIcon} alt="Google logo" style={{ width: '20px', verticalAlign: 'middle', marginRight: '10px' }} />
+
+             
               Continue with Google
             </button>
           )}
