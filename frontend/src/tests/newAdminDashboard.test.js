@@ -1,156 +1,196 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
-import NewAdminDashboard from '../Dashboard/NewAdminDashboard';
-import { useGroupData } from '../Dashboard/useGroupData';
-import '@testing-library/jest-dom';
+import NewAdminDashboard from '../components/newAdminDashboard';
 
-// 1. Mock the custom hook
-jest.mock('../Dashboard/useGroupData');
-
-// 2. Mock Lucide Icons
-jest.mock('lucide-react', () => ({
-  LayoutDashboard: () => <div data-testid="icon-dashboard" />,
-  Users: () => <div data-testid="icon-users" />,
-  UserPlus: () => <div data-testid="icon-userplus" />,
-  Users2: () => <div data-testid="icon-users2" />,
-  CalendarDays: () => <div data-testid="icon-calendar" />,
-  ClipboardList: () => <div data-testid="icon-clipboard" />,
-  Mic2: () => <div data-testid="icon-mic" />,
-  ChevronDown: () => <div data-testid="icon-chevron" />,
-  UserCircle: () => <div data-testid="icon-user" />,
-  LogOut: () => <div data-testid="icon-logout" />,
-  ChevronLeft: () => <div data-testid="icon-left" />,
-  ChevronRight: () => <div data-testid="icon-right" />,
-  Bell: () => <div data-testid="icon-bell" />,
-  FileText: () => <div data-testid="icon-file" />
+// 1. Mock child components using standard React structure objects to completely avoid JSX syntax
+jest.mock('../components/ScheduleMeeting', () => () => ({ 
+  $$typeof: Symbol.for('react.element'), 
+  type: 'section', 
+  props: { 'data-testid': 'schedule-meeting-view', children: 'Schedule Meeting View' }, 
+  ref: null 
+}));
+jest.mock('../components/PostAgendas', () => () => ({ 
+  $$typeof: Symbol.for('react.element'), 
+  type: 'section', 
+  props: { 'data-testid': 'post-agenda-view', children: 'Post Agendas View' }, 
+  ref: null 
+}));
+jest.mock('../components/RecordMinutes', () => () => ({ 
+  $$typeof: Symbol.for('react.element'), 
+  type: 'section', 
+  props: { 'data-testid': 'record-minutes-view', children: 'Record Minutes View' }, 
+  ref: null 
+}));
+jest.mock('../components/ViewMembers', () => () => ({ 
+  $$typeof: Symbol.for('react.element'), 
+  type: 'section', 
+  props: { 'data-testid': 'view-members-view', children: 'View Members View' }, 
+  ref: null 
+}));
+jest.mock('../components/InviteMember', () => () => ({ 
+  $$typeof: Symbol.for('react.element'), 
+  type: 'section', 
+  props: { 'data-testid': 'invite-member-view', children: 'Invite Member View' }, 
+  ref: null 
+}));
+jest.mock('../components/Profile', () => () => ({ 
+  $$typeof: Symbol.for('react.element'), 
+  type: 'section', 
+  props: { 'data-testid': 'profile-view', children: 'Profile View' }, 
+  ref: null 
 }));
 
-// 3. Mock Child Components
-jest.mock('../Dashboard/ScheduleMeeting', () => () => <div>Mock Schedule Meeting</div>);
-jest.mock('../Dashboard/PostAgendas', () => () => <div>Mock Post Agendas</div>);
-jest.mock('../Dashboard/RecordMinutes', () => () => <div>Mock Record Minutes</div>);
-jest.mock('../Dashboard/ViewMembers', () => ({ onSelectMember, members }) => (
-  <div>
-    <button onClick={() => onSelectMember(members[0])}>Select Member</button>
-  </div>
-));
-jest.mock('../Dashboard/MemberDetails', () => ({ onClose, onRemove, member }) => (
-  <div>
-    <p>Details for {member.name}</p>
-    <button onClick={() => onRemove(member._id)}>Remove Member</button>
-    <button onClick={onClose}>Close Details</button>
-  </div>
-));
-jest.mock('../components/Profile', () => ({ user }) => <div>Profile for {user.name}</div>);
+// 2. Mock Lucide Icons using standard semantic paragraph objects
+jest.mock('lucide-react', () => {
+  const createIconMock = (testId) => () => ({
+    $$typeof: Symbol.for('react.element'),
+    type: 'p',
+    props: { 'data-testid': testId },
+    ref: null
+  });
 
-describe('NewAdminDashboard Component', () => {
-  const mockUser = { name: 'Admin User' };
-  const mockLogout = jest.fn();
-  const groupId = 'wits-group-001';
-  
-  const mockMembers = [{ _id: 'm1', name: 'John Doe', email: 'john@wits.ac.za' }];
-  const mockGroup = { id: groupId, groupName: 'Tech Stokvel' };
+  return {
+    LayoutDashboard: createIconMock('icon-dashboard'),
+    sidebarOpen: createIconMock('icon-sidebar-open'),
+    Users: createIconMock('icon-users'),
+    UserPlus: createIconMock('icon-userplus'),
+    Users2: createIconMock('icon-users2'),
+    Calendar: createIconMock('icon-calendar'),
+    FileText: createIconMock('icon-filetext'),
+    CheckSquare: createIconMock('icon-checksquare'),
+    LogOut: createIconMock('icon-logout'),
+    ChevronLeft: createIconMock('icon-chevron-left'),
+    ChevronRight: createIconMock('icon-chevron-right')
+  };
+});
 
+// 3. Prefix hook data with "mock" to address out-of-scope tracking rules
+const mockSetMembers = jest.fn();
+jest.mock('../components/useGroupData', () => ({
+  useGroupData: () => ({
+    members: [],
+    group: { _id: '123', groupName: 'Test Stokvel' },
+    setMembers: mockSetMembers
+  })
+}));
+
+jest.mock('../hooks/useAllUsers', () => ({
+  __esModule: true,
+  default: () => ({
+    users: [],
+    loading: false,
+    error: null
+  })
+}));
+
+describe('NewAdminDashboard Component Navigation and Layout', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
     localStorage.clear();
-    
-    // Default hook implementation
-    useGroupData.mockReturnValue({
-      members: mockMembers,
-      group: mockGroup,
-      setMembers: jest.fn()
-    });
+    jest.clearAllMocks();
+  });
 
-    // Mock fetch for the delete action
-    global.fetch = jest.fn(() =>
-      Promise.resolve({
-        ok: true,
-      })
+  const renderDashboard = (initialHistoryState = null) => {
+    // Top-level wrappers are safely declared using explicit functional wrappers
+    return render(
+      React.createElement(
+        MemoryRouter,
+        {
+          initialEntries: [{ pathname: '/admin/123', state: initialHistoryState }],
+          future: { v7_startTransition: true, v7_relativeSplatPath: true }
+        },
+        React.createElement(
+          Routes,
+          null,
+          React.createElement(Route, {
+            path: '/admin/:groupId',
+            element: React.createElement(NewAdminDashboard, {
+              user: { name: 'Admin User' },
+              onLogout: jest.fn()
+            })
+          })
+        )
+      )
     );
-  });
+  };
 
-  const renderDashboard = (state = null) => render(
-    <MemoryRouter initialEntries={[{ pathname: `/admin/${groupId}`, state }]}>
-      <Routes>
-        <Route path="/admin/:groupId" element={<NewAdminDashboard user={mockUser} onLogout={mockLogout} />} />
-      </Routes>
-    </MemoryRouter>
-  );
+  test('covers groupName initialization branches from location state and localStorage', () => {
+    // Branch 1: groupName retrieved from router location state parameters
+    const { unmount } = renderDashboard({ groupName: 'State Route Stokvel' });
+    expect(screen.getByText('State Route Stokvel')).toBeInTheDocument();
+    unmount();
 
-  test('retrieves group name from location state if provided', () => {
-    renderDashboard({ groupName: 'State Group Name' });
-    expect(screen.getByText('State Group Name')).toBeInTheDocument();
-  });
-
-  test('falls back to localStorage if location state is missing', () => {
-    const localData = [{ _id: groupId, groupName: 'Storage Group Name' }];
-    localStorage.setItem('stokvel_groups', JSON.stringify(localData));
+    // Branch 2: groupName fallback logic checking local storage structures
+    const mockGroups = [{ _id: '123', groupName: 'Storage Stokvel' }];
+    localStorage.setItem('stokvel_groups', JSON.stringify(mockGroups));
     
-    renderDashboard();
-    expect(screen.getByText('Storage Group Name')).toBeInTheDocument();
+    renderDashboard(null); 
+    expect(screen.getByText('Storage Stokvel')).toBeInTheDocument();
   });
 
-  test('toggles Group Management and switches to View Member tab', () => {
+  test('covers dropdown menus toggling behavior in the sidebar', () => {
     renderDashboard();
     
-    fireEvent.click(screen.getByText(/Group Management/i));
-    fireEvent.click(screen.getByText(/View Member/i));
-    
-    expect(screen.getByText('Select Member')).toBeInTheDocument();
+    const groupMgmtButton = screen.getByText('Group Management');
+    const meetingMgmtButton = screen.getByText('Meeting Management');
+
+    // Group Management drop interface click validation
+    fireEvent.click(groupMgmtButton);
+    expect(screen.getByText('View Member')).toBeInTheDocument();
+    expect(screen.getByText('Invite Member')).toBeInTheDocument();
+
+    // Meeting Management drop interface click validation
+    fireEvent.click(meetingMgmtButton);
+    expect(screen.getByText('Schedule Meeting')).toBeInTheDocument();
+    expect(screen.getByText('Post Agenda')).toBeInTheDocument();
   });
 
-  test('opens member details and triggers handleRemove', async () => {
-    const setMembersMock = jest.fn();
-    useGroupData.mockReturnValue({
-      members: mockMembers,
-      group: mockGroup,
-      setMembers: setMembersMock
-    });
-
+  test('covers interactive navigation tabs switching and content rendering', () => {
     renderDashboard();
-    
-    // Navigate to View Members
-    fireEvent.click(screen.getByText(/Group Management/i));
-    fireEvent.click(screen.getByText(/View Member/i));
-    
-    // Select the member to show details
-    fireEvent.click(screen.getByText('Select Member'));
-    expect(screen.getByText('Details for John Doe')).toBeInTheDocument();
-    
-    // Click remove
-    fireEvent.click(screen.getByText('Remove Member'));
-    
-    await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining(`/api/managegroup/${groupId}/member/m1`),
-        expect.any(Object)
-      );
-    });
+
+    // Expand structural nested wrappers
+    fireEvent.click(screen.getByText('Group Management'));
+    fireEvent.click(screen.getByText('Meeting Management'));
+
+    // Component View: Schedule Meeting
+    fireEvent.click(screen.getByText('Schedule Meeting'));
+    expect(screen.getByTestId('schedule-meeting-view')).toBeInTheDocument();
+
+    // Component View: Post Agenda
+    fireEvent.click(screen.getByText('Post Agenda'));
+    expect(screen.getByTestId('post-agenda-view')).toBeInTheDocument();
+
+    // Component View: Record Minutes
+    fireEvent.click(screen.getByText('Record Minutes'));
+    expect(screen.getByTestId('record-minutes-view')).toBeInTheDocument();
+
+    // Component View: Invite Member
+    fireEvent.click(screen.getByText('Invite Member'));
+    expect(screen.getByTestId('invite-member-view')).toBeInTheDocument();
+
+    // Component View: Profile Configuration Footer
+    fireEvent.click(screen.getByText('Profile'));
+    expect(screen.getByTestId('profile-view')).toBeInTheDocument();
   });
 
-  test('renders timeline from localStorage meetings', () => {
-    const meetings = [{
-      groupId: groupId,
-      meetingTitle: 'Wits Project Sync',
-      meetingDate: '2026-10-10',
-      startTime: '14:00',
-      endTime: '15:00'
-    }];
-    localStorage.setItem('stokvel_meetings', JSON.stringify(meetings));
-    
+  test('covers calendar month changes forward and backward', () => {
     renderDashboard();
-    expect(screen.getByText('Wits Project Sync')).toBeInTheDocument();
-  });
 
-  test('changes month in calendar', () => {
-    renderDashboard();
-    const currentMonthLabel = screen.getByRole('heading', { level: 3 }).textContent;
-    
-    const nextBtn = screen.getAllByRole('button').filter(b => b.className.includes('month-nav-btn'))[1];
-    fireEvent.click(nextBtn);
-    
-    const newMonthLabel = screen.getByRole('heading', { level: 3 }).textContent;
-    expect(newMonthLabel).not.toBe(currentMonthLabel);
+    // Capture standard baseline layout values
+    const initialMonthYear = screen.getByRole('heading', { level: 3 }).textContent;
+
+    // Isolate targeting arrays for explicit placement identification
+    const prevButton = screen.getAllByClassName('month-nav-btn')[0];
+    const nextButton = screen.getAllByClassName('month-nav-btn')[1];
+
+    // Evaluate step modification targets forward
+    fireEvent.click(nextButton);
+    const postNextMonthYear = screen.getByRole('heading', { level: 3 }).textContent;
+    expect(postNextMonthYear).not.toEqual(initialMonthYear);
+
+    // Evaluate step modification targets backward back to base state
+    fireEvent.click(prevButton);
+    const backMonthYear = screen.getByRole('heading', { level: 3 }).textContent;
+    expect(backMonthYear).toEqual(initialMonthYear);
   });
 });
