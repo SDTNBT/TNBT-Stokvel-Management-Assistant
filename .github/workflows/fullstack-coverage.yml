@@ -12,10 +12,10 @@ jobs:
 
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v5
+      uses: actions/checkout@v4
 
     - name: Setup Node.js
-      uses: actions/setup-node@v5
+      uses: actions/setup-node@v4
       with:
         node-version: '20' 
 
@@ -37,9 +37,9 @@ jobs:
       working-directory: ./frontend
       run: npm test -- --coverage --watchAll=false 
 
-    # --- CODECOV UPLOAD ---
-    - name: Upload Unified Coverage to Codecov
-      uses: codecov/codecov-action@v5
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }} 
-        fail_ci_if_error: true
+    # --- CODACY UPLOAD ---
+    - name: Run Codacy Coverage Reporter
+      env:
+        CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+      run: |
+        bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r backend/coverage/lcov.info -r frontend/coverage/lcov.info
