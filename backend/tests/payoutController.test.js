@@ -6,6 +6,8 @@ const { app } = require('../server');
 
 const Payout = require('../models/Payout');
 const BankingDetails = require('../models/BankingDetails');
+// 1. WE MUST IMPORT THE MEMBER MODEL TO PASS THE SECURITY CHECK!
+const Member = require('../models/Member'); 
 
 // ==========================================
 // DATABASE SETUP & TEARDOWN
@@ -30,6 +32,7 @@ afterAll(async () => {
 beforeEach(async () => {
   await Payout.deleteMany({});
   await BankingDetails.deleteMany({});
+  await Member.deleteMany({}); // Clear members too!
 });
 
 // ==========================================
@@ -43,6 +46,14 @@ describe('Payout Controller Tests', () => {
   // ------------------------------------------
   test('Should successfully schedule a payout and return 201', async () => {
 
+    // Give the test user a membership card
+    await Member.create({
+      user: 'test@students.wits.ac.za', 
+      group: 'Test Group',
+      memberType: 'Member'
+    });
+
+    // Give them banking details
     await BankingDetails.create({
       user: 'test-user-id-123',
       bankName: 'Nedbank',
@@ -75,6 +86,13 @@ describe('Payout Controller Tests', () => {
   // ------------------------------------------
   test('Should reject payout when banking details are missing', async () => {
 
+    // Give them a membership card so it passes the first check, but NO banking details
+    await Member.create({
+      user: 'wrong@email.com', 
+      group: 'Test Group',
+      memberType: 'Member'
+    });
+
     const response = await request(app)
       .post('/api/payouts')
       .set('x-user-role', 'Treasurer')
@@ -96,6 +114,13 @@ describe('Payout Controller Tests', () => {
   // Rule 3: Invalid amount
   // ------------------------------------------
   test('Should reject payout if amount is zero or negative', async () => {
+
+    // Give them a membership card
+    await Member.create({
+      user: 'member@email.com', 
+      group: 'Test Group',
+      memberType: 'Member'
+    });
 
     const response = await request(app)
       .post('/api/payouts')

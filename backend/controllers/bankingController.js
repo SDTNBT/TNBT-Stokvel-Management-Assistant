@@ -1,7 +1,7 @@
 const BankingDetails = require('../models/BankingDetails');
 const axios = require('axios');
 
-exports.getSABanks = async (req, res) => {
+const getSABanks = async (req, res) => {
   try {
     const response = await axios.get('https://api.paystack.co/bank?country=south%20africa', {
       headers: {
@@ -37,7 +37,7 @@ exports.getSABanks = async (req, res) => {
   }
 };
 
-exports.saveBankingDetails = async (req, res) => {
+const saveBankingDetails = async (req, res) => {
   try {
     const { bankName, accountNumber, accountHolder } = req.body;
 
@@ -79,7 +79,7 @@ exports.saveBankingDetails = async (req, res) => {
   }
 };
 
-exports.getBankingDetails = async (req, res) => {
+const getBankingDetails = async (req, res) => {
   try {
     const details = await BankingDetails.findOne({ user: req.user.uid });
 
@@ -98,8 +98,6 @@ exports.getBankingDetails = async (req, res) => {
         accountNumber: details.accountNumber
       }
     });
-
-
 
   } catch (error) {
     res.status(500).json({
