@@ -88,11 +88,12 @@ const NewAdminDashboard = ({ user = {}, onLogout = () => {} }) => {
   const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
   const changeMonth = (offset) => setViewDate(new Date(currentYear, currentMonth + offset, 1));
+  const apiURL = process.env.REACT_APP_API_URL;
 
   const handleRemove = async (memberId) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`https://tnbt-stokvel-management-assistant.onrender.com/api/managegroup/${groupId}/member/${memberId}`, {
+      const response = await fetch(`${apiURL}/managegroup/${groupId}/member/${memberId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
       });
