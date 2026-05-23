@@ -24,8 +24,9 @@ jobs:
 
       - name: npm install and build
         env:
+          REACT_APP_API_URL: ${{ vars.REACT_APP_API_URL }}
+          REACT_APP_CLIENT_ID: "113476079240729663344"
           REACT_APP_STRIPE_PUBLISHABLE_KEY: "pk_test_51TVA16FIO0EVK2bf4TV0SQsHNA6yT7MUMaV6cdcPyiB74NrC6M7NOZW03gw8zjRclWX2IwJsUaI2uID03CJ9Y6Js003xhTiW7a"
-          REACT_APP_API_URL: "https://tnbt-stokvel-frontend-dcc7h3cmhugmebfz.southafricanorth-01.azurewebsites.net"
         run: |
           cd frontend
           npm install
