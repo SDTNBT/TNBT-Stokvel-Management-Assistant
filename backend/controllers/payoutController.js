@@ -171,28 +171,47 @@ const schedulePayout = async (req, res) => {
 // ==========================================
 
 // ── Update payout status (Paid / Failed) ───────────────────────────────
-  const updatePayoutStatus = async (payoutId, status) => {
-    try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${apiUrl}/payouts/${payoutId}/status`, {
-        method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json', 
-          'Authorization': `Bearer ${token}`,
-          'x-user-role': 'Treasurer' // ✅ Added security header
-        },
-        body: JSON.stringify({ status }),
-      });
-      
-      if (!res.ok) throw new Error();
-      
-      setActivePayouts(prev =>
-        prev.map(p => p._id === payoutId ? { ...p, status } : p)
-      );
-    } catch {
-      setFeedback({ type: 'error', message: `Could not mark payout as ${status}.` });
+  // ==========================================
+// TREASURER: Update Payout Status
+// ==========================================
+
+const updatePayoutStatus = async (req, res) => {
+  try {
+    // 1. Get the ID from the URL and the new status from the request body
+    // Using || handles both /:id/status and /:payoutId/status route definitions
+    const payoutId = req.params.id || req.params.payoutId; 
+    const { status } = req.body;
+
+    if (!status) {
+      return res.status(400).json({ message: 'Status is required.' });
     }
-  };
+
+    // 2. Update the payout in MongoDB
+    // Note: We use .toLowerCase() here in case your schema expects 'paid' instead of 'Paid'
+    const updatedPayout = await Payout.findByIdAndUpdate(
+      payoutId,
+      { status: status.toLowerCase() }, 
+      { new: true } // This tells Mongoose to return the updated document
+    );
+
+    if (!updatedPayout) {
+      return res.status(404).json({ message: 'Payout not found.' });
+    }
+
+    // 3. Send success response back to React
+    return res.status(200).json({ 
+      message: 'Status updated successfully', 
+      payout: updatedPayout 
+    });
+
+  } catch (error) {
+    console.error("Error updating payout status:", error);
+    return res.status(500).json({ 
+      message: 'Could not update status.', 
+      error: error.message 
+    });
+  }
+};
 
 // ==========================================
 // TREASURER: Get All Scheduled Payouts

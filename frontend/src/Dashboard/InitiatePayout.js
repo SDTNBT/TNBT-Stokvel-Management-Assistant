@@ -45,11 +45,11 @@ export const InitiatePayout = ({ members = [], groupId, groupName }) => {
   const navigate = useNavigate();
 
   // ── State ──────────────────────────────────────────────────────────────
-  const [schedule, setSchedule]         = useState(null);   // next scheduled member from DB
+  const [schedule, setSchedule]         = useState(null);
   const [scheduleLoading, setSchedLoad] = useState(true);
-  const [manualMode, setManualMode]     = useState(false);  // override toggle
+  const [manualMode, setManualMode]     = useState(false);
   const [selectedMember, setSelected]   = useState(null);
-  const [activePayout, setActivePayout] = useState(null); // { type: 'suggested'|'manual' }
+  const [activePayout, setActivePayout] = useState(null);
 
   // Active payouts table
   const [activePayouts, setActivePayouts] = useState([]);
@@ -69,11 +69,14 @@ export const InitiatePayout = ({ members = [], groupId, groupName }) => {
       try {
         const token = localStorage.getItem('token');
         const res = await fetch(`${apiUrl}/payouts/${groupName}/next`, {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'x-user-role': 'Treasurer' // ✅ FIX: Added Treasurer header
+          },
         });
         if (res.ok) {
           const data = await res.json();
-          setSchedule(data); // Stores the raw { memberEmail, memberId, expectedAmount }
+          setSchedule(data); 
         }
       } catch (err) {
         console.error("Schedule fetch failed:", err);
@@ -88,17 +91,14 @@ export const InitiatePayout = ({ members = [], groupId, groupName }) => {
   const displayMember = useMemo(() => {
     if (!schedule) return null;
     
-    // 1. Grab the identifier. We now include memberEmail and memberId based on your logs!
     const targetIdentifier = schedule.memberEmail || schedule.userEmail || schedule.memberId || schedule.userId || schedule.member;
 
-    // 2. Find the match using the email or ID
     const matched = members.find(m => 
       String(m.email) === String(targetIdentifier) || 
       String(m._id) === String(targetIdentifier) ||
       String(m.userEmail) === String(targetIdentifier)
     );
     
-    // 3. Safely construct the full name if a match is found
     let constructedName = 'Assigned Member';
     if (matched) {
       if (matched.fullName) {
@@ -109,16 +109,13 @@ export const InitiatePayout = ({ members = [], groupId, groupName }) => {
     }
 
     return {
-      // CRITICAL FIX: Ensure _id is never undefined. Grab it from the matched member if possible!
       _id: matched ? matched._id : targetIdentifier, 
       userEmail: matched ? (matched.email || matched.userEmail) : (schedule.memberEmail || 'N/A'),
       fullName: matched ? constructedName : (targetIdentifier || 'Assigned Member')
     };
   }, [schedule, members]);
   
-
   // ── Who is actually selected for the form ─────────────────────────────
-  // MAKE SURE THERE IS ONLY ONE OF THESE:
   const recipient = manualMode ? selectedMember : displayMember;
   const suggestedAmount = schedule?.expectedAmount ?? '';
 
@@ -135,7 +132,10 @@ export const InitiatePayout = ({ members = [], groupId, groupName }) => {
       try {
         const token = localStorage.getItem('token');
         const res = await fetch(`${apiUrl}/payouts/${groupName}/pending`, {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'x-user-role': 'Treasurer' // ✅ FIX: Added Treasurer header
+          },
         });
         if (res.ok) {
           const data = await res.json();
@@ -168,12 +168,16 @@ export const InitiatePayout = ({ members = [], groupId, groupName }) => {
       const token = localStorage.getItem('token');
       const res = await fetch(`${apiUrl}/payouts/initiate`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 
+          'Content-Type': 'application/json', 
+          'Authorization': `Bearer ${token}`,
+          'x-user-role': 'Treasurer' // ✅ FIX: Added Treasurer header
+        },
         body: JSON.stringify({
           groupName: groupName,
           memberId:       recipient._id, 
-          userId:         recipient._id, // ✅ ADDED: Fixes the "userId is required" error
-          payoutDate:     new Date().toISOString(), // ✅ ADDED: Fixes the "payoutDate is required" error
+          userId:         recipient._id, 
+          payoutDate:     new Date().toISOString(), 
           recipientEmail: recipient.userEmail,
           amount:         parseFloat(form.amount),
           method:         form.method,
@@ -186,7 +190,6 @@ export const InitiatePayout = ({ members = [], groupId, groupName }) => {
 
       const newPayout = await res.json();
 
-      // Optimistically add to the active payouts table
       setActivePayouts(prev => [
         { ...newPayout, memberName: recipient.fullName || recipient.userEmail },
         ...prev,
@@ -210,7 +213,11 @@ export const InitiatePayout = ({ members = [], groupId, groupName }) => {
       const token = localStorage.getItem('token');
       const res = await fetch(`${apiUrl}/payouts/${payoutId}/status`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 
+          'Content-Type': 'application/json', 
+          'Authorization': `Bearer ${token}`,
+          'x-user-role': 'Treasurer' // ✅ FIX: Added Treasurer header
+        },
         body: JSON.stringify({ status }),
       });
       if (!res.ok) throw new Error();
@@ -493,45 +500,65 @@ export const InitiatePayout = ({ members = [], groupId, groupName }) => {
                 </tr>
               </thead>
               <tbody>
-                {activePayouts.map((p) => (
-                  <tr key={p._id}>
-                    <td>{p.memberName || p.recipientEmail}</td>
-                    <td>R {parseFloat(p.amount).toFixed(2)}</td>
-                    <td>{p.method === 'bank' ? 'Bank Transfer' : 'Cash'}</td>
-                    <td>
-                      <span className={`po-status-pill po-status-pill--${p.status}`}>
-                        {p.status.charAt(0).toUpperCase() + p.status.slice(1)}
-                      </span>
-                    </td>
-                    <td>
-                      {p.status === 'pending' && (
-                        <menu className="po-action-btns">
-                          <li>
-                            <button
-                              className="po-action-btn po-action-btn--paid"
-                              onClick={() => updatePayoutStatus(p._id, 'paid')}
-                              type="button"
-                            >
-                              Mark as Paid
-                            </button>
-                          </li>
-                          <li>
-                            <button
-                              className="po-action-btn po-action-btn--failed"
-                              onClick={() => updatePayoutStatus(p._id, 'failed')}
-                              type="button"
-                            >
-                              Mark as Failed
-                            </button>
-                          </li>
-                        </menu>
-                      )}
-                      {p.status !== 'pending' && (
-                        <span className="po-action-resolved">—</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+                {activePayouts.map((p) => {
+                  // 1. Cross-reference the payout's userId or userEmail with your members array
+                  const matchedMember = members.find(m => 
+                    String(m._id) === String(p.userId) || 
+                    String(m.email) === String(p.userEmail) || 
+                    String(m.userEmail) === String(p.userEmail)
+                  );
+                  
+                  // 2. Safely construct the display name
+                  let displayName = p.userEmail; // Fallback to the DB email if no match
+                  if (matchedMember) {
+                    displayName = matchedMember.fullName || 
+                                  (matchedMember.name ? `${matchedMember.name} ${matchedMember.surname}`.trim() : null) || 
+                                  p.userEmail;
+                  }
+
+                  // 3. Use p.memberName if it's a fresh submission, otherwise use our matched name
+                  const finalName = p.memberName || displayName;
+
+                  return (
+                    <tr key={p._id}>
+                      <td>{finalName}</td>
+                      <td>R {parseFloat(p.amount).toFixed(2)}</td>
+                      <td>{p.method === 'bank' ? 'Bank Transfer' : 'Cash'}</td>
+                      <td>
+                        <span className={`po-status-pill po-status-pill--${p.status.toLowerCase()}`}>
+                          {p.status.charAt(0).toUpperCase() + p.status.slice(1)}
+                        </span>
+                      </td>
+                      <td>
+                        {p.status === 'pending' && (
+                          <menu className="po-action-btns">
+                            <li>
+                              <button
+                                className="po-action-btn po-action-btn--paid"
+                                onClick={() => updatePayoutStatus(p._id, 'Paid')}
+                                type="button"
+                              >
+                                Mark as Paid
+                              </button>
+                            </li>
+                            <li>
+                              <button
+                                className="po-action-btn po-action-btn--failed"
+                                onClick={() => updatePayoutStatus(p._id, 'Failed')}
+                                type="button"
+                              >
+                                Mark as Failed
+                              </button>
+                            </li>
+                          </menu>
+                        )}
+                        {p.status !== 'pending' && (
+                          <span className="po-action-resolved">—</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </section>
