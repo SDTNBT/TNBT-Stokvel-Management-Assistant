@@ -79,7 +79,7 @@ const Home = () => {
     
     setSearching(true);
     try {
-      const apiUrl = 'https://tnbt-stokvel-management-assistant.onrender.com/api';
+      const apiUrl = process.env.REACT_APP_API_URL;
       
       if (searchType === 'groups') {
         const response = await axios.get(`${apiUrl}/stokvel/search?q=${searchQuery}`);
@@ -102,10 +102,12 @@ const Home = () => {
     try {
       const token = localStorage.getItem('token');
       const userEmail = loggedInUser?.email;
+
+      const apiURL = process.env.REACT_APP_API_URL;
       
       if (!userEmail) return;
       
-      const response = await fetch(`https://tnbt-stokvel-management-assistant.onrender.com/api/payments/my-payments-summary/${userEmail}`);
+      const response = await fetch(`${apiURL}/payments/my-payments-summary/${userEmail}`);
       
       if (response.ok) {
         const data = await response.json();
@@ -120,7 +122,7 @@ const Home = () => {
       }
       
       // Fetch recent transactions
-      const txResponse = await fetch(`https://tnbt-stokvel-management-assistant.onrender.com/api/payments/my-payments/${userEmail}`);
+      const txResponse = await fetch(`${apiURL}/payments/my-payments/${userEmail}`);
       if (txResponse.ok) {
         const txData = await txResponse.json();
         setWalletData(prev => ({
@@ -141,12 +143,14 @@ const Home = () => {
     try {
       const token = localStorage.getItem('token');
       const userEmail = loggedInUser?.email;
+
+      const apiURL = process.env.REACT_APP_API_URL;
       
       if (!userEmail) return;
       
       // Combine different activities: groups joined, payments made, meetings scheduled
-      const groupsResponse = await fetch(`https://tnbt-stokvel-management-assistant.onrender.com/api/stokvel/user/${userEmail}`);
-      const paymentsResponse = await fetch(`https://tnbt-stokvel-management-assistant.onrender.com/api/payments/my-payments/${userEmail}`);
+      const groupsResponse = await fetch(`${apiURL}/stokvel/user/${userEmail}`);
+      const paymentsResponse = await fetch(`${apiURL}/payments/my-payments/${userEmail}`);
       
       const activitiesList = [];
       
