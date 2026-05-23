@@ -44,7 +44,7 @@ const Home = () => {
   const fetchGroups = async () => {
     try {
       if (loggedInUser && loggedInUser.email) {
-        const apiUrl = 'https://tnbt-stokvel-management-assistant.onrender.com/api';
+        const apiUrl = process.env.REACT_APP_API_URL;
         const response = await axios.get(`${apiUrl}/stokvel/user/${loggedInUser.email}`);
         
         localStorage.setItem('stokvel_groups', JSON.stringify(response.data));
