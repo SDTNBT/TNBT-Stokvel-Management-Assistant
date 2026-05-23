@@ -33,7 +33,7 @@ const allowedOrigins = [
   'http://localhost:3000', 
   'http://localhost:5000', 
   'http://localhost:5001', 
-  'https://gomolemorampa.github.io',
+  'https://sdtnbt.github.io',
   process.env.LOCAL_FRONTEND, 
   process.env.PROD_FRONTEND
 ].filter(Boolean); // Removes any empty/undefined values if .env is missing
