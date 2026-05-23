@@ -170,49 +170,29 @@ const schedulePayout = async (req, res) => {
 // TREASURER: Update Payout Status
 // ==========================================
 
-const updatePayoutStatus = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { status } = req.body;
-
-    const validStatuses = ['Scheduled', 'Processing', 'Paid', 'Cancelled', 'Failed'];
-
-    if (!validStatuses.includes(status)) {
-      return res.status(400).json({
-        message: 'Invalid payout status'
+// ── Update payout status (Paid / Failed) ───────────────────────────────
+  const updatePayoutStatus = async (payoutId, status) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${apiUrl}/payouts/${payoutId}/status`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json', 
+          'Authorization': `Bearer ${token}`,
+          'x-user-role': 'Treasurer' // ✅ Added security header
+        },
+        body: JSON.stringify({ status }),
       });
+      
+      if (!res.ok) throw new Error();
+      
+      setActivePayouts(prev =>
+        prev.map(p => p._id === payoutId ? { ...p, status } : p)
+      );
+    } catch {
+      setFeedback({ type: 'error', message: `Could not mark payout as ${status}.` });
     }
-
-    const updateData = { status };
-
-    if (status === 'Paid') {
-      updateData.paidAt = new Date();
-    }
-
-    const updatedPayout = await Payout.findByIdAndUpdate(
-      id,
-      updateData,
-      { new: true }
-    );
-
-    if (!updatedPayout) {
-      return res.status(404).json({
-        message: 'Payout not found'
-      });
-    }
-
-    res.status(200).json({
-      message: 'Payout status updated successfully',
-      payout: updatedPayout
-    });
-
-  } catch (error) {
-    console.error('Error updating payout:', error);
-    res.status(500).json({
-      message: 'Server error while updating payout'
-    });
-  }
-};
+  };
 
 // ==========================================
 // TREASURER: Get All Scheduled Payouts
