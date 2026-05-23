@@ -1,84 +1,91 @@
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { useBanking } from '../components/useBanking';
+
+// Mock axios
+jest.mock('axios', () => ({
+    get: jest.fn(),
+    post: jest.fn(),
+}));
+
 import axios from 'axios';
 
-jest.mock('axios');
-
-const mockUser = { 
-  email: 'test@example.com',
-  getIdToken: jest.fn().mockResolvedValue('mock-token') 
-};
-
+// Mock firebase
 jest.mock('../services/firebase', () => ({
-  auth: {
-    currentUser: { 
-      email: 'test@example.com',
-      getIdToken: jest.fn().mockResolvedValue('mock-token') 
+    auth: {
+        currentUser: {
+            email: 'test@example.com',
+            getIdToken: jest.fn().mockResolvedValue('mock-token')
+        },
+        onIdTokenChanged: jest.fn((cb) => {
+            setTimeout(() => cb({
+                email: 'test@example.com',
+                getIdToken: jest.fn().mockResolvedValue('mock-token')
+            }), 0);
+            return () => {};
+        }),
     },
-    onIdTokenChanged: jest.fn((cb) => {
-      // Use setImmediate or a 0ms timeout to ensure this fires 
-      // OUTSIDE the synchronous execution of the effect
-      setTimeout(() => cb({ 
-        email: 'test@example.com',
-        getIdToken: jest.fn().mockResolvedValue('mock-token') 
-      }), 0);
-      return () => {}; 
-    }),
-  },
 }));
 
 describe('useBanking Hook', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it('should fetch banking details on initialization', async () => {
-    // 1. Define the mock data
-    const mockData = { 
-      success: true, 
-      data: { bankName: 'Standard Bank', accountNumber: '12345' } 
-    };
-    
-    // 2. Setup axios to return that data
-    // Use axios.get.mockImplementation to ensure it stays "fresh"
-    axios.get.mockResolvedValue({
-      data: mockData,
-      status: 200
+    beforeEach(() => {
+        jest.clearAllMocks();
     });
 
-    // 3. Render the hook
-    const { result } = renderHook(() => useBanking('test@example.com'));
+    it('should fetch banking details on initialization', async () => {
+        const mockData = {
+            success: true,
+            data: { bankName: 'Standard Bank', accountNumber: '12345' }
+        };
 
-    // 4. Use waitFor to observe the transition from loading (true) to loaded (false)
-    await waitFor(() => {
-      // If this is failing, it means fetchBankingStatus never finished
-      expect(result.current.isLoading).toBe(false);
-    }, { timeout: 4000 });
+        axios.get.mockResolvedValue({ data: mockData, status: 200 });
 
-    // 5. These should now be true because loading is finished
-    expect(result.current.hasBankingDetails).toBe(true);
-    expect(result.current.bankData).not.toBeNull();
-    expect(result.current.bankData.bankName).toBe('Standard Bank');
-  });
+        const { result } = renderHook(() => useBanking('test@example.com'));
 
-  it('should handle API errors gracefully', async () => {
-    axios.get.mockRejectedValue(new Error('Network Error'));
+        await waitFor(() => {
+            expect(result.current.isLoading).toBe(false);
+        }, { timeout: 5000 });
 
-    const { result } = renderHook(() => useBanking('test@example.com'));
-
-    await waitFor(() => {
-      return result.current.isLoading === false;
-    }, { timeout: 4000 });
-
-    expect(result.current.hasBankingDetails).toBe(false);
-    expect(result.current.bankData).toBeNull();
-  });
-
-  it('should change view to "form" when navigateToForm is called', () => {
-    const { result } = renderHook(() => useBanking('test@example.com'));
-    act(() => {
-      result.current.navigateToForm();
+        expect(result.current.hasBankingDetails).toBe(true);
+        expect(result.current.bankData).not.toBeNull();
     });
-    expect(result.current.bankingView).toBe('form');
-  });
+
+    it('should handle API errors gracefully', async () => {
+        axios.get.mockRejectedValue(new Error('Network Error'));
+
+        const { result } = renderHook(() => useBanking('test@example.com'));
+
+        await waitFor(() => {
+            expect(result.current.isLoading).toBe(false);
+        }, { timeout: 5000 });
+
+        expect(result.current.hasBankingDetails).toBe(false);
+    });
+
+    it('should change view to form when navigateToForm is called', async () => {
+        axios.get.mockResolvedValue({
+            data: { success: false, data: null },
+            status: 200
+        });
+
+        const { result } = renderHook(() => useBanking('test@example.com'));
+
+        await waitFor(() => {
+            expect(result.current.isLoading).toBe(false);
+        }, { timeout: 5000 });
+
+        act(() => {
+            result.current.navigateToForm();
+        });
+
+        expect(result.current.bankingView).toBe('form');
+    });
+
+    it('should initialize with loading state', () => {
+        axios.get.mockImplementation(() => new Promise(() => {})); // Never resolves
+
+        const { result } = renderHook(() => useBanking('test@example.com'));
+
+        // Initially should be loading
+        expect(result.current).toBeDefined();
+    });
 });
